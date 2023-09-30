@@ -31,37 +31,37 @@ STATIC FUNCTION REPORTDEF(aResps)
     LOCAL cAliasOB   := ""
     LOCAL cNomeArq   := "RELAT01"
     LOCAL cTitulo    := "PEDIDOS POR CLIENTES"
+    LOCAL lFooter    := .T.
 
     oReport := TREPORT():NEW(cNomeArq, cTitulo, "", {|oReport| REPORTPRINT(oReport, @cAliasCL, @cAliasPD, @cAliasOB, aResps)}, "IMPRESSÃO DE RELATORIO")
 
     oSection1 := TRSECTION():NEW(oReport)
-    TRCELL():NEW(oSection1, "A1_COD",      cAliasCL,  "COD.CLIENTE"             ,,nSize,,   {|| (cAliasCL)->A1_COD},,lLineBreak,,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection1, "A1_NREDUZ",   cAliasCL,  "CLIENTE"                 ,,nSize,,   {|| (cAliasCL)->A1_NREDUZ},,lLineBreak,,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection1, "A1_END",      cAliasCL,  "ENDEREÇO"                ,,nSize,,   {|| (cAliasCL)->A1_END},,lLineBreak,,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection1, "C5_VEND1",    cAliasCL,  "REPRESENTANTE"           ,,nSize,,   {|| (cAliasCL)->C5_VEND1},,lLineBreak,,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection1, "C5_NUM",      cAliasCL,  "NUMERO DO PEDIDO"        ,,nSize,,   {|| (cAliasCL)->C5_NUM},,lLineBreak,,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection1, "C5_EMISSAO",  cAliasCL,  "DATA DE EMISSAO"         ,,nSize,,   {|| (cAliasCL)->C5_EMISSAO},,lLineBreak,,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection1, "C5_TIPO",     cAliasCL,  "TIPO DE PEDIDO"          ,,nSize,,   {|| (cAliasCL)->C5_TIPO},,lLineBreak,,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection1, "C5_CONDPAG",  cAliasCL,  "CONDIÇÃO DE PAGAMENTO"   ,,nSize,,   {|| (cAliasCL)->C5_CONDPAG},,lLineBreak,,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection1, "A1_TEL",      cAliasCL,  "TELEFONE"                ,,nSize,,   {|| (cAliasCL)->A1_TEL},,lLineBreak,,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1, "A1_COD",      cAliasCL,  "COD.CLI"            ,,nSize,,   {|| (cAliasCL)->A1_COD},,lLineBreak,,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1, "A1_NREDUZ",   cAliasCL,  "NOME CLI"           ,,nSize,,   {|| (cAliasCL)->A1_NREDUZ},,lLineBreak,,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1, "A1_END",      cAliasCL,  "ENDEREÇO"           ,,nSize,,   {|| (cAliasCL)->A1_END},,lLineBreak,,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1, "C5_VEND1",    cAliasCL,  "REPRESENTANTE"      ,,nSize,,   {|| (cAliasCL)->C5_VEND1},,lLineBreak,,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1, "C5_NUM",      cAliasCL,  "N° DO PEDIDO"       ,,nSize,,   {|| (cAliasCL)->C5_NUM},,lLineBreak,,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1, "C5_EMISSAO",  cAliasCL,  "DATA DE EMISSAO"    ,,nSize,,   {|| (cAliasCL)->C5_EMISSAO},,lLineBreak,,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1, "C5_TIPO",     cAliasCL,  "TIPO DE PEDIDO"     ,,nSize,,   {|| (cAliasCL)->C5_TIPO},,lLineBreak,,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1, "C5_CONDPAG",  cAliasCL,  "COND.PAG"           ,,nSize,,   {|| (cAliasCL)->C5_CONDPAG},,lLineBreak,,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1, "A1_TEL",      cAliasCL,  "TEL"                ,,nSize,,   {|| (cAliasCL)->A1_TEL},,lLineBreak,,,nColSpace,lAutoSize)
     
     oSection2 := TRSECTION():NEW(oReport)
-    TRCELL():NEW(oSection2, "C6_PRODUTO",   cAliasPD, "ITEM"          ,,,,   {|| (cAliasPD)->C6_PRODUTO},,lLineBreak,,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection2, "C6_DESCRI",    cAliasPD, "DESCRIÇÃO"     ,,,,   {|| (cAliasPD)->C6_DESCRI},,lLineBreak,,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection2, "C6_PRCVEN",    cAliasPD, "PR. UNITARIO"  ,,,,   {|| (cAliasPD)->C6_PRCVEN},,lLineBreak,,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection2, "C6_VALOR",     cAliasPD, "VALOR"         ,,,,   {|| (cAliasPD)->C6_VALOR},,lLineBreak,,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection2, "C6_VALOR",     cAliasPD, "VALOR"         ,,,,   {|| (cAliasPD)->C6_VALOR},,lLineBreak,,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection2, "C6_VALOR",     cAliasPD, "VALOR"         ,,,,   {|| (cAliasPD)->C6_VALOR},,lLineBreak,,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection2, "C6_PRODUTO",  cAliasPD, "ITEM"          ,,,,   {|| (cAliasPD)->C6_PRODUTO},,lLineBreak,,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection2, "C6_DESCRI",   cAliasPD, "DESCRIÇÃO"     ,,,,   {|| (cAliasPD)->C6_DESCRI},,lLineBreak,,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection2, "C6_PRCVEN",   cAliasPD, "PR. UNITARIO"  ,,,,   {|| (cAliasPD)->C6_PRCVEN},,lLineBreak,,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection2, "C6_VALOR",    cAliasPD, "VALOR"         ,,,,   {|| (cAliasPD)->C6_VALOR},,lLineBreak,,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection2, "C6_VALOR",    cAliasPD, "VALOR"         ,,,,   {|| (cAliasPD)->C6_VALOR},,lLineBreak,,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection2, "C6_VALOR",    cAliasPD, "VALOR"         ,,,,   {|| (cAliasPD)->C6_VALOR},,lLineBreak,,,nColSpace,lAutoSize)
 
     oSection3 := TRSECTION():NEW(oReport)
-    TRCELL():NEW(oSection3, "C5_XCOMEN",   cAliasOB, "OBSERVAÇÃO"     ,,,,   {|| (cAliasOB)->C5_XCOMEN},,lLineBreak,,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection3, "C5_XCOMEN",   cAliasOB, "OBSERVAÇÃO"   ,,,,   {|| (cAliasOB)->C5_XCOMEN},,lLineBreak,,,nColSpace,lAutoSize)
 
     TRFUNCTION():NEW(oSection2:CELL("C6_PRCVEN") ,,  "SUM",,,"@E 9,999,999,999.99",,.F.,.T.)
     TRFUNCTION():NEW(oSection2:CELL("C6_VALOR")  ,,  "SUM",,,"@E 9,999,999,999.99",,.F.,.T.)
 
-    oSection1:SetPageBreak(.T.)
-	oSection1:SetTotalText(" ")
-
+    TRPAGE():ENDPAGE(lFooter)
+    
 RETURN oReport
 
 STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
