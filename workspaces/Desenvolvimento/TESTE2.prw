@@ -55,9 +55,13 @@ STATIC FUNCTION REPORTDEF(aResps)
     TRCELL():NEW(oSection1, "C6_VALOR",    cAliasCL,  "VALOR"               ,,nSize,,   {|| (cAliasCL)->C6_VALOR},,lLineBreak,,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection1, "C5_XCOMEN",   cAliasCL, "OBSERVAÇÃO"           ,,nSize,,   {|| (cAliasCL)->C5_XCOMEN},,lLineBreak,,,nColSpace,lAutoSize)
 
+    TReport():AddSection(oSection1) 
+
     oBreak := TRBREAK():NEW(oSection1,oSection1:CELL("C5_NUM"),"TOTAL",.F.)
     TRFUNCTION():NEW(oSection1:CELL("C6_PRCVEN") ,,  "SUM",oBreak,,"@E 9,999,999,999.99",,.F.,.F.,lEndPage,oSection1)
     TRFUNCTION():NEW(oSection1:CELL("C6_VALOR")  ,,  "SUM",oBreak,,"@E 9,999,999,999.99",,.F.,.F.,lEndPage,oSection1)
+
+    TReport():AddBreak(oBreak)
 
 RETURN oReport
 
