@@ -10,7 +10,7 @@ RELATORIO - PEDIDOS POR CLIENTES
 */
 //----------------------------------------------------------------------------------------------------------------------
 
-USER FUNCTION RELAT01()
+USER FUNCTION TESE()
 
     LOCAL oReport := NIL
     LOCAL aPergs  := {}
@@ -29,13 +29,34 @@ RETURN NIL
 STATIC FUNCTION REPORTDEF(aResps)
 
     LOCAL oReport    := NIL
+    LOCAL oSection1  := NIL
+    LOCAL nColSpace  := 1
+    LOCAL nSize      := 255
+    LOCAL lLineBreak := .T.
+    LOCAL lAutoSize  := .T.
+    LOCAL cAliasCL   := ""
     LOCAL cNomeArq   := "RELAT01"
     LOCAL cTitulo    := "PEDIDOS POR CLIENTES"
 
-    oReport := TREPORT():NEW(cNomeArq, cTitulo, "", {|oReport| REPORTPRINT(oReport, aResps)}, "IMPRESSÃO DE RELATORIO")
+    oReport := TREPORT():NEW(cNomeArq, cTitulo, "", {|oReport| REPORTPRINT(oReport, @cAliasCL, aResps)}, "IMPRESSÃO DE RELATORIO")
 
-
-         
+    oSection1 := TRSECTION():NEW(oReport)
+        WHILE (cAliasCL)->(!EOF())
+    TRCELL():NEW(oSection1, "A1_COD",      cAliasCL,  "COD.CLI"            ,,nSize,,   {|| (cAliasCL)->A1_COD},,lLineBreak,,,nColSpace,lAutoSize)
+ TRCELL():NEW(oSection1, "A1_NREDUZ",   cAliasCL,  "NOME CLI"           ,,nSize,,   {|| (cAliasCL)->A1_NREDUZ},,lLineBreak,,,nColSpace,lAutoSize)
+ TRCELL():NEW(oSection1, "A1_END",      cAliasCL,  "ENDEREÇO"           ,,nSize,,   {|| (cAliasCL)->A1_END},,lLineBreak,,,nColSpace,lAutoSize)
+TRCELL():NEW(oSection1, "C5_VEND1",    cAliasCL,  "REPRESENTANTE"      ,,nSize,,   {|| (cAliasCL)->C5_VEND1},,lLineBreak,,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1, "C5_NUM",      cAliasCL,  "N° DO PEDIDO"       ,,nSize,,   {|| (cAliasCL)->C5_NUM},,lLineBreak,,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1, "C5_EMISSAO",  cAliasCL,  "DATA DE EMISSAO"    ,,nSize,,   {|| (cAliasCL)->C5_EMISSAO},,lLineBreak,,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1, "C5_TIPO",     cAliasCL,  "TIPO DE PEDIDO"     ,,nSize,,   {|| (cAliasCL)->C5_TIPO},,lLineBreak,,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1, "C5_CONDPAG",  cAliasCL,  "COND.PAG"           ,,nSize,,   {|| (cAliasCL)->C5_CONDPAG},,lLineBreak,,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1, "A1_TEL",      cAliasCL,  "TEL"                ,,nSize,,   {|| (cAliasCL)->A1_TEL},,lLineBreak,,,nColSpace,lAutoSize)
+            oSection1:PRINTLINE()
+            (cAliasCL)->(DBSKIP())
+        ENDDO
+        (cAliasCL)->(DBCLOSEAREA())
+        oSection2:SetPageBreak(.T.)
+    oSection1:FINISH()
 
     //oSection2 := TRSECTION():NEW(oReport)
     //TRCELL():NEW(oSection2, "C6_PRODUTO",  cAliasPD, "ITEM"          ,,nSize,,   {|| (cAliasPD)->C6_PRODUTO},,lLineBreak,,,nColSpace,lAutoSize)
@@ -55,17 +76,11 @@ STATIC FUNCTION REPORTDEF(aResps)
 
 RETURN oReport
 
-STATIC FUNCTION REPORTPRINT(oReport, aResps)
+STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, aResps)
 
-    LOCAL oSection1   := NIL
     LOCAL aPedidoDE   := aResps[1]
     LOCAL aPedidoATE  := aResps[2]
-    LOCAL cAliasCL    := GETNEXTALIAS()
     LOCAL cQuery      := ""
-    LOCAL nColSpace   := 1
-    LOCAL nSize       := 255
-    LOCAL lLineBreak  := .T.
-    LOCAL lAutoSize   := .T.
     
     cQuery := " SELECT B.[A1_COD], " + CRLF
     cQuery += " B.[A1_NREDUZ], " + CRLF
@@ -83,27 +98,4 @@ STATIC FUNCTION REPORTPRINT(oReport, aResps)
 
     cAliasCL := MPSYSOPENQUERY(cQuery)
 
-        oSection1 := TRSECTION():NEW(oReport)
-
-            WHILE (cAliasCL)->(!EOF())
-                oSection1:INIT()
-
-                TRCELL():NEW(oSection1, "A1_COD",      cAliasCL,  "COD.CLI"            ,,nSize,,   {|| (cAliasCL)->A1_COD},,lLineBreak,,,nColSpace,lAutoSize)
-                TRCELL():NEW(oSection1, "A1_NREDUZ",   cAliasCL,  "NOME CLI"           ,,nSize,,   {|| (cAliasCL)->A1_NREDUZ},,lLineBreak,,,nColSpace,lAutoSize)
-                TRCELL():NEW(oSection1, "A1_END",      cAliasCL,  "ENDEREÇO"           ,,nSize,,   {|| (cAliasCL)->A1_END},,lLineBreak,,,nColSpace,lAutoSize)
-                TRCELL():NEW(oSection1, "C5_VEND1",    cAliasCL,  "REPRESENTANTE"      ,,nSize,,   {|| (cAliasCL)->C5_VEND1},,lLineBreak,,,nColSpace,lAutoSize)
-                TRCELL():NEW(oSection1, "C5_NUM",      cAliasCL,  "N° DO PEDIDO"       ,,nSize,,   {|| (cAliasCL)->C5_NUM},,lLineBreak,,,nColSpace,lAutoSize)
-                TRCELL():NEW(oSection1, "C5_EMISSAO",  cAliasCL,  "DATA DE EMISSAO"    ,,nSize,,   {|| (cAliasCL)->C5_EMISSAO},,lLineBreak,,,nColSpace,lAutoSize)
-                TRCELL():NEW(oSection1, "C5_TIPO",     cAliasCL,  "TIPO DE PEDIDO"     ,,nSize,,   {|| (cAliasCL)->C5_TIPO},,lLineBreak,,,nColSpace,lAutoSize)
-                TRCELL():NEW(oSection1, "C5_CONDPAG",  cAliasCL,  "COND.PAG"           ,,nSize,,   {|| (cAliasCL)->C5_CONDPAG},,lLineBreak,,,nColSpace,lAutoSize)
-                TRCELL():NEW(oSection1, "A1_TEL",      cAliasCL,  "TEL"                ,,nSize,,   {|| (cAliasCL)->A1_TEL},,lLineBreak,,,nColSpace,lAutoSize)
-              
-                oSection1:SetPageBreak(.T.)
-                oSection1:PRINTLINE()
-                oSection1:FINISH()
-                (cAliasCL)->(DBSKIP())
-        
-            ENDDO
-         (cAliasCL)->(DBCLOSEAREA())
-        
-RETURN 
+RETURN  
