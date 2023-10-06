@@ -52,6 +52,7 @@ STATIC FUNCTION REPORTDEF(aResps)
     TRCELL():NEW(oSection1, "C5_TIPO",     cAliasCL,  "TIPO DE PEDIDO"     ,,nSize,,   {|| (cAliasCL)->C5_TIPO},,lLineBreak,,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection1, "C5_CONDPAG",  cAliasCL,  "COND.PAG"           ,,nSize,,   {|| (cAliasCL)->C5_CONDPAG},,lLineBreak,,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection1, "A1_TEL",      cAliasCL,  "TEL"                ,,nSize,,   {|| (cAliasCL)->A1_TEL},,lLineBreak,,,nColSpace,lAutoSize)
+
     
     oSection2 := TRSECTION():NEW(oReport)
     TRCELL():NEW(oSection2, "C6_PRODUTO",  cAliasPD, "ITEM"          ,,nSize,,   {|| (cAliasPD)->C6_PRODUTO},,lLineBreak,,,nColSpace,lAutoSize)
@@ -64,8 +65,8 @@ STATIC FUNCTION REPORTDEF(aResps)
     //oSection3 := TRSECTION():NEW(oReport)
     //TRCELL():NEW(oSection3, "C5_XCOMEN",   cAliasOB, "OBSERVAÇÃO"    ,,,,   {|| (cAliasOB)->C5_XCOMEN},,lLineBreak,,,nColSpace,lAutoSize)
 
-    //TRFUNCTION():NEW(oSection2:CELL("C6_PRCVEN") ,,  "SUM",,,"@E 9,999,999,999.99",,.F.,.T.,lEndPage,oSection2)
-    //TRFUNCTION():NEW(oSection2:CELL("C6_VALOR")  ,,  "SUM",,,"@E 9,999,999,999.99",,.F.,.T.,lEndPage,oSection2)
+    //TRFUNCTION():NEW(oSection2:CELL("C6_PRCVEN") ,,  "SUM",,,"@E 9,999,999,999.99",,.F.,.T.,,oSection2)
+    //TRFUNCTION():NEW(oSection2:CELL("C6_VALOR")  ,,  "SUM",,,"@E 9,999,999,999.99",,.F.,.T.,,oSection2)
 
     //oSection3:SetPageBreak(.T.)
 
@@ -78,7 +79,6 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, aResps)
     LOCAL aPedidoDE   := aResps[1]
     LOCAL aPedidoATE  := aResps[2]
     LOCAL cQuery      := ""
-    LOCAL cQuery1     := ""
 
     cQuery := " SELECT B.[A1_COD], " + CRLF
     cQuery += " B.[A1_NREDUZ], " + CRLF
@@ -96,37 +96,39 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, aResps)
 
     cAliasCL := MPSYSOPENQUERY(cQuery)
 
-    cQuery1 := " SELECT A.[C5_NUM], " + CRLF
-    cQuery1 += " B.[C6_NUM], " + CRLF
-    cQuery1 += " B.[C6_QTDVEN], " + CRLF
-    cQuery1 += " B.[C6_PRODUTO], " + CRLF
-    cQuery1 += " B.[C6_DESCRI], " + CRLF
-    cQuery1 += " B.[C6_PRCVEN], " + CRLF
-    cQuery1 += " B.[C6_VALOR] " + CRLF
-	cQuery1 += " FROM " + RETSQLNAME("SC5") + " A " + CRLF
-    cQuery1 += " LEFT JOIN " + RETSQLNAME("SC6") + " B " + CRLF 
-    cQuery1 += " ON A.[C5_NUM] = B.[C6_NUM] " + CRLF
-    cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_NUM] BETWEEN '"+ aPedidoDE +"' AND '"+ aPedidoATE +"'"
-	                                                                
-    cAliasPD := MPSYSOPENQUERY(cQuery1)
-
         WHILE (cAliasCL)->(!EOF())
             oSection1:INIT()
             oSection1:PRINTLINE()
             oSection1:SETPAGEBREAK(.T.)
+
+                cQuery1 := " SELECT A.[C5_NUM], " + CRLF
+                cQuery1 += " B.[C6_NUM], " + CRLF
+                cQuery1 += " B.[C6_QTDVEN], " + CRLF
+                cQuery1 += " B.[C6_PRODUTO], " + CRLF
+                cQuery1 += " B.[C6_DESCRI], " + CRLF
+                cQuery1 += " B.[C6_PRCVEN], " + CRLF
+                cQuery1 += " B.[C6_VALOR] " + CRLF
+	            cQuery1 += " FROM " + RETSQLNAME("SC5") + " A " + CRLF
+                cQuery1 += " LEFT JOIN " + RETSQLNAME("SC6") + " B " + CRLF 
+                cQuery1 += " ON A.[C5_NUM] = B.[C6_NUM] " + CRLF
+                cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_NUM] BETWEEN '"+ aPedidoDE +"' AND '"+ aPedidoATE +"'"
+	                                                                
+                cAliasPD := MPSYSOPENQUERY(cQuery1)
+
+                    WHILE (cAliasPD)->(!EOF())
+                        oSection2:INIT()
+                        oSection2:PRINTLINE()
+                        (cAliasPD)->(DBSKIP())
+                    ENDDO
+
+                    oSection2:FINISH()
+                    (cAliasPD)->(DBCLOSEAREA())  
+
+            (cAliasCL)->(DBSKIP())
             oSection1:FINISH()
-            (cAliasCL)->(DBSKIP())    
         ENDDO
 
-    (cAliasCL)->(DBCLOSEAREA())
-
-        WHILE (cAliasPD)->(!EOF())
-            oSection2:INIT()
-            oSection2:PRINTLINE()
-            oSection2:FINISH()
-            (cAliasPD)->(DBSKIP())
-        ENDDO
-
-    (cAliasPD)->(DBCLOSEAREA())
+        (cAliasCL)->(DBCLOSEAREA())
 
 RETURN 
+ 
