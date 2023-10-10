@@ -28,21 +28,21 @@ RETURN NIL
 
 STATIC FUNCTION REPORTDEF(aResps)
 
-    LOCAL oReport    := NIL
-    LOCAL oSection1  := NIL
-    LOCAL oSection2  := NIL
-    LOCAL oSection3  := NIL
-    LOCAL nColSpace  := 3
-    LOCAL nSize      := 255
-    LOCAL lLineBreak := .T.
-    LOCAL lAutoSize  := .T.
-    LOCAL cAlign     := "CENTER"
+    LOCAL oReport      := NIL
+    LOCAL oSection1    := NIL
+    LOCAL oSection2    := NIL
+    LOCAL oSection3    := NIL
+    LOCAL nColSpace    := 3
+    LOCAL nSize        := 255
+    LOCAL lLineBreak   := .T.
+    LOCAL lAutoSize    := .T.
+    LOCAL cAlign       := "CENTER"
     LOCAL cHeaderAlign := "CENTER"
-    LOCAL cAliasCL   := ""
-    LOCAL cAliasPD   := ""
-    LOCAL cAliasOB   := ""
-    LOCAL cNomeArq   := "RELAT01"
-    LOCAL cTitulo    := "PEDIDOS POR CLIENTES"
+    LOCAL cAliasCL     := ""
+    LOCAL cAliasPD     := ""
+    LOCAL cAliasOB     := ""
+    LOCAL cNomeArq     := "RELAT01"
+    LOCAL cTitulo      := "PEDIDOS POR CLIENTES"
 
     oReport := TREPORT():NEW(cNomeArq, cTitulo, "", {|oReport| REPORTPRINT(oReport, @cAliasCL, @cAliasPD, @cAliasOB, aResps)}, "IMPRESSÃO DE RELATORIO")
 
@@ -120,10 +120,10 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
                 cAliasPD := MPSYSOPENQUERY(cQuery1)
 
                     WHILE (cAliasPD)->(!EOF())
-                         IF (cAliasCL)->C5_NUM == (cAliasPD)->C6_NUM
+                        IF (cAliasCL)->C5_NUM == (cAliasPD)->C6_NUM
                             oSection2:INIT()
                             oSection2:PRINTLINE()
-                         ENDIF
+                        ENDIF
                         (cAliasPD)->(DBSKIP())
                     ENDDO
 
@@ -146,10 +146,10 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
                         cAliasOB := MPSYSOPENQUERY(cQuery2)
 
                             WHILE (cAliasOB)->(!EOF())
-                            IF (cAliasCL)->C5_NUM == (cAliasOB)->C5_NUM
+                                IF (cAliasCL)->C5_NUM == (cAliasOB)->C5_NUM
                                     oSection3:INIT()
                                     oSection3:PRINTLINE()
-                            ENDIF        
+                                ENDIF        
                                 (cAliasOB)->(DBSKIP())
                             ENDDO
 
