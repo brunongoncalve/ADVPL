@@ -52,7 +52,7 @@ STATIC FUNCTION REPORTDEF(aResps)
     TRCELL():NEW(oSection1, "A1_END",      cAliasCL,  "ENDEREÇO"           ,,nSize,,   {|| (cAliasCL)->A1_END},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection1, "C5_NUM",      cAliasCL,  "N° DO PEDIDO"       ,,nSize,,   {|| (cAliasCL)->C5_NUM},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection1, "C5_EMISSAO",  cAliasCL,  "EMISSAO"            ,,nSize,,   {|| (cAliasCL)->C5_EMISSAO},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection1, "C5_TIPO",     cAliasCL,  "TP DE PEDIDO"       ,,nSize,,   {|| (cAliasCL)->C5_TIPO},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1, "A4_NOME",     cAliasCL,  "TRANSPORTADORA"     ,,nSize,,   {|| (cAliasCL)->A4_NOME},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection1, "C5_CONDPAG",  cAliasCL,  "COND.PAG"           ,,nSize,,   {|| (cAliasCL)->C5_CONDPAG},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection1, "A1_TEL",      cAliasCL,  "TEL"                ,,nSize,,   {|| (cAliasCL)->A1_TEL},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
 
@@ -92,10 +92,13 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
     cQuery += " A.[C5_TIPO], " + CRLF
     cQuery += " A.[C5_CONDPAG], " + CRLF
     cQuery += " B.[A1_TEL], " + CRLF
-    cQuery += " A.[C5_CLIENTE] " + CRLF
+    cQuery += " A.[C5_CLIENTE], " + CRLF
+    cQuery += " C.[A4_NOME] " + CRLF
 	cQuery += " FROM " + RETSQLNAME("SC5") + " A " + CRLF
-    cQuery += " LEFT JOIN " + RETSQLNAME("SA1") + " B " + CRLF 
+    cQuery += " LEFT JOIN " + RETSQLNAME("SA1") + " B " + CRLF
     cQuery += " ON A.[C5_CLIENTE] = B.[A1_COD] " + CRLF
+    cQuery += " LEFT JOIN " + RETSQLNAME("SA4") + " C " + CRLF
+    cQuery += " ON A.[C5_TRANSP] = C.[A4_COD] " + CRLF
     cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_NUM] BETWEEN '"+ aPedidoDE +"' AND '"+ aPedidoATE +"'"
 
     cAliasCL := MPSYSOPENQUERY(cQuery)
