@@ -53,7 +53,7 @@ STATIC FUNCTION REPORTDEF(aResps)
     TRCELL():NEW(oSection1, "C5_NUM",      cAliasCL,  "N° DO PEDIDO"       ,,nSize,,   {|| (cAliasCL)->C5_NUM},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection1, "C5_EMISSAO",  cAliasCL,  "EMISSAO"            ,,nSize,,   {|| (cAliasCL)->C5_EMISSAO},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection1, "A4_NOME",     cAliasCL,  "TRANSPORTADORA"     ,,nSize,,   {|| (cAliasCL)->A4_NOME},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection1, "C5_CONDPAG",  cAliasCL,  "COND.PAG"           ,,nSize,,   {|| (cAliasCL)->C5_CONDPAG},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1, "E4_DESCRI",   cAliasCL,  "COND.PAG"           ,,nSize,,   {|| (cAliasCL)->E4_DESCRI},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection1, "A1_TEL",      cAliasCL,  "TEL"                ,,nSize,,   {|| (cAliasCL)->A1_TEL},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
 
     oSection2 := TRSECTION():NEW(oReport)
@@ -93,12 +93,15 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
     cQuery += " A.[C5_CONDPAG], " + CRLF
     cQuery += " B.[A1_TEL], " + CRLF
     cQuery += " A.[C5_CLIENTE], " + CRLF
-    cQuery += " C.[A4_NOME] " + CRLF
+    cQuery += " C.[A4_NOME], " + CRLF
+    cQuery += " D.[E4_DESCRI] " + CRLF
 	cQuery += " FROM " + RETSQLNAME("SC5") + " A " + CRLF
     cQuery += " LEFT JOIN " + RETSQLNAME("SA1") + " B " + CRLF
     cQuery += " ON A.[C5_CLIENTE] = B.[A1_COD] " + CRLF
     cQuery += " LEFT JOIN " + RETSQLNAME("SA4") + " C " + CRLF
     cQuery += " ON A.[C5_TRANSP] = C.[A4_COD] " + CRLF
+    cQuery += " LEFT JOIN " + RETSQLNAME("SE4") + " D " + CRLF
+    cQuery += " ON A.[C5_CONDPAG] = D.[E4_CODIGO] " + CRLF
     cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_NUM] BETWEEN '"+ aPedidoDE +"' AND '"+ aPedidoATE +"'"
 
     cAliasCL := MPSYSOPENQUERY(cQuery)
