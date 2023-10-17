@@ -63,7 +63,6 @@ STATIC FUNCTION REPORTDEF(aResps)
     TRCELL():NEW(oSection2, "C6_PRCVEN",   cAliasPD, "PREÇO UNIT"    ,,nSize,,   {|| (cAliasPD)->C6_PRCVEN},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection2, "C6_VALOR",    cAliasPD, "VALOR"         ,,nSize,,   {|| (cAliasPD)->C6_VALOR},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
 
-
     oSection3 := TRSECTION():NEW(oReport)
     TRCELL():NEW(oSection3, "C5_XCOMEN",   cAliasOB, "OBSERVAÇÃO"    ,,nSize,,   {|| (cAliasOB)->C5_XCOMEN},,lLineBreak,,,nColSpace,lAutoSize)
 
