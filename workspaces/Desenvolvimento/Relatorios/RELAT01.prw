@@ -57,6 +57,7 @@ STATIC FUNCTION REPORTDEF(aResps)
     TRCELL():NEW(oSection1, "A1_TEL",      cAliasCL,  "TEL"                ,,nSize,,   {|| (cAliasCL)->A1_TEL},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
 
     oSection2 := TRSECTION():NEW(oReport)
+    TRCELL():NEW(oSection2, "EMBAL",       cAliasPD, "EMBAL"         ,,nSize,,   {|| (cAliasPD)->EMBAL},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection2, "C6_PRODUTO",  cAliasPD, "ITEM"          ,,nSize,,   {|| (cAliasPD)->C6_PRODUTO},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection2, "C6_QTDVEN",   cAliasPD, "QTDE"          ,,nSize,,   {|| (cAliasPD)->C6_QTDVEN},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection2, "C6_DESCRI",   cAliasPD, "DESCRIÇÃO"     ,,nSize,,   {|| (cAliasPD)->C6_DESCRI},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
@@ -110,7 +111,8 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
             oSection1:PRINTLINE()
             oSection1:SETPAGEBREAK(.T.)
 
-                cQuery1 := " SELECT A.[C5_NUM], " + CRLF
+                cQuery1 := " SELECT ROUND(COALESCE(B.[C6_QTDVEN] / NULLIF(C.[B5_EAN142],0), 0), 0) AS [EMBAL], " + CRLF
+                cQuery1 += " A.[C5_NUM], " + CRLF
                 cQuery1 += " B.[C6_NUM], " + CRLF
                 cQuery1 += " B.[C6_QTDVEN], " + CRLF
                 cQuery1 += " B.[C6_PRODUTO], " + CRLF
@@ -120,6 +122,8 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
 	            cQuery1 += " FROM " + RETSQLNAME("SC5") + " A " + CRLF
                 cQuery1 += " LEFT JOIN " + RETSQLNAME("SC6") + " B " + CRLF 
                 cQuery1 += " ON A.[C5_NUM] = B.[C6_NUM] " + CRLF
+                cQuery1 += " LEFT JOIN " + RETSQLNAME("SB5") + " C " + CRLF
+                cQuery1 += " ON B.[C6_PRODUTO] = C.[B5_COD] " + CRLF
                 cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_NUM] BETWEEN '"+ aPedidoDE +"' AND '"+ aPedidoATE +"'"
 	                                                                
                 cAliasPD := MPSYSOPENQUERY(cQuery1)

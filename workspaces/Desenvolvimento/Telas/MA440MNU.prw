@@ -10,12 +10,8 @@ TELA
 */
 //----------------------------------------------------------------------------------------------------------------------
 
-USER FUNCTION XMBROWSE()
+USER FUNCTION MA440MNU()
 
-    LOCAL cQuery        := "SA1"
-    LOCAL cTitulo       := "TESTE"
-    LOCAL cRelat        := "U_RELAT01"
-
-    AXCADASTRO(cQuery, cTitulo, cRelat)
+    AADD(aRotina, {'Imprimir Pedidos', 'U_RELAT01', 0, 0, 0, .F.} )
 
 RETURN NIL
