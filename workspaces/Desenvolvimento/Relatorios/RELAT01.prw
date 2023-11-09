@@ -31,8 +31,8 @@ STATIC FUNCTION REPORTDEF(aResps)
     LOCAL oSection1    := NIL
     LOCAL oSection2    := NIL
     LOCAL oSection3    := NIL
-    LOCAL nColSpace    := 1
-    LOCAL nSize        := 20
+    LOCAL nColSpace    := 0
+    LOCAL nSize        := 25
     LOCAL nSize1       := 255
     LOCAL lLineBreak   := .T.
     LOCAL lAutoSize    := .T.
@@ -47,14 +47,13 @@ STATIC FUNCTION REPORTDEF(aResps)
     oReport := TREPORT():NEW(cNomeArq, cTitulo, "", {|oReport| REPORTPRINT(oReport, @cAliasCL, @cAliasPD, @cAliasOB, aResps)}, "IMPRESSÃO DE RELATORIO")
    
     oSection1 := TRSECTION():NEW(oReport)
-    TRCELL():NEW(oSection1, "A1_COD",      cAliasCL,  "COD.CLI"           ,,nSize,,{|| (cAliasCL)->A1_COD},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection1, "A1_NREDUZ",   cAliasCL,  "CLIENTE"           ,,nSize,,{|| (cAliasCL)->A1_NREDUZ},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection1, "A1_END",      cAliasCL,  "ENDEREÇO"          ,,nSize,,{|| (cAliasCL)->A1_END},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection1, "C5_NUM",      cAliasCL,  "N° PEDIDO"         ,,nSize,,{|| (cAliasCL)->C5_NUM},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection1, "C5_EMISSAO",  cAliasCL,  "EMISSAO"           ,,nSize,,{|| (cAliasCL)->C5_EMISSAO},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection1, "A4_NOME",     cAliasCL,  "TRANSPORTADORA"    ,,nSize,,{|| (cAliasCL)->A4_NOME},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection1, "E4_DESCRI",   cAliasCL,  "COND.PAG"          ,,nSize,,{|| (cAliasCL)->E4_DESCRI},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection1, "A1_TEL",      cAliasCL,  "TEL"               ,,nSize,,{|| (cAliasCL)->A1_TEL},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1, "A1_COD",      cAliasCL,  "COD.CLI"        ,,nSize,,{|| (cAliasCL)->A1_COD},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1, "A1_NREDUZ",   cAliasCL,  "CLIENTE"        ,,nSize,,{|| (cAliasCL)->A1_NREDUZ},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1, "A1_END",      cAliasCL,  "ENDEREÇO"       ,,nSize,,{|| (cAliasCL)->A1_END},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1, "C5_NUM",      cAliasCL,  "N° PEDIDO"      ,,nSize,,{|| (cAliasCL)->C5_NUM},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1, "C5_EMISSAO",  cAliasCL,  "EMISSAO"        ,,nSize,,{|| (cAliasCL)->C5_EMISSAO},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1, "A4_NOME",     cAliasCL,  "TRANSPORTADORA" ,,nSize,,{|| (cAliasCL)->A4_NOME},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1, "E4_DESCRI",   cAliasCL,  "COND.PAG"       ,,nSize,,{|| (cAliasCL)->E4_DESCRI},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
 
     oSection2 := TRSECTION():NEW(oReport)
     TRCELL():NEW(oSection2, "EMBAL",      cAliasPD, "EMBAL"             ,,nSize,,{|| (cAliasPD)->EMBAL},cAlign,,cHeaderAlign,,nColSpace)
@@ -65,7 +64,7 @@ STATIC FUNCTION REPORTDEF(aResps)
     TRCELL():NEW(oSection2, "C6_VALOR",   cAliasPD, "VL.PED"            ,,nSize,,{|| (cAliasPD)->C6_VALOR},cAlign,,cHeaderAlign,,nColSpace)
 
     oSection3 := TRSECTION():NEW(oReport)
-    TRCELL():NEW(oSection3, "C5_XCOMEN", cAliasOB, "OBSERVAÇÃO" ,,nSize,,{|| (cAliasOB)->C5_XCOMEN},,lLineBreak,,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection3, "C5_XCOMEN", cAliasOB, "OBSERVAÇÃO DO PEDIDO" ,,nSize1,,{|| (cAliasOB)->C5_XCOMEN},,lLineBreak,,,nColSpace,lAutoSize)
 
     TRFUNCTION():NEW(oSection2:CELL("C6_VALOR") ,,"SUM",,,"@E 9,999,999,999.99",,.T.,.F.,,oSection2)
     TRFUNCTION():NEW(oSection2:CELL("EMBAL")    ,,"SUM",,,"@E 9,999,999,999.99",,.T.,.F.,,oSection2) 
@@ -85,10 +84,10 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
 
     cQuery := " SELECT B.[A1_COD], " + CRLF
     cQuery += " B.[A1_NREDUZ], " + CRLF
-    cQuery += " B.[A1_END], " + CRLF
+    cQuery += " TRIM(B.[A1_END]) + (' ' + '-' + ' ' + B.[A1_EST]) AS [A1_END], " + CRLF
     cQuery += " A.[C5_VEND1], " + CRLF
     cQuery += " A.[C5_NUM], " + CRLF
-    cQuery += " A.[C5_EMISSAO], " + CRLF
+    cQuery += " FORMAT(CONVERT(DATE, A.[C5_EMISSAO]), 'dd/MM/yyyy') AS [C5_EMISSAO], " + CRLF
     cQuery += " A.[C5_TIPO], " + CRLF
     cQuery += " A.[C5_CONDPAG], " + CRLF
     cQuery += " B.[A1_TEL], " + CRLF
@@ -115,7 +114,7 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
                 cQuery1 := " SELECT ROUND(COALESCE(B.[C6_QTDVEN] / NULLIF(C.[B1_CONV],0), 0), 1) AS [EMBAL], " + CRLF
                 cQuery1 += " A.[C5_NUM], " + CRLF
                 cQuery1 += " B.[C6_NUM], " + CRLF
-                cQuery1 += " B.[C6_QTDVEN], " + CRLF
+                cQuery1 += " REPLACE(CONVERT(VARCHAR, B.[C6_QTDVEN]), '', '') AS [C6_QTDVEN], " + CRLF
                 cQuery1 += " B.[C6_PRODUTO], " + CRLF
                 cQuery1 += " B.[C6_DESCRI], " + CRLF
                 cQuery1 += " B.[C6_PRCVEN], " + CRLF
