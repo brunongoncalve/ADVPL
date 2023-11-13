@@ -52,6 +52,7 @@ STATIC FUNCTION REPORTDEF(aResps)
     TRCELL():NEW(oSection1, "A1_NREDUZ",   cAliasCL,  "CLIENTE"       ,,nSize,,{|| (cAliasCL)->A1_NREDUZ},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection1, "A1_END",      cAliasCL,  "ENDEREÇO"      ,,nSize,,{|| (cAliasCL)->A1_END},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection1, "C5_NUM",      cAliasCL,  "N° PEDIDO"     ,,nSize,,{|| (cAliasCL)->C5_NUM},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1, "C5_EMISSAO",  cAliasCL,  "EMISSAO"       ,,nSize,,{|| (cAliasCL)->C5_EMISSAO},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection1, "E4_DESCRI",   cAliasCL,  "COND.PAG"      ,,nSize,,{|| (cAliasCL)->E4_DESCRI},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection1, "A3_NOME",     cAliasCL,  "REPRESENTANTE" ,,nSize,,{|| (cAliasCL)->A3_NOME},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
 
