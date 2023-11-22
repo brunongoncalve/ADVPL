@@ -15,6 +15,7 @@ USER FUNCTION RELAT01()
     LOCAL aPergs  := {}
     LOCAL aResps  := {}
 
+    AADD(aPergs, {2, "QUAL STATUS DA IMPRESSÃO", " ", {" ","AGUARDANDO IMPRESSÃO"},100,"",.F.})
     AADD(aPergs, {1, "PEDIDO DE", SPACE(TAMSX3("C5_NUM")[1]) ,,,"SC5",, 100, .F.})
     AADD(aPergs, {1, "PEDIDO ATE", SPACE(TAMSX3("C5_NUM")[1]) ,,,"SC5",, 100, .F.})
     
@@ -79,8 +80,13 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
     LOCAL cQuery      := ""
     LOCAL cQuery1     := ""
     LOCAL cQuery2     := ""
-    LOCAL aPedidoDE   := aResps[1]
-    LOCAL aPedidoATE  := aResps[2]
+    LOCAL cResult     := aResps[1]
+    LOCAL aPedidoDE   := aResps[2]
+    LOCAL aPedidoATE  := aResps[3]
+
+    IF cResult == "AGUARDANDO IMPRESSÃO"
+       cResult := "AX" 
+    ENDIF
 
     cQuery := " SELECT B.[A1_COD], " + CRLF
     cQuery += " B.[A1_NREDUZ], " + CRLF
@@ -101,7 +107,11 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
     cQuery += " ON A.[C5_TRANSP] = C.[A4_COD] " + CRLF
     cQuery += " LEFT JOIN " + RETSQLNAME("SE4") + " D " + CRLF
     cQuery += " ON A.[C5_CONDPAG] = D.[E4_CODIGO] " + CRLF
-    cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_NUM] BETWEEN '"+ aPedidoDE +"' AND '"+ aPedidoATE +"'" + CRLF    
+    IF !EMPTY(cResult)
+        cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_XSTEX] = '" + cResult +"'" + CRLF
+    ELSE
+        cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_NUM] BETWEEN '"+ aPedidoDE +"' AND '"+ aPedidoATE +"'" + CRLF
+    ENDIF        
     cQuery += " ORDER BY A.[C5_NUM]"
 
     cAliasCL := MPSYSOPENQUERY(cQuery)
@@ -124,7 +134,11 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
                 cQuery1 += " ON A.[C5_NUM] = B.[C6_NUM] " + CRLF
                 cQuery1 += " LEFT JOIN " + RETSQLNAME("SB1") + " C " + CRLF
                 cQuery1 += " ON B.[C6_PRODUTO] = C.[B1_COD] " + CRLF
-                cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_NUM] BETWEEN '"+ aPedidoDE +"' AND '"+ aPedidoATE +"'" + CRLF
+                IF !EMPTY(cResult)
+                    cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_XSTEX] = '" + cResult +"'" + CRLF
+                ELSE
+                    cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_NUM] BETWEEN '"+ aPedidoDE +"' AND '"+ aPedidoATE +"'" + CRLF
+                ENDIF        
                 cQuery1 += " ORDER BY A.[C5_NUM]"
                                                      
                 cAliasPD := MPSYSOPENQUERY(cQuery1)
@@ -151,7 +165,11 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
                      	cQuery2 += " FROM " + RETSQLNAME("SC5") + " A " + CRLF
                         cQuery2 += " LEFT JOIN " + RETSQLNAME("SA1") + " B " + CRLF 
                         cQuery2 += " ON A.[C5_CLIENTE] = B.[A1_COD] " + CRLF
-                        cQuery2 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_NUM] BETWEEN '"+ aPedidoDE +"' AND '"+ aPedidoATE +"'" + CRLF
+                        IF !EMPTY(cResult)
+                            cQuery2 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_XSTEX] = '" + cResult +"'" + CRLF
+                        ELSE
+                            cQuery2 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_NUM] BETWEEN '"+ aPedidoDE +"' AND '"+ aPedidoATE +"'" + CRLF
+                        ENDIF        
                         cQuery2 += " ORDER BY A.[C5_NUM]"
                                                            
                         cAliasOB := MPSYSOPENQUERY(cQuery2)
