@@ -181,19 +181,19 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
                                     oSection3:PRINTLINE()
                                 ENDIF        
                                 (cAliasOB)->(DBSKIP())
-                            ENDDO
 
-                            DBSELECTAREA("SC5")
-                            DBSETORDER(1)
-                            DBSEEK(XFILIAL("SC5")+(cAliasCL)->C5_NUM)
-                            IF FOUND()
-                                IF SC5->C5_XSTEX == 'AX'
-                                    RECLOCK("SC5", .F.)
-                                        SC5->C5_XSTEX := 'AL'
-                                    MSUNLOCK()
+                                DBSELECTAREA("SC5")
+                                DBSETORDER(1)
+                                DBSEEK(XFILIAL("SC5")+(cAliasCL)->C5_NUM)
+                                IF FOUND()
+                                    IF SC5->C5_XSTEX == 'AX'
+                                        RECLOCK("SC5", .F.)
+                                            SC5->C5_XSTEX := 'AL'
+                                        MSUNLOCK()
+                                    ENDIF
                                 ENDIF
-                            ENDIF
-                            RESTAREA(aArea)
+                                RESTAREA(aArea)
+                            ENDDO
 
                             oSection3:FINISH()
                             (cAliasOB)->(DBCLOSEAREA()) 
