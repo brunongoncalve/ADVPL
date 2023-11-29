@@ -32,6 +32,7 @@ STATIC FUNCTION REPORTDEF(aResps)
     LOCAL oSection1    := NIL
     LOCAL oSection2    := NIL
     LOCAL oSection3    := NIL
+    LOCAL oSection4    := NIL
     LOCAL nColSpace    := 0
     LOCAL nSize        := 25
     LOCAL nSize1       := 255
@@ -67,6 +68,9 @@ STATIC FUNCTION REPORTDEF(aResps)
     oSection3 := TRSECTION():NEW(oReport)
     TRCELL():NEW(oSection3, "C5_XCOMEN", cAliasOB, "OBSERVAÇÃO DO PEDIDO" ,,nSize1,,{|| (cAliasOB)->C5_XCOMEN},,lLineBreak,,,nColSpace,lAutoSize)
 
+    oSection4 := TRSECTION():NEW(oReport)
+    TRCELL():NEW(oSection4, "C5_XCOMEN", cAliasOB, "OBSERVAÇÃO DO PEDIDO" ,,nSize1,,{|| (cAliasOB)->C5_XCOMEN},,lLineBreak,,,nColSpace,lAutoSize)
+
     TRFUNCTION():NEW(oSection2:CELL("C6_VALOR") ,,"SUM",,,"@E 9,999,999,999.99",,.T.,.F.,,oSection2)
     TRFUNCTION():NEW(oSection2:CELL("EMBAL")    ,,"SUM",,,"@E 9,999,999,999.99",,.T.,.F.,,oSection2) 
 
@@ -77,9 +81,11 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
     LOCAL oSection1   := oReport:SECTION(1)
     LOCAL oSection2   := oReport:SECTION(2)
     LOCAL oSection3   := oReport:SECTION(3)
+    LOCAL oSection4   := oReport:SECTION(4)
     LOCAL cQuery      := ""
     LOCAL cQuery1     := ""
     LOCAL cQuery2     := ""
+    LOCAL cQuery3     := ""
     LOCAL cResult     := aResps[1]
     LOCAL aPedidoDE   := aResps[2]
     LOCAL aPedidoATE  := aResps[3]
@@ -181,6 +187,14 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
                                     oSection3:PRINTLINE()
                                 ENDIF        
                                 (cAliasOB)->(DBSKIP())
+                            ENDDO
+
+                                WHILE (cAliasOB)->(!EOF())
+                                IF (cAliasCL)->C5_NUM == (cAliasOB)->C5_NUM
+                                    oSection3:INIT()
+                                    oSection3:PRINTLINE()
+                                ENDIF        
+                                (cAliasOB)->(DBSKIP())
 
                                 DBSELECTAREA("SC5")
                                 DBSETORDER(1)
@@ -193,8 +207,11 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
                                     ENDIF
                                 ENDIF
                                 RESTAREA(aArea)
-                            ENDDO
+                                ENDDO
 
+                                oSection4:FINISH()
+                                (cAliasOB)->(DBCLOSEAREA()) 
+                          
                             oSection3:FINISH()
                             (cAliasOB)->(DBCLOSEAREA()) 
 
