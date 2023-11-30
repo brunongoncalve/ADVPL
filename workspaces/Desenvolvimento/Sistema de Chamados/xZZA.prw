@@ -1,7 +1,5 @@
 #INCLUDE "PROTHEUS.ch"
 
-#INCLUDE "PROTHEUS.ch"
-
 //----------------------------------------------------------------------------------------------------------------------
 /* {Protheus.doc} CADASTRO DE ANALISTAS
 TELA - CADASTRO DE ANALISTAS

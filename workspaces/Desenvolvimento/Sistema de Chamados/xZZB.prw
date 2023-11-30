@@ -1,8 +1,8 @@
 #INCLUDE "PROTHEUS.ch"
+#INCLUDE "FWMVCDEF.ch"
+#INCLUDE "FWMBROWSE.ch"
 
-#INCLUDE "PROTHEUS.ch"
-
-//----------------------------------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------
 /* {Protheus.doc} ABERTURA DE CHAMADOS
 TELA - ABERTURA DE CHAMADOS
 @author    BRUNO NASCIMENTO GONÇALVES
@@ -13,21 +13,60 @@ TELA - ABERTURA DE CHAMADOS
 
 USER FUNCTION xZZB()
 
-    LOCAL cAlias      := "ZZB"
-    PRIVATE cCadastro := "Abertura de chamados"
-    PRIVATE aRotina   := { }
+    LOCAL oBrowse := FWMBROWSE():NEW()
+    LOCAL cAlias  := "ZZB"
+    LOCAL cTitulo := "Abertura de Chamados"
 
-    AADD(aRotina, {"Pesquisar",  "AXPESQUI",0,1})
-    AADD(aRotina, {"Visualizar", "AXVISUAL",0,2})
-    AADD(aRotina, {"Incluir",    "AXINCLUI",0,3})
-    AADD(aRotina, {"Alterar",    "AXALTERA",0,4})
-    AADD(aRotina, {"Deletar",    "AXDELETA",0,5})
+    oBrowse:SETALIAS(cAlias)
+    oBrowse:SETDESCRIPTION(cTitulo)
+    oBrowse:SETMENUDEF("xZZB")
 
-    DBSELECTAREA(cAlias)
-    DBSETORDER(1)
+    oBrowse:ADDLEGEND("ZZB_STATUS == 'AG'", "YELLOW","Aguardando Aprovação")
+    oBrowse:ADDLEGEND("ZZB_STATUS == 'AP'", "GREEN","Aprovado")
+    oBrowse:ADDLEGEND("ZZB_STATUS == 'RP'", "RED","Reprovado")
 
-    MBROWSE(6,1,22,75,cAlias) 
+    oBrowse:ACTIVATE()
 
-RETURN NIL
+RETURN
+
+STATIC FUNCTION MENUDEF()
+
+    LOCAL aMenu := {}
+
+    ADD OPTION aMenu TITLE "Novo Ticket" ACTION "VIEWDEF.xZZB" OPERATION 3 ACCESS 0
+    ADD OPTION aMenu TITLE "Alterar"     ACTION "VIEWDEF.xZZB" OPERATION 4 ACCESS 0
+
+RETURN aMenu
+
+STATIC FUNCTION MODELDEF()
+
+    LOCAL oModel   := MPFORMMODEL():NEW("xZZBM")
+    LOCAL oStruZZB := FWFORMSTRUCT(1,"ZZB")
+
+    oModel:ADDFIELDS("ZZBMASTER",,oStruZZB)
+    oModel:SETPRIMARYKEY({"ZZB_FILIAL","ZZB_ID"})
+
+    oModel:GETMODEL("ZZBMASTER"):SETDESCRIPTION("Dados da Abertura de Chamados")
+    oModel:SETDESCRIPTION("Modelo de dados de Abertura de Chamados")
+
+
+RETURN oModel
+
+STATIC FUNCTION VIEWDEF()
+
+    LOCAL oModel   := FWLOADMODEL("xZZB")
+    LOCAL oStruZZB := FWFORMSTRUCT(2,"ZZB")
+    LOCAL oView    := FWFORMVIEW():NEW()
+
+    oView:SETMODEL(oModel)
+    oView:ADDFIELD("VIEWZZB",oStruZZB, "ZZBMASTER")
+
+    oView:CREATEHORIZONTALBOX("V1_ZZB",50)
+    oView:SETOWNERVIEW("VIEWZZB","V1_ZZB")
+
+RETURN oView
+
+
+
 
 
