@@ -20,7 +20,7 @@ USER FUNCTION xZZB()
     oBrowse:SETALIAS(cAlias)
     oBrowse:SETDESCRIPTION(cTitulo)
     oBrowse:SETMENUDEF("xZZB")
-
+    
     oBrowse:ADDLEGEND("ZZB_STATUS == 'AG'", "YELLOW","Aguardando Aprovação")
     oBrowse:ADDLEGEND("ZZB_STATUS == 'AP'", "GREEN","Aprovado")
     oBrowse:ADDLEGEND("ZZB_STATUS == 'RP'", "RED","Reprovado")
@@ -48,7 +48,6 @@ STATIC FUNCTION MODELDEF()
 
     oModel:GETMODEL("ZZBMASTER"):SETDESCRIPTION("Dados da Abertura de Chamados")
     oModel:SETDESCRIPTION("Modelo de dados de Abertura de Chamados")
-
 
 RETURN oModel
 
