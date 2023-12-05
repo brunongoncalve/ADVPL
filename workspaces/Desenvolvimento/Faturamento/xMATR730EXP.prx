@@ -85,7 +85,7 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
     LOCAL cQuery      := ""
     LOCAL cQuery1     := ""
     LOCAL cQuery2     := ""
-    LOCAL cQuery3     := ""
+    //LOCAL cQuery3     := ""
     LOCAL cResult     := aResps[1]
     LOCAL aPedidoDE   := aResps[2]
     LOCAL aPedidoATE  := aResps[3]
