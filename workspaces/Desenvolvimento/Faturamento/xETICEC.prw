@@ -44,7 +44,7 @@ STATIC FUNCTION IMPETIQ(aResps)
  
 	WHILE CQUERY->(!EOF())
 		oPrinter:STARTPAGE()
-        oPrinter:FWMSBAR("EAN13",5,1,ALLTRIM(CQUERY->C5_XCOMEN),oPrinter,,,,,,,,,.F.,,,)
+        oPrinter:FWMSBAR("EAN13",5,1,"23793047089000000042384022562100266430000100000",oPrinter,,,,,,,,,.F.,,,)
         oPrinter:SETMARGIN(001,001,001,001)
 		oPrinter:ENDPAGE()
 		CQUERY->(DBSKIP())
