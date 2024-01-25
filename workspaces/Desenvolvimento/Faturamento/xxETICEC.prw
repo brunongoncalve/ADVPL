@@ -38,7 +38,6 @@ STATIC FUNCTION IMPETIQ(aResps)
 	LOCAL nHeightEAN      := 10   
 	LOCAL nCodEAN         := "23793047089000000042384022562100266430000100000"
 
-
     LOCAL oPrinter        := FWMSPRINTER():NEW("etiqueta",,lAdjustToLegacy,,lDisableSetup,,,)
 	oPrinter:SETMARGIN(001,001,001,001)
 
