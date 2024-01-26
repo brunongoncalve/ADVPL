@@ -16,7 +16,7 @@ USER FUNCTION xETICEC()
     LOCAL aPergs := {}
     LOCAL aResps := {}
 
-    AADD(aPergs, {1, "NUMERO DA NOTA FISCAL", SPACE(TAMSX3("C9_NFISCAL")[1]),,,"SC9",, 100, .F.})
+    AADD(aPergs, {1, "NUMERO DA NOTA FISCAL", SPACE(TAMSX3("C5_NUM")[1]),,,"SC5",, 100, .F.})
 
         IF PARAMBOX(aPergs, "Parametros do relatorio", @aResps,,,,,,,, .T., .T.)
             IMPETIQ(aResps)
@@ -27,10 +27,12 @@ RETURN
 STATIC FUNCTION IMPETIQ(aResps)
 
 	LOCAL cQuery	:= ""
-	LOCAL aNF       := aResps[1]
+    LOCAL cQuery1	:= ""
+	LOCAL nPedido   := aResps[1]
 	LOCAL cPorta    := "LPT1"
     LOCAL cModelo   := "ZEBRA"
 	LOCAL cEtiqueta := ""
+    LOCAL nTotal := COUNT(cAlias)
 
 	cQuery := " SELECT B.[C9_NFISCAL], A.[DCV_CODVOL], C.[B1_DESC], A.[DCV_QUANT] "
     cQuery += " FROM " + RETSQLNAME("DCV") + " A " + CRLF
@@ -42,20 +44,20 @@ STATIC FUNCTION IMPETIQ(aResps)
     cQuery += " AND  B.[D_E_L_E_T_] = ' ' " + CRLF
     cQuery := " LEFT JOIN " + RETSQLNAME("SB1") + " C " + CRLF
     cQuery += " ON A.[DCV_CODPRO] = C.[B1_COD] " + CRLF
-    cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C9_NFISCAL] = '"+ aNF +"'"
+    cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C9_PEDIDO] = '"+ nPedido +"'"
     cQuery += " ORDER BY A.[DCV_CODVOL] "
-    
-    cQuery := CHANGEQUERY(cQuery)
+
 	cAlias := MPSYSOPENQUERY(cQuery)
+
+    cQ
+
 	(cAlias)->(DBGOTOP())
-    
-    nTotal := COUNT(cAlias)
-    
+
     WHILE (cAlias)->(!EOF())
         MSCBPRINTER(cModelo,cPorta,,10,.F.,,,,,,.F.,)
         MSCBCHKSTATUS(.F.)
         MSCBBEGIN(1,6)
-        cEtiqueta += "^XA " + CRLF
+        cEtiqueta := "^XA " + CRLF
         cEtiqueta += "^FX NUMERO DA NOTA " + CRLF
         cEtiqueta += "^CF0,60 " + CRLF
         cEtiqueta += "^FO50,40^FDNF: "+ (cAlias)->C9_NFISCAL +"^FS " + CRLF
@@ -70,7 +72,7 @@ STATIC FUNCTION IMPETIQ(aResps)
         cEtiqueta += "^FX VOLUME " + CRLF
         cEtiqueta += "^CF0,60 " + CRLF
         cEtiqueta += "^FO450,240^FD VOLUME:^FS " + CRLF
-        cEtiqueta += "^FO500,300^FD 1 / "+ nTotal +"^FS " + CRLF
+        cEtiqueta += "^FO500,300^FD 1 / "+ nTotal +"^FS " + CRL
         cEtiqueta += "^FX CODIGO DE BARRA. " + CRLF
         cEtiqueta += "^BY3,1,80 " + CRLF
         cEtiqueta += "^FO400,360^BC^FD"+ (cAlias)->B1_COD +"^FS " + CRLF
