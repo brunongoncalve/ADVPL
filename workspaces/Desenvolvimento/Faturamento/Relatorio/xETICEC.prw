@@ -5,7 +5,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 /* {Protheus.doc} PEDIDOS POR CLIENTES
 RELATORIO - PEDIDOS POR CLIENTES
-@author    BRUNO NASCIMENTO GONÇALVES
+@author    BRUNO NASCIMENTO GONï¿½ALVES
 @since     25/09/2023
 @version   12/superior
 */
@@ -108,5 +108,5 @@ STATIC FUNCTION IMPETIQ(aResps)
     NEXT
 
 RETURN
-
+    
 
