@@ -27,14 +27,12 @@ RETURN
 STATIC FUNCTION IMPETIQ(aResps)
 
 	LOCAL cQuery	:= ""
-    LOCAL cQuery1	:= ""
-    LOCAL cQuery2	:= ""
 	LOCAL nPedido   := aResps[1]
 	LOCAL cPorta    := "LPT1"
     LOCAL cModelo   := "ZEBRA"
 	LOCAL cEtiqueta := ""
-    LOCAL nI        := 0
-    LOCAL aResult   := {}
+    LOCAL nI        := ""
+    LOCAL nV        := 0
 
 	cQuery := " SELECT B.[C9_NFISCAL], A.[DCV_CODVOL], C.[B1_DESC], A.[DCV_QUANT] " + CRLF
     cQuery += " FROM " + RETSQLNAME("DCV") + " A " + CRLF
@@ -48,17 +46,51 @@ STATIC FUNCTION IMPETIQ(aResps)
     cQuery += " ON A.[DCV_CODPRO] = C.[B1_COD] " + CRLF
     cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND B.[C9_PEDIDO] = '"+ nPedido +"'" + CRLF
     cQuery += " ORDER BY A.[DCV_CODVOL] "
-	cAlias := MPSYSOPENQUERY(cQuery)
-    
-    cQuery1 := " SELECT [DCV_CODVOL] " + CRLF
-    cQuery1 += " FROM " + RETSQLNAME("DCV") + " " + CRLF
-    cQuery1 += " WHERE [D_E_L_E_T_] = ' ' AND [DCV_PEDIDO] = '"+ nPedido +"'" + CRLF
-    cQuery1 += " GROUP BY [DCV_CODVOL] "
-    cAlias1 := MPSYSOPENQUERY(cQuery1)
 
-    aResult := {|cAlias1->DCV_CODVOL|}
-    ALERT(aResult)
-   
+    cQuery    := CHANGEQUERY(cQuery)
+    cAliasQry := GETNEXTALIAS()
+
+    DBUSEAREA(.T.,'TOPCONN',TCGENQRY(,,cQuery),cAliasQry,.F.,.T.)
+    
+    WHILE (cAliasQry)->(!Eof())
+        IF(nI <> ALLTRIM((cAliasQry)->DCV_CODVOL))
+            nV += 1
+            nI := ALLTRIM((cAliasQry)->DCV_CODVOL)
+        ENDIF
+        
+        MSCBPRINTER(cModelo,cPorta,,10,.F.,,,,,,.F.,)
+        MSCBCHKSTATUS(.F.)
+        MSCBBEGIN(1,6)
+        cEtiqueta := "^XA " + CRLF
+        cEtiqueta += "^FX NUMERO DA NOTA " + CRLF
+        cEtiqueta += "^CF0,60 " + CRLF
+        cEtiqueta += "^FO50,40^FDNF: "+ (cAliasQry)->C9_NFISCAL +"^FS " + CRLF
+        cEtiqueta += "^FX FORNECEDOR E PRODUTOS " + CRLF
+        cEtiqueta += "^CFA,30 " + CRLF
+        cEtiqueta += "^FO30,130^FD FORNECEDOR: ALUMBRA^FS " + CRLF
+        cEtiqueta += "^CFA,30 " + CRLF
+        cEtiqueta += "^FO30,180^FD PRODUTOS: "+ (cAliasQry)->B1_DESC +"^FS " + CRLF
+        cEtiqueta += "^FX QUANTIDADE DE PEÇAS " + CRLF
+        cEtiqueta += "^CF0,60 " + CRLF
+        cEtiqueta += "^FO30,300^FD QTDE: "+ (cAliasQry)->DCV_QUANT +"^FS " + CRLF
+        cEtiqueta += "^FX VOLUME " + CRLF
+        cEtiqueta += "^CF0,60 " + CRLF
+        cEtiqueta += "^FO450,240^FD VOLUME:^FS " + CRLF
+        cEtiqueta += "^FO500,300^FD "+ nV +" / "+ nTotal +"^FS " + CRL
+        cEtiqueta += "^FX CODIGO DE BARRA. " + CRLF
+        cEtiqueta += "^BY3,1,80 " + CRLF
+        cEtiqueta += "^FO400,360^BC^FD"+ (cAliasQry)->B1_COD +"^FS " + CRLF
+        cEtiqueta += "^XZ "
+        MSCBWRITE(cEtiqueta)
+        MSCBEND()
+        MSCBCLOSEPRINTER()
+
+        (cAliasQry)->(DBSKIP())
+
+    ENDDO
+
+    (cAliasQry)->(DBCLOSEAREA())
+
 RETURN
     
 
