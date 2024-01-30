@@ -34,6 +34,7 @@ STATIC FUNCTION IMPETIQ(aResps)
     LOCAL cModelo   := "ZEBRA"
 	LOCAL cEtiqueta := ""
     LOCAL nI        := 0
+    LOCAL aResult   := {}
 
 	cQuery := " SELECT B.[C9_NFISCAL], A.[DCV_CODVOL], C.[B1_DESC], A.[DCV_QUANT] " + CRLF
     cQuery += " FROM " + RETSQLNAME("DCV") + " A " + CRLF
@@ -49,64 +50,15 @@ STATIC FUNCTION IMPETIQ(aResps)
     cQuery += " ORDER BY A.[DCV_CODVOL] "
 	cAlias := MPSYSOPENQUERY(cQuery)
     
-    cQuery1 := " SELECT [DCV_CODVOL], ROW_NUMBER() OVER ( ORDER BY [DCV_CODVOL] ) AS VOL " + CRLF
+    cQuery1 := " SELECT [DCV_CODVOL] " + CRLF
     cQuery1 += " FROM " + RETSQLNAME("DCV") + " " + CRLF
     cQuery1 += " WHERE [D_E_L_E_T_] = ' ' AND [DCV_PEDIDO] = '"+ nPedido +"'" + CRLF
     cQuery1 += " GROUP BY [DCV_CODVOL] "
     cAlias1 := MPSYSOPENQUERY(cQuery1)
 
-    FOR nI := 1 TO LEN(cAlias1)
-        IF(nI == (cAlias1)->VOL)
-            cQuery2 := " SELECT B.[C9_NFISCAL], A.[DCV_CODVOL], C.[B1_DESC], A.[DCV_QUANT] " + CRLF
-            cQuery2 += " FROM " + RETSQLNAME("DCV") + " A " + CRLF
-            cQuery2 += " LEFT JOIN " + RETSQLNAME("SC9") + " B " + CRLF
-            cQuery2 += " ON A.[DCV_FILIAL] = B.[C9_FILIAL] " + CRLF
-            cQuery2 += " AND A.[DCV_PEDIDO] = B.[C9_PEDIDO] " + CRLF
-            cQuery2 += " AND A.[DCV_ITEM] = B.[C9_ITEM] " + CRLF
-            cQuery2 += " AND A.[DCV_SEQUEN] = B.[C9_SEQUEN] " + CRLF
-            cQuery2 += " AND  B.[D_E_L_E_T_] = ' ' " + CRLF
-            cQuery2 += " LEFT JOIN " + RETSQLNAME("SB1") + " C " + CRLF
-            cQuery2 += " ON A.[DCV_CODPRO] = C.[B1_COD] " + CRLF
-            cQuery2 += " WHERE A.[D_E_L_E_T_] = ' ' A.[DCV_CODVOL] = '"+ (cAlias1)->DCV_CODVOL +"'"
-            cQuery2 += " ORDER BY A.[DCV_CODVOL] "
-	        cAlias2 := MPSYSOPENQUERY(cQuery2)
-
-                WHILE (cAlias2)->(!EOF())
-                    MSCBPRINTER(cModelo,cPorta,,10,.F.,,,,,,.F.,)
-                    MSCBCHKSTATUS(.F.)
-                    MSCBBEGIN(1,6)
-                    cEtiqueta := "^XA " + CRLF
-                    cEtiqueta += "^FX NUMERO DA NOTA " + CRLF
-                    cEtiqueta += "^CF0,60 " + CRLF
-                    cEtiqueta += "^FO50,40^FDNF: "+ (cAlias2)->C9_NFISCAL +"^FS " + CRLF
-                    cEtiqueta += "^FX FORNECEDOR E PRODUTOS " + CRLF
-                    cEtiqueta += "^CFA,30 " + CRLF
-                    cEtiqueta += "^FO30,130^FD FORNECEDOR: ALUMBRA^FS " + CRLF
-                    cEtiqueta += "^CFA,30 " + CRLF
-                    cEtiqueta += "^FO30,180^FD PRODUTOS: "+ (cAlias2)->B1_DESC +"^FS " + CRLF
-                    cEtiqueta += "^FX QUANTIDADE DE PEÇAS " + CRLF
-                    cEtiqueta += "^CF0,60 " + CRLF
-                    cEtiqueta += "^FO30,300^FD QTDE: "+ (cAlias2)->DCV_QUANT +"^FS " + CRLF
-                    cEtiqueta += "^FX VOLUME " + CRLF
-                    cEtiqueta += "^CF0,60 " + CRLF
-                    cEtiqueta += "^FO450,240^FD VOLUME:^FS " + CRLF
-                    cEtiqueta += "^FO500,300^FD 1 / "+ nTotal +"^FS " + CRL
-                    cEtiqueta += "^FX CODIGO DE BARRA. " + CRLF
-                    cEtiqueta += "^BY3,1,80 " + CRLF
-                    cEtiqueta += "^FO400,360^BC^FD"+ (cAlias2)->B1_COD +"^FS " + CRLF
-                    cEtiqueta += "^XZ "
-                    MSCBWRITE(cEtiqueta)
-                    MSCBEND()
-                    MSCBCLOSEPRINTER()
-                    (cAlias2)->(DBSKIP())
-                ENDDO
-
-            (cAlias2)->(DBCLOSEAREA())
-
-        ENDIF
-
-    NEXT
-
+    aResult := {|cAlias1->DCV_CODVOL|}
+    ALERT(aResult)
+   
 RETURN
     
 
