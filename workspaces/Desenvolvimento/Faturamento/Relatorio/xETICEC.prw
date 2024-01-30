@@ -49,7 +49,6 @@ STATIC FUNCTION IMPETIQ(aResps)
 
     cQuery    := CHANGEQUERY(cQuery)
     cAliasQry := GETNEXTALIAS()
-
     DBUSEAREA(.T.,'TOPCONN',TCGENQRY(,,cQuery),cAliasQry,.F.,.T.)
     
     WHILE (cAliasQry)->(!Eof())
@@ -76,7 +75,7 @@ STATIC FUNCTION IMPETIQ(aResps)
         cEtiqueta += "^FX VOLUME " + CRLF
         cEtiqueta += "^CF0,60 " + CRLF
         cEtiqueta += "^FO450,240^FD VOLUME:^FS " + CRLF
-        cEtiqueta += "^FO500,300^FD "+ nV +" / "+ nTotal +"^FS " + CRL
+        cEtiqueta += "^FO500,300^FD 1 / 1^FS " + CRL
         cEtiqueta += "^FX CODIGO DE BARRA. " + CRLF
         cEtiqueta += "^BY3,1,80 " + CRLF
         cEtiqueta += "^FO400,360^BC^FD"+ (cAliasQry)->B1_COD +"^FS " + CRLF
@@ -86,7 +85,6 @@ STATIC FUNCTION IMPETIQ(aResps)
         MSCBCLOSEPRINTER()
 
         (cAliasQry)->(DBSKIP())
-
     ENDDO
 
     (cAliasQry)->(DBCLOSEAREA())
