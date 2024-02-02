@@ -15,7 +15,7 @@ USER FUNCTION xMATR730()
     LOCAL aPergs  := {}
     LOCAL aResps  := {}
 
-    AADD(aPergs, {2, "QUAL STATUS DA IMPRESS�O", " ", {" ","AGUARDANDO IMPRESS�O"},100,"",.F.})
+    AADD(aPergs, {2, "QUAL STATUS DA IMPRESSCAO", " ", {" ","AGUARDANDO IMPRESS�O"},100,"",.F.})
     AADD(aPergs, {1, "PEDIDO DE", SPACE(TAMSX3("C5_NUM")[1]) ,,,"SC5",, 100, .F.})
     AADD(aPergs, {1, "PEDIDO ATE", SPACE(TAMSX3("C5_NUM")[1]) ,,,"SC5",, 100, .F.})
     
@@ -53,8 +53,8 @@ STATIC FUNCTION REPORTDEF(aResps)
     TRCELL():NEW(oSection1, "A1_COD",      cAliasCL,  "COD.CLI"       ,,nSize,,{|| (cAliasCL)->A1_COD},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection1, "A1_NREDUZ",   cAliasCL,  "CLIENTE"       ,,nSize,,{|| (cAliasCL)->A1_NREDUZ},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection1, "A1_LOJA",     cAliasCL,  "LOJA"          ,,nSize,,{|| (cAliasCL)->A1_LOJA},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection1, "A1_END",      cAliasCL,  "ENDERE�O"      ,,nSize,,{|| (cAliasCL)->A1_END},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection1, "C5_NUM",      cAliasCL,  "N� PEDIDO"     ,,nSize,,{|| (cAliasCL)->C5_NUM},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1, "A1_END",      cAliasCL,  "ENDERECO"      ,,nSize,,{|| (cAliasCL)->A1_END},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1, "C5_NUM",      cAliasCL,  "N PEDIDO"      ,,nSize,,{|| (cAliasCL)->C5_NUM},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection1, "C5_EMISSAO",  cAliasCL,  "EMISSAO"       ,,nSize,,{|| (cAliasCL)->C5_EMISSAO},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection1, "E4_DESCRI",   cAliasCL,  "COND.PAG"      ,,nSize,,{|| (cAliasCL)->E4_DESCRI},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection1, "C5_TIPO",     cAliasCL,  "TIPO. PED"     ,,nSize,,{|| (cAliasCL)->C5_TIPO},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
@@ -64,12 +64,12 @@ STATIC FUNCTION REPORTDEF(aResps)
     TRCELL():NEW(oSection2, "EMBAL",      cAliasPD, "EMBAL"             ,,nSize,,{|| (cAliasPD)->EMBAL},cAlign,,cHeaderAlign,,nColSpace)
     TRCELL():NEW(oSection2, "C6_PRODUTO", cAliasPD, "ITEM"              ,,nSize,,{|| (cAliasPD)->C6_PRODUTO},cAlign,,cHeaderAlign,,nColSpace)
     TRCELL():NEW(oSection2, "C6_QTDVEN",  cAliasPD, "QTDE"              ,,nSize,,{|| (cAliasPD)->C6_QTDVEN},cAlign,,cHeaderAlign,,nColSpace)
-    TRCELL():NEW(oSection2, "C6_DESCRI",  cAliasPD, "DESCRI��O DO ITEM" ,,nSize1,,{|| (cAliasPD)->C6_DESCRI},cAlign,,cHeaderAlign,,nColSpace)
+    TRCELL():NEW(oSection2, "C6_DESCRI",  cAliasPD, "DESCRISCAO DO ITEM",,nSize1,,{|| (cAliasPD)->C6_DESCRI},cAlign,,cHeaderAlign,,nColSpace)
     TRCELL():NEW(oSection2, "C6_PRCVEN",  cAliasPD, "PR.UNIT"           ,,nSize,,{|| (cAliasPD)->C6_PRCVEN},cAlign,,cHeaderAlign,,nColSpace)
     TRCELL():NEW(oSection2, "C6_VALOR",   cAliasPD, "VL.PED"            ,,nSize,,{|| (cAliasPD)->C6_VALOR},cAlign,,cHeaderAlign,,nColSpace)
 
     oSection3 := TRSECTION():NEW(oReport)
-    TRCELL():NEW(oSection3, "C5_COMENT", cAliasOB, "OBSERVA��O DO PEDIDO",,nSize1,,{|| (cAliasOB)->C5_COMENT},,lLineBreak,,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection3, "C5_COMENT", cAliasOB, "OBSERVACAO DO PEDIDO",,nSize1,,{|| (cAliasOB)->C5_COMENT},,lLineBreak,,,nColSpace,lAutoSize)
 
     oSection4 := TRSECTION():NEW(oReport)
     TRCELL():NEW(oSection4, "C6_ENDPAD", cAliasDC, "DOCA",,nSize1,,{|| (cAliasDC)->C6_ENDPAD},,lLineBreak,,,nColSpace,lAutoSize)
@@ -94,7 +94,7 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, cAliasDC, aRe
     LOCAL aPedidoATE  := aResps[3]
     LOCAL aArea       := GETAREA()
 
-    IF cResult == "AGUARDANDO IMPRESS�O"
+    IF cResult == "AGUARDANDO IMPRESSAO"
        cResult := "AX" 
     ENDIF
 
