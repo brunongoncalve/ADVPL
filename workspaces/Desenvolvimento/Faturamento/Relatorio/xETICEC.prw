@@ -47,18 +47,16 @@ STATIC FUNCTION IMPETIQ(aResps)
     cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND B.[C9_PEDIDO] = '"+ nPedido +"'" + CRLF
     cQuery += " ORDER BY A.[DCV_CODVOL] "
 
-    cQuery    := CHANGEQUERY(cQuery)
+    cQuery := CHANGEQUERY(cQuery)
     cAlias := GETNEXTALIAS()
     DBUSEAREA(.T.,'TOPCONN',TCGENQRY(,,cQuery),cAlias,.F.,.T.)
 
     WHILE (cAlias)->(!Eof())
         IF(nI <> ALLTRIM((cAlias)->DCV_CODVOL))
-            nV += 1
             nI := ALLTRIM((cAlias)->DCV_CODVOL)
+            nV += 1
         ENDIF
 
-        ALERT(nV)
-        
         MSCBPRINTER(cModelo,cPorta,,10,.F.,,,,,,.F.,)
         MSCBCHKSTATUS(.F.)
         MSCBBEGIN(1,6)
@@ -84,6 +82,7 @@ STATIC FUNCTION IMPETIQ(aResps)
         cEtiqueta += "^XZ "
         MSCBWRITE(cEtiqueta)
         MSCBEND()
+        MSCBCLOSEPRINTER()
 
         (cAlias)->(DBSKIP())
     ENDDO
@@ -92,26 +91,5 @@ STATIC FUNCTION IMPETIQ(aResps)
 
 RETURN
 
-
-"^XA "
- "^FX NUMERO DA NOTA " 
-"^CF0,60 " 
- "^FO10,40^FDNF: 111111^FS "
-"^FX FORNECEDOR E PRODUTOS "
-"^CF0,20 " 
-"^FO10,130^FD FORNECEDOR: ALUMBRA^FS " 
-"^CF0,20 "
-"^FO10,160^FD PRODUTOS: ALUMBRA^FS " 
-"^FX QUANTIDADE DE PEÇAS " 
-"^CF0,50 "
- "^FO10,250^FD QTDE: 122^FS " 
- "^FX VOLUME "
-"^CF0,50 "
- "^FO350,200^FD VOLUME^FS "
-"^FO400,250^FD 1 / 1^FS "
-"^FX CODIGO DE BARRA. "
- "^BY2,1,80 "
-"^FO300,330^BC^FD 123456789^FS "  
-"^XZ "
     
 
