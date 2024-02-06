@@ -1,6 +1,7 @@
-#INCLUDE "protheus.ch"
-#Include 'TopConn.ch'
-#INCLUDE "TBICONN.CH"
+#INCLUDE 'PROTHEUS.ch'
+#INCLUDE 'TOPCONN.ch'
+#INCLUDE 'TBICONN.CH'
+#INCLUDE 'PRTOPDEF.CH'
 
 //----------------------------------------------------------------------------------------------------------------------
 /* {Protheus.doc} PEDIDOS POR CLIENTES
@@ -27,6 +28,7 @@ RETURN
 STATIC FUNCTION IMPETIQ(aResps)
 
 	LOCAL cQuery	:= ""
+    LOCAL cQuery1	:= ""
 	LOCAL nPedido   := aResps[1]
 	LOCAL cPorta    := "LPT1"
     LOCAL cModelo   := "ZEBRA"
@@ -34,7 +36,7 @@ STATIC FUNCTION IMPETIQ(aResps)
     LOCAL nI        := ""
     LOCAL nV        := 0
 
-	cQuery := " SELECT B.[C9_NFISCAL], A.[DCV_CODVOL], C.[B1_DESC], C.[B1_CODBAR], A.[DCV_QUANT] " + CRLF
+	cQuery := " SELECT B.[C9_NFISCAL], A.[DCV_CODVOL], C.[B1_DESC], C.[B1_CODBAR], A.[DCV_QUANT], A.[DCV_PEDIDO] " + CRLF
     cQuery += " FROM " + RETSQLNAME("DCV") + " A " + CRLF
     cQuery += " LEFT JOIN " + RETSQLNAME("SC9") + " B " + CRLF
     cQuery += " ON A.[DCV_FILIAL] = B.[C9_FILIAL] " + CRLF
@@ -51,6 +53,13 @@ STATIC FUNCTION IMPETIQ(aResps)
     cAlias := GETNEXTALIAS()
     DBUSEAREA(.T.,'TOPCONN',TCGENQRY(,,cQuery),cAlias,.F.,.T.)
 
+    cQuery1 := " SELECT COUNT(*) AS TOTAL " + CRLF
+    cQuery1 += " FROM " + CRLF
+    cQuery1 += " (SELECT A.[DCV_CODVOL] FROM " + RETSQLNAME("DCV") + " A " + CRLF
+    cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[DCV_PEDIDO] = '"+ (cAlias)->DCV_PEDIDO +"'" + CRLF
+    cQuery1 += " GROUP BY A.[DCV_CODVOL]) AS B" 
+    cAlias1 := MPSYSOPENQUERY(cQuery1)
+
     WHILE (cAlias)->(!Eof())
         IF(nI <> ALLTRIM((cAlias)->DCV_CODVOL))
             nI := ALLTRIM((cAlias)->DCV_CODVOL)
@@ -62,23 +71,23 @@ STATIC FUNCTION IMPETIQ(aResps)
         MSCBBEGIN(1,6)
         cEtiqueta := "^XA " + CRLF
         cEtiqueta += "^FX NUMERO DA NOTA " + CRLF
-        cEtiqueta += "^CF0,60 " + CRLF
-        cEtiqueta += "^FO50,40^FDNF: "+ ALLTRIM((cAlias)->C9_NFISCAL) +"^FS " + CRLF
+        cEtiqueta += "^CF0,80 " + CRLF
+        cEtiqueta += "^FO20,40^FDNF: "+ ALLTRIM((cAlias)->C9_NFISCAL) +"^FS " + CRLF
         cEtiqueta += "^FX FORNECEDOR E PRODUTOS " + CRLF
         cEtiqueta += "^CFA,30 " + CRLF
-        cEtiqueta += "^FO30,130^FD FORNECEDOR: ALUMBRA^FS " + CRLF
+        cEtiqueta += "^FO10,250^FD FORNECEDOR: ALUMBRA PRODUTOS ELETRICOS^FS " + CRLF
         cEtiqueta += "^CFA,30 " + CRLF
-        cEtiqueta += "^FO30,180^FD PRODUTOS: "+ (cAlias)->B1_DESC +"^FS " + CRLF
+        cEtiqueta += "^FO10,280^FD PRODUTO: "+ ALLTRIM((cAlias)->B1_DESC) +"^FS " + CRLF
         cEtiqueta += "^FX QUANTIDADE DE PEÇAS " + CRLF
         cEtiqueta += "^CF0,60 " + CRLF
-        cEtiqueta += "^FO30,300^FD QTDE: "+ ALLTRIM((cAlias)->DCV_QUANT) +"^FS " + CRLF
+        cEtiqueta += "^FO10,370^FD QTDE: "+ STRZERO((cAlias)->DCV_QUANT, 4) +"^FS " + CRLF
         cEtiqueta += "^FX VOLUME " + CRLF
         cEtiqueta += "^CF0,60 " + CRLF
-        cEtiqueta += "^FO450,240^FD VOLUME:^FS " + CRLF
-        cEtiqueta += "^FO500,300^FD"+ nV +" / 1^FS " + CRLF
+        cEtiqueta += "^FO400,350^FD VOLUME:^FS " + CRLF
+        cEtiqueta += "^FO450,400^FD"+ STRZERO(nV,3) +" / "+ STRZERO((cAlias1)->TOTAL,3)+"^FS " + CRLF
         cEtiqueta += "^FX CODIGO DE BARRA. " + CRLF
         cEtiqueta += "^BY3,1,80 " + CRLF
-        cEtiqueta += "^FO400,360^BC^FD"+ ALLTRIM((cAlias)->B1_CODBAR) +"^FS " + CRLF
+        cEtiqueta += "^FO250,450^BC^FD"+ ALLTRIM((cAlias)->B1_CODBAR) +"^FS " + CRLF
         cEtiqueta += "^XZ "
         MSCBWRITE(cEtiqueta)
         MSCBEND()
