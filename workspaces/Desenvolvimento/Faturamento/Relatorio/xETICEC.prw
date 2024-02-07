@@ -17,7 +17,7 @@ USER FUNCTION xETICEC()
     LOCAL aPergs := {}
     LOCAL aResps := {}
 
-    AADD(aPergs, {1, "NUMERO DA NOTA FISCAL", SPACE(TAMSX3("C5_NUM")[1]),,,"SC5",, 100, .F.})
+    AADD(aPergs, {1, "NUMERO DA NOTA FISCAL", SPACE(TAMSX3("C9_NFISCAL")[1]),,,"SC9",,100, .F.})
 
         IF PARAMBOX(aPergs, "Parametros do relatorio", @aResps,,,,,,,, .T., .T.)
             IMPETIQ(aResps)
@@ -29,7 +29,7 @@ STATIC FUNCTION IMPETIQ(aResps)
 
 	LOCAL cQuery	:= ""
     LOCAL cQuery1	:= ""
-	LOCAL nPedido   := aResps[1]
+	LOCAL nNf       := aResps[1]
 	LOCAL cPorta    := "LPT1"
     LOCAL cModelo   := "ZEBRA"
 	LOCAL cEtiqueta := ""
@@ -46,7 +46,7 @@ STATIC FUNCTION IMPETIQ(aResps)
     cQuery += " AND  B.[D_E_L_E_T_] = ' ' " + CRLF
     cQuery += " LEFT JOIN " + RETSQLNAME("SB1") + " C " + CRLF
     cQuery += " ON A.[DCV_CODPRO] = C.[B1_COD] " + CRLF
-    cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND B.[C9_PEDIDO] = '"+ nPedido +"'" + CRLF
+    cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND B.[C9_NFISCAL] = '"+ nNf +"'" + CRLF
     cQuery += " ORDER BY A.[DCV_CODVOL] "
 
     cQuery := CHANGEQUERY(cQuery)
