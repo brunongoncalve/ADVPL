@@ -1,11 +1,9 @@
 #INCLUDE 'PROTHEUS.ch'
 #INCLUDE 'TOPCONN.ch'
-#INCLUDE 'TBICONN.CH'
-#INCLUDE 'PRTOPDEF.CH'
 
 //----------------------------------------------------------------------------------------------------------------------
-/* {Protheus.doc} PEDIDOS POR CLIENTES
-RELATORIO - PEDIDOS POR CLIENTES
+/* {Protheus.doc} ETIQUETA PEDIDOS C&C
+RELATORIO - ETIQUETA PEDIDOS C&C
 @author    BRUNO NASCIMENTO GON�ALVES
 @since     25/09/2023
 @version   12/superior
