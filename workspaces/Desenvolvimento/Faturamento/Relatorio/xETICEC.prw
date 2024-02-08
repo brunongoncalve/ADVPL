@@ -15,7 +15,7 @@ USER FUNCTION xETICEC()
     LOCAL aPergs := {}
     LOCAL aResps := {}
 
-    AADD(aPergs, {1, "NUMERO DA NOTA FISCAL", SPACE(TAMSX3("C9_NFISCAL")[1]),,,"SC9",,100, .F.})
+    AADD(aPergs, {1, "NUMERO DA NOTA FISCAL", SPACE(TAMSX3("F2_DOC")[1]),,,"SF2",,100, .F.})
 
         IF PARAMBOX(aPergs, "Parametros do relatorio", @aResps,,,,,,,, .T., .T.)
             IMPETIQ(aResps)
