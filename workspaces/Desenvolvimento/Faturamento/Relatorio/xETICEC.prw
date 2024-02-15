@@ -19,7 +19,7 @@ USER FUNCTION xETICEC()
 
         IF PARAMBOX(aPergs, "Parametros do relatorio", @aResps,,,,,,,, .T., .T.)
             IMPETIQ(aResps)
-        ENDIF
+        ENDIF    
 
 RETURN
 
