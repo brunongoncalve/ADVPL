@@ -93,6 +93,8 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
        cResult := "AX" 
     ENDIF
 
+    FWDIRREMOVE("C:\imagem do pedido",.T.,.T.)
+
     cQuery := " SELECT B.[A1_COD], " + CRLF
     cQuery += " B.[A1_LOJA], " + CRLF
     cQuery += " B.[A1_NREDUZ], " + CRLF
@@ -126,10 +128,12 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
             oSection1:PRINTLINE()
             oSection1:SETPAGEBREAK(.T.)
 
+            FWMAKEDIR("c:\imagem do pedido")
+
             url  := "https://barcode.tec-it.com/barcode.ashx?data=" + (cAliasCL)->C5_NUM
-            Html := HttpGet(url) 
-            Html := MemoWrite(ALLTRIM("C:\tmp\barcode"+ (cAliasCL)->C5_NUM +".png"),Html)
-            oReport:SayBitmap(50,1700,"C:\tmp\barcode"+ (cAliasCL)->C5_NUM +".png",150,150) 
+            Html := HTTPGET(url)
+            Html := MEMOWRITE(ALLTRIM("C:\imagem do pedido\barcode"+ (cAliasCL)->C5_NUM +".png"),Html)
+            oReport:SAYBITMAP(50,1700,"C:\imagem do pedido\barcode"+ (cAliasCL)->C5_NUM +".png",150,150) 
 
                 cQuery1 := " SELECT ROUND(COALESCE(B.[C6_QTDVEN] / NULLIF(C.[B1_CONV],0), 0), 1) AS [EMBAL], " + CRLF
                 cQuery1 += " REPLACE(CONVERT(VARCHAR, B.[C6_QTDVEN]), '', '') AS [C6_QTDVEN], " + CRLF

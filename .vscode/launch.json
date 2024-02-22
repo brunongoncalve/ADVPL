@@ -14,8 +14,65 @@
 	],
 	"lastPrograms": [
 		{
-			"label": "SIGAMDI"
+			"label": "hello"
+		},
+		{
+			"label": "u_hello"
+		},
+		{
+			"label": "u_tela"
+		},
+		{
+			"label": "sigafat"
+		},
+		{
+			"label": "sigamdi"
+		},
+		{
+			"label": "sigaacd"
+		},
+		{
+			"label": "sigawms"
+		},
+		{
+			"label": "u_INTMER01"
+		},
+		{
+			"label": "u_RERPA03"
+		},
+		{
+			"label": "u_OUTRA1"
+		},
+		{
+			"label": "u_RERPA01"
+		},
+		{
+			"label": "u_MyMata410"
+		},
+		{
+			"args": [
+				"4"
+			],
+			"label": "u_MyCRMA980"
+		},
+		{
+			"label": "u_AtvCli"
+		},
+		{
+			"label": "sigacfg"
+		},
+		{
+			"label": "sigaest"
+		},
+		{
+			"label": "sigamid"
+		},
+		{
+			"label": "apsdu"
+		},
+		{
+			"label": "vtdebug"
 		}
 	],
-	"lastProgramExecuted": "SIGAMDI"
+	"lastProgramExecuted": "sigamdi"
 }
