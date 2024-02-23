@@ -27,6 +27,7 @@ STATIC FUNCTION IMPETIQ(aResps)
 
 	LOCAL cQuery	:= ""
     LOCAL cQuery1	:= ""
+    LOCAL cQuery2	:= ""
 	LOCAL nNf       := aResps[1]
 	LOCAL cPorta    := "LPT1"
     LOCAL cModelo   := "ZEBRA"
@@ -56,49 +57,58 @@ STATIC FUNCTION IMPETIQ(aResps)
     cQuery1 := " SELECT COUNT(*) AS TOTAL " + CRLF
     cQuery1 += " FROM " + CRLF
     cQuery1 += " (SELECT A.[DCV_CODVOL] FROM " + RETSQLNAME("DCV") + " A " + CRLF
-    cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[DCV_PEDIDO] = '"+ (cAlias)->DCV_PEDIDO +"'" + CRLF
+    cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[DCV_PEDIDO] = '"+ nNf +"'" + CRLF
     cQuery1 += " GROUP BY A.[DCV_CODVOL]) AS B" 
     cAlias1 := MPSYSOPENQUERY(cQuery1)
 
-    WHILE (cAlias)->(!Eof())
-        IF(nI <> ALLTRIM((cAlias)->DCV_CODVOL))
-            nI := ALLTRIM((cAlias)->DCV_CODVOL)
-            nV += 1
-        ENDIF
+    cQuery2 := " SELECT A.[F2_FIMP] " + CRLF
+    cQuery2 += " FROM " + RETSQLNAME("SF2") + " A " + CRLF
+    cQuery2 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[F2_DOC] = '"+ nF +"'"
+    cAlias2 := MPSYSOPENQUERY(cQuery2)
 
-        MSCBPRINTER(cModelo,cPorta,,10,.F.,,,,,,.F.,)
-        MSCBCHKSTATUS(.F.)
-        MSCBBEGIN(1,6)
-        cEtiqueta := "^XA " + CRLF
-        cEtiqueta += "^FX NUMERO DA NOTA " + CRLF
-        cEtiqueta += "^CF0,80 " + CRLF
-        cEtiqueta += "^FO20,40^FDNF: "+ ALLTRIM((cAlias)->C9_NFISCAL) +"^FS " + CRLF
-        cEtiqueta += "^FX CLIENTE, FORNECEDOR E PRODUTO " + CRLF
-        cEtiqueta += "^CFA,30 " + CRLF
-        cEtiqueta += "^FO10,220^FD CLIENTE: "+ ALLTRIM((cAlias)->A1_NOME) +"^FS " + CRLF
-        cEtiqueta += "^CFA,30 " + CRLF
-        cEtiqueta += "^FO10,250^FD FORNECEDOR: ALUMBRA PRODUTOS ELETRICOS^FS " + CRLF
-        cEtiqueta += "^CFA,30 " + CRLF
-        cEtiqueta += "^FO10,280^FD PRODUTO: "+ ALLTRIM((cAlias)->B1_DESC) +"^FS " + CRLF
-        cEtiqueta += "^FX QUANTIDADE DE PEÇAS " + CRLF
-        cEtiqueta += "^CF0,60 " + CRLF
-        cEtiqueta += "^FO10,370^FD QTDE: "+ STRZERO((cAlias)->DCV_QUANT, 4) +"^FS " + CRLF
-        cEtiqueta += "^FX VOLUME " + CRLF
-        cEtiqueta += "^CF0,60 " + CRLF
-        cEtiqueta += "^FO400,350^FD VOLUME:^FS " + CRLF
-        cEtiqueta += "^FO450,400^FD"+ STRZERO(nV,3) +" / "+ STRZERO((cAlias1)->TOTAL,3)+"^FS " + CRLF
-        cEtiqueta += "^FX CODIGO DE BARRA. " + CRLF
-        cEtiqueta += "^BY3,1,80 " + CRLF
-        cEtiqueta += "^FO250,450^BC^FD"+ ALLTRIM((cAlias)->B1_CODBAR) +"^FS " + CRLF
-        cEtiqueta += "^XZ "
-        MSCBWRITE(cEtiqueta)
-        MSCBEND()
-        MSCBCLOSEPRINTER()
+    IF ALLTRIM((cAlias2)->F2_FIMP) == "S"
+        WHILE (cAlias)->(!Eof())
+            IF(nI <> ALLTRIM((cAlias)->DCV_CODVOL))
+                nI := ALLTRIM((cAlias)->DCV_CODVOL)
+                nV += 1
+            ENDIF
 
-        (cAlias)->(DBSKIP())
-    ENDDO
+            MSCBPRINTER(cModelo,cPorta,,10,.F.,,,,,,.F.,)
+            MSCBCHKSTATUS(.F.)
+            MSCBBEGIN(1,6)
+            cEtiqueta := "^XA " + CRLF
+            cEtiqueta += "^FX NUMERO DA NOTA " + CRLF
+            cEtiqueta += "^CF0,80 " + CRLF
+            cEtiqueta += "^FO20,40^FDNF: "+ ALLTRIM((cAlias)->C9_NFISCAL) +"^FS " + CRLF
+            cEtiqueta += "^FX CLIENTE, FORNECEDOR E PRODUTO " + CRLF
+            cEtiqueta += "^CFA,30 " + CRLF
+            cEtiqueta += "^FO10,220^FD CLIENTE: "+ ALLTRIM((cAlias)->A1_NOME) +"^FS " + CRLF
+            cEtiqueta += "^CFA,30 " + CRLF
+            cEtiqueta += "^FO10,250^FD FORNECEDOR: ALUMBRA PRODUTOS ELETRICOS^FS " + CRLF
+            cEtiqueta += "^CFA,30 " + CRLF
+            cEtiqueta += "^FO10,280^FD PRODUTO: "+ ALLTRIM((cAlias)->B1_DESC) +"^FS " + CRLF
+            cEtiqueta += "^FX QUANTIDADE DE PEÇAS " + CRLF
+            cEtiqueta += "^CF0,60 " + CRLF
+            cEtiqueta += "^FO10,370^FD QTDE: "+ STRZERO((cAlias)->DCV_QUANT, 4) +"^FS " + CRLF
+            cEtiqueta += "^FX VOLUME " + CRLF
+            cEtiqueta += "^CF0,60 " + CRLF
+            cEtiqueta += "^FO400,350^FD VOLUME:^FS " + CRLF
+            cEtiqueta += "^FO450,400^FD"+ STRZERO(nV,3) +" / "+ STRZERO((cAlias1)->TOTAL,3)+"^FS " + CRLF
+            cEtiqueta += "^FX CODIGO DE BARRA. " + CRLF
+            cEtiqueta += "^BY3,1,80 " + CRLF
+            cEtiqueta += "^FO250,450^BC^FD"+ ALLTRIM((cAlias)->B1_CODBAR) +"^FS " + CRLF
+            cEtiqueta += "^XZ "
+            MSCBWRITE(cEtiqueta)
+            MSCBEND()
+            MSCBCLOSEPRINTER()
 
-    (cAlias)->(DBCLOSEAREA())
+            (cAlias)->(DBSKIP())
+        ENDDO
+
+        (cAlias)->(DBCLOSEAREA())
+    ELSE 
+        MSGINFO("NF Não transmitida", "AVISO !")
+    ENDIF    
 
 RETURN
 
