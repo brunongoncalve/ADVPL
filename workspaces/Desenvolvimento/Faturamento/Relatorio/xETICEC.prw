@@ -63,7 +63,7 @@ STATIC FUNCTION IMPETIQ(aResps)
 
     cQuery2 := " SELECT A.[F2_FIMP] " + CRLF
     cQuery2 += " FROM " + RETSQLNAME("SF2") + " A " + CRLF
-    cQuery2 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[F2_DOC] = '"+ nF +"'"
+    cQuery2 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[F2_DOC] = '"+ nNf +"'"
     cAlias2 := MPSYSOPENQUERY(cQuery2)
 
     IF ALLTRIM((cAlias2)->F2_FIMP) == "S"
