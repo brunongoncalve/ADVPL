@@ -27,7 +27,6 @@ STATIC FUNCTION IMPETIQ(aResps)
 
 	LOCAL cQuery	:= ""
     LOCAL cQuery1	:= ""
-    LOCAL cQuery2	:= ""
 	LOCAL nNf       := aResps[1]
 	LOCAL cPorta    := "LPT1"
     LOCAL cModelo   := "ZEBRA"
@@ -54,19 +53,12 @@ STATIC FUNCTION IMPETIQ(aResps)
     cAlias := GETNEXTALIAS()
     DBUSEAREA(.T.,'TOPCONN',TCGENQRY(,,cQuery),cAlias,.F.,.T.)
 
-    cQuery1 := " SELECT COUNT(*) AS TOTAL " + CRLF
-    cQuery1 += " FROM " + CRLF
-    cQuery1 += " (SELECT A.[DCV_CODVOL] FROM " + RETSQLNAME("DCV") + " A " + CRLF
-    cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[DCV_PEDIDO] = '"+ nNf +"'" + CRLF
-    cQuery1 += " GROUP BY A.[DCV_CODVOL]) AS B" 
+    cQuery1 := " SELECT A.[F2_FIMP], A.[F2_VOLUME1] " + CRLF
+    cQuery1 += " FROM " + RETSQLNAME("SF2") + " A " + CRLF
+    cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[F2_DOC] = '"+ nNf +"'"
     cAlias1 := MPSYSOPENQUERY(cQuery1)
 
-    cQuery2 := " SELECT A.[F2_FIMP] " + CRLF
-    cQuery2 += " FROM " + RETSQLNAME("SF2") + " A " + CRLF
-    cQuery2 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[F2_DOC] = '"+ nNf +"'"
-    cAlias2 := MPSYSOPENQUERY(cQuery2)
-
-    IF ALLTRIM((cAlias2)->F2_FIMP) == "S"
+    IF ALLTRIM((cAlias1)->F2_FIMP) == "S"
         WHILE (cAlias)->(!Eof())
             IF(nI <> ALLTRIM((cAlias)->DCV_CODVOL))
                 nI := ALLTRIM((cAlias)->DCV_CODVOL)
@@ -93,7 +85,7 @@ STATIC FUNCTION IMPETIQ(aResps)
             cEtiqueta += "^FX VOLUME " + CRLF
             cEtiqueta += "^CF0,60 " + CRLF
             cEtiqueta += "^FO400,350^FD VOLUME:^FS " + CRLF
-            cEtiqueta += "^FO450,400^FD"+ STRZERO(nV,3) +" / "+ STRZERO((cAlias1)->TOTAL,3)+"^FS " + CRLF
+            cEtiqueta += "^FO450,400^FD"+ STRZERO(nV,3) +" / "+ STRZERO((cAlias1)->F2_VOLUME1,3)+"^FS " + CRLF
             cEtiqueta += "^FX CODIGO DE BARRA. " + CRLF
             cEtiqueta += "^BY3,1,80 " + CRLF
             cEtiqueta += "^FO250,450^BC^FD"+ ALLTRIM((cAlias)->B1_CODBAR) +"^FS " + CRLF
