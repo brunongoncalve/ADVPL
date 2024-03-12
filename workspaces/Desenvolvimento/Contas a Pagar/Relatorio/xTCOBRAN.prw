@@ -1,5 +1,7 @@
 #INCLUDE "PROTHEUS.ch"
 #INCLUDE "TOTVS.ch"
+#INCLUDE "prtopdef.ch"
+#INCLUDE 'TOPCONN.ch'
 
 //----------------------------------------------------------------------------------------------------------------------
 /* {Protheus.doc} TITULOS EM COBRANÇA
@@ -16,6 +18,7 @@ USER FUNCTION xTCOBRAN()
     LOCAL aPergs  := {}
     LOCAL aResps  := {}
 
+    AADD(aPergs, {2, "ESCOLHA QUAL TIPO DE DATA", " ", {" ","DATA DE EMISSAO", "DATA VENCIMENTO REAL"},100,"",.F.})
     AADD(aPergs, {1, "DATA DE",STOD(""),,,,, 100, .F.})
     AADD(aPergs, {1, "DATA ATE",STOD(""),,,,, 100, .F.})
     
@@ -31,7 +34,6 @@ STATIC FUNCTION REPORTDEF(aResps)
     LOCAL oReport      := NIL
     LOCAL oSection1    := NIL
     LOCAL nColSpace    := 0
-    LOCAL nSize        := 25
     LOCAL nSize1       := 255
     LOCAL lLineBreak   := .T.
     LOCAL lAutoSize    := .T.
@@ -44,43 +46,54 @@ STATIC FUNCTION REPORTDEF(aResps)
     oReport := TREPORT():NEW(cNomeArq, cTitulo, "", {|oReport| REPORTPRINT(oReport, @cAliasBC, aResps)}, "IMPRESSÃO DE RELATORIO")
 
     oSection1 := TRSECTION():NEW(oReport)
-    TRCELL():NEW(oSection1,"A1_COD",cAliasBC,"COD.CLI",,nSize,,{|| (cAliasBC)->A1_COD},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
-    
-    oBreak := TRBREAK():NEW(oSection1,oSection1:CELL("A1_COD"),"TOTAL",.F.)
+    TRCELL():NEW(oSection1,"E1_CONTA",cAliasBC,"CONTA CORRENTE",,nSize1,,{|| (cAliasBC)->E1_CONTA},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1,"E1_SALDO",cAliasBC,"SALDO",,nSize1,,{|| (cAliasBC)->SALDO},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1,"E1_CONTA",cAliasBC,"QUANTIDADE DE TITULOS",,nSize1,,{|| (cAliasBC)->QUANTIDADE_TITULOS},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+
+    TRFUNCTION():NEW(oSection1:CELL("E1_SALDO") ,,"SUM",,,"@E 9,999,999,999.99",,.T.,.F.,,oSection1)
 
 RETURN oReport
 
-STATIC FUNCTION REPORTPRINT(cAliasBC)
+STATIC FUNCTION REPORTPRINT(oReport, cAliasBC, aResps)
 
     LOCAL oSection1   := oReport:SECTION(1)
     LOCAL cQuery      := ""
-    
-    cQuery := " SELECT B.[A1_COD], " + CRLF
-    cQuery += " B.[A1_LOJA], " + CRLF
-    cQuery += " B.[A1_NREDUZ], " + CRLF
-    cQuery += " TRIM(B.[A1_END]) + (' ' + '-' + ' ' + B.[A1_EST]) AS [A1_END], "  + CRLF
-    cQuery += " A.[C5_NUM], " + CRLF
-    cQuery += " A.[C5_TIPO], " + CRLF
-    cQuery += " FORMAT(CONVERT(DATE, A.[C5_EMISSAO]), 'dd/MM/yy') AS [C5_EMISSAO], " + CRLF
-    cQuery += " C.[A4_NOME], " + CRLF
-    cQuery += " D.[E4_DESCRI], " + CRLF
-    cQuery += " E.[A3_NOME] " + CRLF
-	cQuery += " FROM " + RETSQLNAME("SC5") + " A " + CRLF
-    cQuery += " LEFT JOIN " + RETSQLNAME("SA1") + " B " + CRLF
-    cQuery += " ON A.[C5_CLIENTE] = B.[A1_COD] " + CRLF
-    cQuery += " LEFT JOIN " + RETSQLNAME("SA4") + " C " + CRLF
-    cQuery += " ON A.[C5_TRANSP] = C.[A4_COD] " + CRLF
-    cQuery += " LEFT JOIN " + RETSQLNAME("SE4") + " D " + CRLF
-    cQuery += " ON A.[C5_CONDPAG] = D.[E4_CODIGO] " + CRLF
-    cQuery += " LEFT JOIN " + RETSQLNAME("SA3") + " E " + CRLF
-    cQuery += " ON A.[C5_VEND1] = E.[A3_COD] " + CRLF
-    IF !EMPTY(cResult)
-        cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_XSTEX] = '" + cResult +"'" + CRLF
-    ELSE
-        cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_NUM] BETWEEN '"+ aPedidoDE +"' AND '"+ aPedidoATE +"'" + CRLF
-    ENDIF        
-    cQuery += " ORDER BY A.[C5_NUM]"
+    LOCAL dDataDEAno  := YEAR2STR(aResps[2])
+    LOCAL dDataDEMes  := MONTH2STR(aResps[2])
+    LOCAL dDataDEDia  := DAY2STR(aResps[2])
+    LOCAL dDataDE     := dDataDEAno + dDataDEMes + dDataDEDia
+    LOCAL dDataATEAno := YEAR2STR(aResps[3])
+    LOCAL dDataATEMes := MONTH2STR(aResps[3])
+    LOCAL dDataATEDia := DAY2STR(aResps[3])
+    LOCAL dDataATE    := dDataATEAno + dDataATEMes + dDataATEDia
+    LOCAL cResult     := aResps[1]
+  
+    cQuery := " SELECT A.[E1_CONTA], SUM(A.[E1_SALDO]) AS SALDO, COUNT(A.[E1_CONTA]) AS QUANTIDADE_TITULOS " + CRLF
+	cQuery += " FROM " + RETSQLNAME("SE1") + " A " + CRLF
+    cQuery += " LEFT JOIN " + RETSQLNAME("SA6") + " B " + CRLF
+    cQuery += " ON A.[E1_CONTA] = B.[A6_NUMCON] " + CRLF
+    IF cResult == "DATA DE EMISSAO"
+        ALERT("EMISSAO")
+        cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[E1_EMISSAO] BETWEEN '"+ dDataDE +"' AND '"+ dDataATE +"'" + CRLF    
+    ENDIF
+    IF cResult == "DATA VENCIMENTO REAL"
+        ALERT("VENCIMENTO")
+        cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[E1_VENCREA] BETWEEN '"+ dDataDE +"' AND '"+ dDataATE +"'" + CRLF
+    ENDIF    
+    cQuery += " GROUP BY  A.[E1_CONTA] " 
+ 
+    cQuery := CHANGEQUERY(cQuery)
+    cAliasBC := GETNEXTALIAS()
+    DBUSEAREA(.T.,'TOPCONN',TCGENQRY(,,cQuery),cAliasBC,.F.,.T.)
 
-    cAliasBC := MPSYSOPENQUERY(cQuery)
+    WHILE (cAliasBC)->(!EOF())
+        oSection1:INIT()
+        oSection1:PRINTLINE()
+
+        (cAliasBC)->(DBSKIP())
+        oSection1:FINISH()
+    ENDDO
+
+    (cAliasBC)->(DBCLOSEAREA())
 
 RETURN 

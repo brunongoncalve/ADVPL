@@ -72,7 +72,10 @@
 		},
 		{
 			"label": "vtdebug"
+		},
+		{
+			"label": "sigafin"
 		}
 	],
-	"lastProgramExecuted": "sigafat"
+	"lastProgramExecuted": "sigafin"
 }
