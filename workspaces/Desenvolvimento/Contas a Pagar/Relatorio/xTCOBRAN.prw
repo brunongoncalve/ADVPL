@@ -7,7 +7,7 @@
 /* {Protheus.doc} TITULOS EM COBRANÇA
 RELATORIO - TITULOS EM COBRANÇA
 @author    BRUNO NASCIMENTO GONÇALVES
-@since     11/03/2023
+@since     11/03/2024
 @version   12/superior
 */
 //----------------------------------------------------------------------------------------------------------------------
@@ -18,7 +18,7 @@ USER FUNCTION xTCOBRAN()
     LOCAL aPergs  := {}
     LOCAL aResps  := {}
 
-    AADD(aPergs, {2, "ESCOLHA QUAL TIPO DE DATA", " ", {" ","DATA DE EMISSAO", "DATA VENCIMENTO REAL"},100,"",.F.})
+    AADD(aPergs, {2, "QUAL TIPO DE DATA", " ", {" ","DATA DE EMISSAO", "DATA VENCIMENTO REAL"},100,"",.F.})
     AADD(aPergs, {1, "DATA DE",STOD(""),,,,, 100, .F.})
     AADD(aPergs, {1, "DATA ATE",STOD(""),,,,, 100, .F.})
     
@@ -47,10 +47,10 @@ STATIC FUNCTION REPORTDEF(aResps)
 
     oSection1 := TRSECTION():NEW(oReport)
     TRCELL():NEW(oSection1,"E1_CONTA",cAliasBC,"CONTA CORRENTE",,nSize1,,{|| (cAliasBC)->E1_CONTA},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection1,"E1_SALDO",cAliasBC,"SALDO",,nSize1,,{|| (cAliasBC)->SALDO},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection1,"E1_CONTA",cAliasBC,"QUANTIDADE DE TITULOS",,nSize1,,{|| (cAliasBC)->QUANTIDADE_TITULOS},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
-
-    TRFUNCTION():NEW(oSection1:CELL("E1_SALDO") ,,"SUM",,,"@E 9,999,999,999.99",,.T.,.F.,,oSection1)
+    TRCELL():NEW(oSection1,"A6_COD",cAliasBC,"CODIGO CONTA",,nSize1,,{|| (cAliasBC)->A6_COD},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1,"A6_NOME",cAliasBC,"NOME CONTA",,nSize1,,{|| (cAliasBC)->A6_NOME},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1,"QUANTIDADE_TITULOS",cAliasBC,"Qtd DE TITULOS",,nSize1,,{|| (cAliasBC)->QUANTIDADE_TITULOS},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1,"SALDO",cAliasBC,"SALDO","@E 9,999,999,999.99",nSize1,,{|| (cAliasBC)->SALDO},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
 
 RETURN oReport
 
@@ -68,7 +68,7 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasBC, aResps)
     LOCAL dDataATE    := dDataATEAno + dDataATEMes + dDataATEDia
     LOCAL cResult     := aResps[1]
   
-    cQuery := " SELECT A.[E1_CONTA], SUM(A.[E1_SALDO]) AS SALDO, COUNT(A.[E1_CONTA]) AS QUANTIDADE_TITULOS " + CRLF
+    cQuery := " SELECT A.[E1_CONTA], SUM(A.[E1_SALDO]) AS SALDO, COUNT(A.[E1_CONTA]) AS QUANTIDADE_TITULOS, B.[A6_NOME], B.[A6_COD] " + CRLF
 	cQuery += " FROM " + RETSQLNAME("SE1") + " A " + CRLF
     cQuery += " LEFT JOIN " + RETSQLNAME("SA6") + " B " + CRLF
     cQuery += " ON A.[E1_CONTA] = B.[A6_NUMCON] " + CRLF
@@ -80,9 +80,9 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasBC, aResps)
         ALERT("VENCIMENTO")
         cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[E1_VENCREA] BETWEEN '"+ dDataDE +"' AND '"+ dDataATE +"'" + CRLF
     ENDIF    
-    cQuery += " GROUP BY  A.[E1_CONTA] " 
+    cQuery += " GROUP BY  A.[E1_CONTA], B.[A6_NOME], B.[A6_COD] " 
  
-    cQuery := CHANGEQUERY(cQuery)
+    cQuery   := CHANGEQUERY(cQuery)
     cAliasBC := GETNEXTALIAS()
     DBUSEAREA(.T.,'TOPCONN',TCGENQRY(,,cQuery),cAliasBC,.F.,.T.)
 
