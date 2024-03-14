@@ -172,16 +172,11 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
                             DBSETORDER(1)
                                 DBSEEK(XFILIAL("SC5")+(cAliasCL)->C5_NUM)
                                     IF FOUND()
-                                        IF SC5->C5_XSTEX == 'AX'
-                                            RECLOCK("SC5", .F.)
-                                                SC5->C5_XSTEX := 'AL'
-                                            MSUNLOCK()
-                                        ENDIF
                                         OBS := u_LerMemoA(SC5->C5_XOBS)   
                                     ENDIF
                         RESTAREA(aArea)
 
-                        oStatement := FWPreparedStatement():New()
+                        oStatement := FWPREPAREDSTATEMENT():NEW()
 
                         cQuery2 := " SELECT ? as C5_XOBS, " + CRLF
                         cQuery2 += " A.[C5_NUM] " + CRLF
@@ -194,10 +189,10 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
                             cQuery2 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_NUM] BETWEEN '"+ aPedidoDE +"' AND '"+ aPedidoATE +"'" + CRLF
                         ENDIF        
                         cQuery2 += " ORDER BY A.[C5_NUM]"
-
-                        oStatement:SetQuery(cQuery2)
-                        oStatement:SetString(1,OBS)                                  
-                        cQuery2 := oStatement:GetFixQuery()
+                        
+                        oStatement:SETQUERY(cQuery2)
+                        oStatement:SETSTRING(1,OBS)                                  
+                        cQuery2 := oStatement:GETFIXQUERY()
 
                         cAliasOB := MPSYSOPENQUERY(cQuery2)
 
@@ -208,6 +203,18 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
                                 ENDIF        
                                 (cAliasOB)->(DBSKIP())
                             ENDDO
+
+                            DBSELECTAREA("SC5")
+                            DBSETORDER(1)
+                                DBSEEK(XFILIAL("SC5")+(cAliasCL)->C5_NUM)
+                                    IF FOUND()
+                                        IF SC5->C5_XSTEX == 'AX'
+                                            RECLOCK("SC5", .F.)
+                                                SC5->C5_XSTEX := 'AL'
+                                            MSUNLOCK()
+                                        ENDIF
+                                    ENDIF
+                            RESTAREA(aArea)
                             
                             oSection3:FINISH()
                             (cAliasOB)->(DBCLOSEAREA()) 

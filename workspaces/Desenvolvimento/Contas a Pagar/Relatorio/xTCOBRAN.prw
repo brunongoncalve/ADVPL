@@ -18,7 +18,7 @@ USER FUNCTION xTCOBRAN()
     LOCAL aPergs  := {}
     LOCAL aResps  := {}
 
-    AADD(aPergs, {2, "QUAL TIPO DE DATA", " ", {" ","DATA DE EMISSAO", "DATA VENCIMENTO REAL"},100,"",.F.})
+    AADD(aPergs, {2, "QUAL TIPO DE DATA", " ", {"DATA VENCIMENTO REAL","DATA DE EMISSAO"},100,"",.F.})
     AADD(aPergs, {1, "DATA DE",STOD(""),,,,, 100, .F.})
     AADD(aPergs, {1, "DATA ATE",STOD(""),,,,, 100, .F.})
     
@@ -73,11 +73,9 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasBC, aResps)
     cQuery += " LEFT JOIN " + RETSQLNAME("SA6") + " B " + CRLF
     cQuery += " ON A.[E1_CONTA] = B.[A6_NUMCON] " + CRLF
     IF cResult == "DATA DE EMISSAO"
-        ALERT("EMISSAO")
         cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[E1_EMISSAO] BETWEEN '"+ dDataDE +"' AND '"+ dDataATE +"'" + CRLF    
     ENDIF
     IF cResult == "DATA VENCIMENTO REAL"
-        ALERT("VENCIMENTO")
         cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[E1_VENCREA] BETWEEN '"+ dDataDE +"' AND '"+ dDataATE +"'" + CRLF
     ENDIF    
     cQuery += " GROUP BY  A.[E1_CONTA], B.[A6_NOME], B.[A6_COD] " 
