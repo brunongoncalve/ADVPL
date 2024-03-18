@@ -18,7 +18,6 @@ USER FUNCTION xTCOBRAN()
     LOCAL aPergs  := {}
     LOCAL aResps  := {}
 
-    AADD(aPergs, {2, "QUAL TIPO DE DATA", " ", {"DATA VENCIMENTO REAL","DATA DE EMISSAO"},100,"",.F.})
     AADD(aPergs, {1, "DATA DE",STOD(""),,,,, 100, .F.})
     AADD(aPergs, {1, "DATA ATE",STOD(""),,,,, 100, .F.})
     
@@ -58,26 +57,20 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasBC, aResps)
 
     LOCAL oSection1   := oReport:SECTION(1)
     LOCAL cQuery      := ""
-    LOCAL dDataDEAno  := YEAR2STR(aResps[2])
-    LOCAL dDataDEMes  := MONTH2STR(aResps[2])
-    LOCAL dDataDEDia  := DAY2STR(aResps[2])
+    LOCAL dDataDEAno  := YEAR2STR(aResps[1])
+    LOCAL dDataDEMes  := MONTH2STR(aResps[1])
+    LOCAL dDataDEDia  := DAY2STR(aResps[1])
     LOCAL dDataDE     := dDataDEAno + dDataDEMes + dDataDEDia
-    LOCAL dDataATEAno := YEAR2STR(aResps[3])
-    LOCAL dDataATEMes := MONTH2STR(aResps[3])
-    LOCAL dDataATEDia := DAY2STR(aResps[3])
+    LOCAL dDataATEAno := YEAR2STR(aResps[2])
+    LOCAL dDataATEMes := MONTH2STR(aResps[2])
+    LOCAL dDataATEDia := DAY2STR(aResps[2])
     LOCAL dDataATE    := dDataATEAno + dDataATEMes + dDataATEDia
-    LOCAL cResult     := aResps[1]
   
     cQuery := " SELECT A.[E1_CONTA], SUM(A.[E1_SALDO]) AS SALDO, COUNT(A.[E1_CONTA]) AS QUANTIDADE_TITULOS, B.[A6_NOME], B.[A6_COD] " + CRLF
 	cQuery += " FROM " + RETSQLNAME("SE1") + " A " + CRLF
     cQuery += " LEFT JOIN " + RETSQLNAME("SA6") + " B " + CRLF
-    cQuery += " ON A.[E1_CONTA] = B.[A6_NUMCON] " + CRLF
-    IF cResult == "DATA DE EMISSAO"
-        cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[E1_EMISSAO] BETWEEN '"+ dDataDE +"' AND '"+ dDataATE +"'" + CRLF    
-    ENDIF
-    IF cResult == "DATA VENCIMENTO REAL"
-        cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[E1_VENCREA] BETWEEN '"+ dDataDE +"' AND '"+ dDataATE +"'" + CRLF
-    ENDIF    
+    cQuery += " ON A.[E1_CONTA] = B.[A6_NUMCON] " + CRLF  
+    cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[E1_VENCREA] BETWEEN '"+ dDataDE +"' AND '"+ dDataATE +"' AND B.[A6_COD] NOT IN ('888', '887', '111', '055', '996', '803')" + CRLF
     cQuery += " GROUP BY  A.[E1_CONTA], B.[A6_NOME], B.[A6_COD] " 
  
     cQuery   := CHANGEQUERY(cQuery)
