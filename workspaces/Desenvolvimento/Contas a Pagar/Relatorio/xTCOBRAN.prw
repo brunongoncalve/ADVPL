@@ -18,6 +18,9 @@ USER FUNCTION xTCOBRAN()
     LOCAL aPergs  := {}
     LOCAL aResps  := {}
 
+    IF CUSERNAME == "BRUNO.GONCALVES"
+        AADD(aPergs, {1, "COD. BANCO", SPACE(TAMSX3("A6_COD")[1]),,,"SA6",,100, .F.})
+    ENDIF
     AADD(aPergs, {1, "DATA DE",STOD(""),,,,, 100, .F.})
     AADD(aPergs, {1, "DATA ATE",STOD(""),,,,, 100, .F.})
     
@@ -51,26 +54,33 @@ STATIC FUNCTION REPORTDEF(aResps)
     TRCELL():NEW(oSection1,"QUANTIDADE_TITULOS",cAliasBC,"Qtd DE TITULOS",,nSize1,,{|| (cAliasBC)->QUANTIDADE_TITULOS},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection1,"SALDO",cAliasBC,"SALDO","@E 9,999,999,999.99",nSize1,,{|| (cAliasBC)->SALDO},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
 
+    TRFUNCTION():NEW(oSection1:CELL("SALDO"),,"SUM",,,"@E 9,999,999,999.99",,.T.,.F.,,oSection1)
+
 RETURN oReport
 
 STATIC FUNCTION REPORTPRINT(oReport, cAliasBC, aResps)
 
     LOCAL oSection1   := oReport:SECTION(1)
     LOCAL cQuery      := ""
-    LOCAL dDataDEAno  := YEAR2STR(aResps[1])
-    LOCAL dDataDEMes  := MONTH2STR(aResps[1])
-    LOCAL dDataDEDia  := DAY2STR(aResps[1])
+    LOCAL cBanco      := aResps[1]
+    LOCAL dDataDEAno  := YEAR2STR(aResps[2])
+    LOCAL dDataDEMes  := MONTH2STR(aResps[2])
+    LOCAL dDataDEDia  := DAY2STR(aResps[2])
     LOCAL dDataDE     := dDataDEAno + dDataDEMes + dDataDEDia
-    LOCAL dDataATEAno := YEAR2STR(aResps[2])
-    LOCAL dDataATEMes := MONTH2STR(aResps[2])
-    LOCAL dDataATEDia := DAY2STR(aResps[2])
+    LOCAL dDataATEAno := YEAR2STR(aResps[3])
+    LOCAL dDataATEMes := MONTH2STR(aResps[3])
+    LOCAL dDataATEDia := DAY2STR(aResps[3])
     LOCAL dDataATE    := dDataATEAno + dDataATEMes + dDataATEDia
   
     cQuery := " SELECT A.[E1_CONTA], SUM(A.[E1_SALDO]) AS SALDO, COUNT(A.[E1_CONTA]) AS QUANTIDADE_TITULOS, B.[A6_NOME], B.[A6_COD] " + CRLF
 	cQuery += " FROM " + RETSQLNAME("SE1") + " A " + CRLF
     cQuery += " LEFT JOIN " + RETSQLNAME("SA6") + " B " + CRLF
-    cQuery += " ON A.[E1_CONTA] = B.[A6_NUMCON] " + CRLF  
-    cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[E1_VENCREA] BETWEEN '"+ dDataDE +"' AND '"+ dDataATE +"' AND B.[A6_COD] NOT IN ('888', '887', '111', '055', '996', '803')" + CRLF
+    cQuery += " ON A.[E1_CONTA] = B.[A6_NUMCON] " + CRLF
+    IF CUSERNAME <> "BRUNO.GONCALVES"  
+        cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[E1_VENCREA] BETWEEN '"+ dDataDE +"' AND '"+ dDataATE +"' AND B.[A6_COD] NOT IN ('888', '887', '111', '055', '996', '803', '116', '114', '112')" + CRLF
+    ELSE
+        cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[E1_VENCREA] BETWEEN '"+ dDataDE +"' AND '"+ dDataATE +"' AND B.[A6_COD] = '"+ cBanco +"'" + CRLF     
+    ENDIF
     cQuery += " GROUP BY  A.[E1_CONTA], B.[A6_NOME], B.[A6_COD] " 
  
     cQuery   := CHANGEQUERY(cQuery)
