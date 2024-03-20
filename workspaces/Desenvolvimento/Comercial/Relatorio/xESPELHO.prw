@@ -1,4 +1,6 @@
-#INCLUDE 'PROTHEUS.ch'
+#INCLUDE "RPTDEF.CH"
+#INCLUDE "FWPrintSetup.ch"
+#INCLUDE "protheus.ch"
 
 //----------------------------------------------------------------------------------------------------------------------
 /* {Protheus.doc} ESPELHO DE DEVOLUÇÃO
@@ -11,6 +13,18 @@ RELATORIO - ESPELHO DE DEVOLUÇÃO
 
 USER FUNCTION xESPELHO()
 
-ALERT("OLA, MUNDO !!!")
+LOCAL lAdjustToLegacy := .F.
+LOCAL lDisableSetup   := .T.
+LOCAL cLocal          := "\spool"
+LOCAL oPrinter
+ 
+oPrinter := FWMSPRINTER():NEW("exemplo.rel", IMP_PDF, lAdjustToLegacy,cLocal, lDisableSetup,,,,,,.F.,)
+oPrinter:BOX(50,10,100,300,"-4")
+oPrinter:SAY(20,30,"Código de barras EAN13:")
+ 
+oPrinter:SETUP()
+    IF oPrinter:nModalResult == PD_OK
+        oPrinter:PREVIEW()
+    EndIf
 
 RETURN
