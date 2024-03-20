@@ -18,7 +18,7 @@ USER FUNCTION xTCOBRAN()
     LOCAL aPergs  := {}
     LOCAL aResps  := {}
 
-    IF CUSERNAME == "BRUNO.GONCALVES"
+    IF CUSERNAME == "CLAUDIO"
         AADD(aPergs, {1, "COD. BANCO", SPACE(TAMSX3("A6_COD")[1]),,,"SA6",,100, .F.})
         AADD(aPergs, {1, "DATA DE",STOD(""),,,,, 100, .F.})
         AADD(aPergs, {1, "DATA ATE",STOD(""),,,,, 100, .F.})
@@ -57,7 +57,7 @@ STATIC FUNCTION REPORTDEF(aResps)
     TRCELL():NEW(oSection1,"QUANTIDADE_TITULOS",cAliasBC,"Qtd DE TITULOS",,nSize1,,{|| (cAliasBC)->QUANTIDADE_TITULOS},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection1,"SALDO",cAliasBC,"SALDO","@E 9,999,999,999.99",nSize1,,{|| (cAliasBC)->SALDO},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
 
-    TRFUNCTION():NEW(oSection1:CELL("SALDO") ,,"SUM",,,"@E 999,999,999,999.99",,.F.,.T.,,oSection1)
+    TRFUNCTION():NEW(oSection1:CELL("SALDO"),,"SUM",,"SOMA TOTAL","@E 999,999,999,999.99",,.F.,.T.,,oSection1)
 
 RETURN oReport
 
@@ -92,12 +92,12 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasBC, aResps)
 	cQuery += " FROM " + RETSQLNAME("SE1") + " A " + CRLF
     cQuery += " LEFT JOIN " + RETSQLNAME("SA6") + " B " + CRLF
     cQuery += " ON A.[E1_CONTA] = B.[A6_NUMCON] " + CRLF
-    IF CUSERNAME == "BRUNO.GONCALVES" .AND. EMPTY(cBanco)
+    IF CUSERNAME == "CLAUDIO" .AND. EMPTY(cBanco)
         cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[E1_VENCREA] BETWEEN '"+ dDataDE +"' AND '"+ dDataATE +"'" + CRLF 
     ELSEIF !EMPTY(cBanco)
         cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[E1_VENCREA] BETWEEN '"+ dDataDE +"' AND '"+ dDataATE +"' AND B.[A6_COD] = '"+ cBanco +"'" + CRLF 
     ELSE
-        cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[E1_VENCREA] BETWEEN '"+ dDataDE +"' AND '"+ dDataATE +"' AND B.[A6_COD] NOT IN ('888', '887', '111', '055', '996', '803', '116', '114', '112')" + CRLF
+        cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[E1_VENCREA] BETWEEN '"+ dDataDE +"' AND '"+ dDataATE +"' AND B.[A6_COD] IN ('274', '341', '033', '637', '707', '300', '302', '305', '307', '310', '311', '314', '321', '326')" + CRLF
     ENDIF
     cQuery += " GROUP BY  A.[E1_CONTA], B.[A6_NOME], B.[A6_COD] " 
  
@@ -109,6 +109,7 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasBC, aResps)
         oSection1:INIT()
         oSection1:PRINTLINE()
 
+        oReport:SKIPLINE(1)
         (cAliasBC)->(DBSKIP())
         oSection1:FINISH()
     ENDDO
