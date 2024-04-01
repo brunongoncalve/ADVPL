@@ -1,4 +1,5 @@
 #INCLUDE "RPTDEF.CH"
+#INCLUDE 'TOPCONN.ch'
 #INCLUDE "FWPrintSetup.ch"
 #INCLUDE "protheus.ch"
 
@@ -13,51 +14,70 @@ RELATORIO - ESPELHO DE DEVOLUÇÃO
 
 USER FUNCTION xESPELHO()
 
-    LOCAL aPergs := {}
-    LOCAL aResps := {}
+    LOCAL oReport := NIL
+    LOCAL aPergs  := {}
+    LOCAL aResps  := {}
 
-    AADD(aPergs, {1, "NUMERO DA NOTA FISCAL", SPACE(TAMSX3("A1_COD")[1]),,,"SA1",,100, .F.})
-
+    AADD(aPergs, {1, "CLIENTE DE", SPACE(TAMSX3("A1_COD")[1]) ,,,"SA1",, 100, .F.})
+    AADD(aPergs, {1, "CLIENTE ATE", SPACE(TAMSX3("A1_COD")[1]) ,,,"SA1",, 100, .F.})
+    
         IF PARAMBOX(aPergs, "Parametros do relatorio", @aResps,,,,,,,, .T., .T.)
-            IMPESPE(aResps)
-        ENDIF    
+            oReport := REPORTDEF(aResps)
+            oReport:PRINTDIALOG()
+        ENDIF
 
 RETURN
 
-STATIC FUNCTION IMPESPE(aResps)
+STATIC FUNCTION REPORTDEF(aResps)
 
-LOCAL lAdjustToLegacy := .F.
-LOCAL lDisableSetup   := .T.
-LOCAL cLocal          := "\spool"
-LOCAL oPrinter
- 
-oPrinter := FWMSPRINTER():NEW("exemplo.rel",IMP_PDF,lAdjustToLegacy,cLocal,lDisableSetup,,,,,,.F.,)
-oPrinter:BOX(20,5,70,100,"-5")
-oPrinter:SAYBITMAP(20,10,"C:\Logo\logo_novo.png",90,28)
-oPrinter:BOX(20,100,70,500,"-5")
-oPrinter:SAY(50,200,"MODELO DE NOTA FISCAL DE DEVOLUÇÃO")
-oPrinter:BOX(20,500,70,590,"-5")
-oPrinter:SAY(35,505,"N DA DEVOLUÇÃO")
-oPrinter:SAY(50,505,"8")
-oPrinter:SAY(65,505,"28/03/2024")
-oPrinter:SAY(90,10,"1 - Remetente")
-oPrinter:BOX(150,5,100,590,"-5")
-oPrinter:SAY(170,10,"2 - Natureza de Operação")
-oPrinter:BOX(180,5,200,590,"-5")
-oPrinter:SAY(193,10,"Devolução")
-oPrinter:SAY(220,10,"3 - Destinatário")
-oPrinter:BOX(230,5,280,590,"-5")
-oPrinter:SAY(300,10,"4 - Dados do Produto")
-oPrinter:BOX(310,5,320,590,"-5")
-oPrinter:SAY(319,10,"PROD")
-oPrinter:SAY(319,45,"DESCRIÇÃO DO PRODUTO")
-oPrinter:SAY(319,95,"CL FISCAL")
+    LOCAL oReport      := NIL
+    LOCAL oSection1    := NIL
+    LOCAL nColSpace    := 1
+    LOCAL nSize        := 255
+    LOCAL lLineBreak   := .T.
+    LOCAL lAutoSize    := .T.
+    LOCAL cAlign       := "CENTER"
+    LOCAL cHeaderAlign := "CENTER"
+    LOCAL cAliasCL     := ""
+    LOCAL cNomeArq     := "ESPELHO DA NOTA"
+    LOCAL cTitulo      := "ESPELHO DA NOTA"
 
-oPrinter:SETUP()
+    oReport := TREPORT():NEW(cNomeArq, cTitulo, "", {|oReport| REPORTPRINT(oReport, @cAliasCL, aResps)}, "IMPRESSÃO DE RELATORIO",.T.)
 
-    IF oPrinter:nModalResult == PD_OK
-        oPrinter:PREVIEW()
-    EndIf
+    oSection1 := TRSECTION():NEW(oReport)
+    TRCELL():NEW(oSection1,"",cAliasCL,"REMETENTE",,nSize,,{||},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1,"A1_CGC",cAliasCL,"CNPJ",,nSize,,{|| (cAliasCL)->A1_CGC},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1,"A1_NOME",cAliasCL,"NOME",,nSize,,{|| (cAliasCL)->A1_NOME},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1,"A1_END",cAliasCL,"ENDERECO",,nSize,,{|| (cAliasCL)->A1_END},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1,"A1_EST",cAliasCL,"ESTADO",,nSize,,{|| (cAliasCL)->A1_EST},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1,"A1_MUN",cAliasCL,"MUNICIPIO",,nSize,,{|| (cAliasCL)->A1_MUN},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1,"A1_INSCR",cAliasCL,"INSCRICAO ESTADUAL",,nSize,,{|| (cAliasCL)->A1_INSCR},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+   
+RETURN oReport
+
+STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, aResps)
+
+    LOCAL oSection1 := oReport:SECTION(1)
+    LOCAL cQuery    := ""
+    LOCAL aCliDE    := aResps[1]
+    LOCAL aCliATE   := aResps[2]
+
+    cQuery := " SELECT A.[A1_CGC], A.[A1_NOME], A.[A1_END], A.[A1_EST], A.[A1_MUN], A.[A1_INSCR] " + CRLF
+	cQuery += " FROM " + RETSQLNAME("SA1") + " A " + CRLF
+    cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[A1_COD] BETWEEN '"+ aCliDE +"' AND '"+ aCliATE +"'" + CRLF
+
+    cAliasCL := MPSYSOPENQUERY(cQuery)
+    
+        WHILE (cAliasCL)->(!EOF())
+            oSection1:INIT(.T.)
+            oSection1:PRINTLINE()
+            oSection1:SETPAGEBREAK(.T.)
+
+            (cAliasCL)->(DBSKIP())
+            oSection1:FINISH()
+
+        ENDDO
+
+    (cAliasCL)->(DBCLOSEAREA())
 
 RETURN
-
