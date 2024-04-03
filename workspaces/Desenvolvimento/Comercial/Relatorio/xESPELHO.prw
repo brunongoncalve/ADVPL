@@ -32,33 +32,40 @@ STATIC FUNCTION REPORTDEF(aResps)
 
     LOCAL oReport      := NIL
     LOCAL oSection1    := NIL
+    LOCAL oSection2    := NIL
     LOCAL nColSpace    := 1
     LOCAL nSize        := 255
     LOCAL lLineBreak   := .T.
     LOCAL lAutoSize    := .T.
-    LOCAL cAlign       := "CENTER"
-    LOCAL cHeaderAlign := "CENTER"
-    LOCAL cAliasCL     := ""
+    LOCAL cAlign       := "LEFT"
+    LOCAL cHeaderAlign := "LEFT"
+    LOCAL cAliasRM     := ""
+    LOCAL cAliasDT     := ""
     LOCAL cNomeArq     := "ESPELHO DA NOTA"
     LOCAL cTitulo      := "ESPELHO DA NOTA"
 
-    oReport := TREPORT():NEW(cNomeArq, cTitulo, "", {|oReport| REPORTPRINT(oReport, @cAliasCL, aResps)}, "IMPRESSÃO DE RELATORIO",.T.)
+    oReport := TREPORT():NEW(cNomeArq, cTitulo, "", {|oReport| REPORTPRINT(oReport, @cAliasRM, @cAliasDT, aResps)}, "IMPRESSÃO DE RELATORIO")
 
     oSection1 := TRSECTION():NEW(oReport)
-    TRCELL():NEW(oSection1,"",cAliasCL,"REMETENTE",,nSize,,{||},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection1,"A1_CGC",cAliasCL,"CNPJ",,nSize,,{|| (cAliasCL)->A1_CGC},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection1,"A1_NOME",cAliasCL,"NOME",,nSize,,{|| (cAliasCL)->A1_NOME},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection1,"A1_END",cAliasCL,"ENDERECO",,nSize,,{|| (cAliasCL)->A1_END},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection1,"A1_EST",cAliasCL,"ESTADO",,nSize,,{|| (cAliasCL)->A1_EST},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection1,"A1_MUN",cAliasCL,"MUNICIPIO",,nSize,,{|| (cAliasCL)->A1_MUN},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection1,"A1_INSCR",cAliasCL,"INSCRICAO ESTADUAL",,nSize,,{|| (cAliasCL)->A1_INSCR},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1,"",cAliasRM,"REMETENTE",,nSize,,{||},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1,"A1_CGC",cAliasRM,"CNPJ",,nSize,,{|| (cAliasRM)->A1_CGC},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1,"A1_NOME",cAliasRM,"NOME",,nSize,,{|| (cAliasRM)->A1_NOME},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1,"A1_END",cAliasRM,"ENDERECO",,nSize,,{|| (cAliasRM)->A1_END},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1,"A1_EST",cAliasRM,"ESTADO",,nSize,,{|| (cAliasRM)->A1_EST},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1,"A1_MUN",cAliasRM,"MUNICIPIO",,nSize,,{|| (cAliasRM)->A1_MUN},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1,"A1_INSCR",cAliasRM,"INSCRICAO ESTADUAL",,nSize,,{|| (cAliasRM)->A1_INSCR},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+
+    oSection2 := TRSECTION():NEW(oReport)
+    TRCELL():NEW(oSection2,"",,"NATUREZA DA OPERAÇÃO",,nSize,,{|| "DEVOLUÇÃO"},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
    
 RETURN oReport
 
-STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, aResps)
+STATIC FUNCTION REPORTPRINT(oReport, cAliasRM, cAliasDT,aResps)
 
     LOCAL oSection1 := oReport:SECTION(1)
+    LOCAL oSection2 := oReport:SECTION(2)
     LOCAL cQuery    := ""
+    LOCAL cQuery1   := ""
     LOCAL aCliDE    := aResps[1]
     LOCAL aCliATE   := aResps[2]
 
@@ -66,18 +73,34 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, aResps)
 	cQuery += " FROM " + RETSQLNAME("SA1") + " A " + CRLF
     cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[A1_COD] BETWEEN '"+ aCliDE +"' AND '"+ aCliATE +"'" + CRLF
 
-    cAliasCL := MPSYSOPENQUERY(cQuery)
+    cAliasRM := MPSYSOPENQUERY(cQuery)
     
-        WHILE (cAliasCL)->(!EOF())
-            oSection1:INIT(.T.)
+        WHILE (cAliasRM)->(!EOF())
+            oSection1:INIT()
             oSection1:PRINTLINE()
             oSection1:SETPAGEBREAK(.T.)
 
-            (cAliasCL)->(DBSKIP())
+                cQuery1 := " SELECT A.[A1_CGC], A.[A1_NOME], A.[A1_END], A.[A1_EST], A.[A1_MUN], A.[A1_INSCR] " + CRLF
+	            cQuery1 += " FROM " + RETSQLNAME("SA1") + " A " + CRLF
+                cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[A1_COD] BETWEEN '"+ aCliDE +"' AND '"+ aCliATE +"'" + CRLF
+
+                cAliasDT := MPSYSOPENQUERY(cQuery1)
+
+                WHILE (cAliasDT)->(!EOF())
+                    oSection2:INIT()
+                    oSection2:PRINTLINE()
+                    
+                    (cAliasDT)->(DBSKIP())
+                ENDDO
+
+                oSection2:FINISH()
+                (cAliasDT)->(DBCLOSEAREA())
+                
+            (cAliasRM)->(DBSKIP())
             oSection1:FINISH()
 
         ENDDO
 
-    (cAliasCL)->(DBCLOSEAREA())
+    (cAliasRM)->(DBCLOSEAREA())
 
 RETURN
