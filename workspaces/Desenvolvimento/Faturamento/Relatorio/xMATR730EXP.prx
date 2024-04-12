@@ -10,7 +10,7 @@ RELATORIO - PEDIDOS POR CLIENTES
 */
 //----------------------------------------------------------------------------------------------------------------------
 
-USER FUNCTION xMAT()
+USER FUNCTION xMATR730()
 
     LOCAL oReport := NIL
     LOCAL aPergs  := {}
@@ -23,19 +23,19 @@ USER FUNCTION xMAT()
 
     cAliasUS := MPSYSOPENQUERY(cQuery3)
 
-    IF (cAliasUS)->USR_DEPTO == "EXPEDICAO                               "
+    IF ALLTRIM((cAliasUS)->USR_DEPTO) == "EXPEDICAO"
         AADD(aPergs, {2, "QUAL STATUS DA IMPRESSÃO", " ", {" ","AGUARDANDO IMPRESSÃO"},100,"",.F.})
         AADD(aPergs, {1, "PEDIDO DE", SPACE(TAMSX3("C5_NUM")[1]) ,,,"SC5",, 100, .F.})
         AADD(aPergs, {1, "PEDIDO ATE", SPACE(TAMSX3("C5_NUM")[1]) ,,,"SC5",, 100, .F.})
-    ELSEIF (cAliasUS)->USR_DEPTO <> "EXPEDICAO                               "
+    ELSEIF ALLTRIM((cAliasUS)->USR_DEPTO) <> "EXPEDICAO"
         AADD(aPergs, {1, "PEDIDO DE", SPACE(TAMSX3("C5_NUM")[1]) ,,,"SC5",, 100, .F.})
         AADD(aPergs, {1, "PEDIDO ATE", SPACE(TAMSX3("C5_NUM")[1]) ,,,"SC5",, 100, .F.})    
     ENDIF
 
-        IF PARAMBOX(aPergs, "Parametros do relatorio", @aResps,,,,,,,, .T., .T.)
-            oReport := REPORTDEF(aResps)
-            oReport:PRINTDIALOG()
-        ENDIF
+    IF PARAMBOX(aPergs, "Parametros do relatorio", @aResps,,,,,,,, .T., .T.)
+        oReport := REPORTDEF(aResps)
+        oReport:PRINTDIALOG()
+    ENDIF
 
 RETURN
 
@@ -167,7 +167,7 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
                 cQuery1 += " B.[C6_VALOR], " + CRLF
                 cQuery1 += " B.[C6_ENDPAD], " + CRLF
                 cQuery1 += " B.[C6_NUM], " + CRLF
-                cQuery1 += " CASE WHEN B.[C6_BLQ] = 'R' THEN B.[C6_QTDEMP] * C6_PRCVEN ELSE B.[C6_QTDVEN] * C6_PRCVEN  END AS VALOR_EXP "+ CRLF
+                cQuery1 += " CASE WHEN B.[C6_BLQ] = 'R' THEN B.[C6_QTDEMP] * B.[C6_PRCVEN] ELSE B.[C6_QTDVEN] * B.[C6_PRCVEN]  END AS [VALOR_EXP] "+ CRLF
 	            cQuery1 += " FROM " + RETSQLNAME("SC5") + " A " + CRLF
                 cQuery1 += " LEFT JOIN " + RETSQLNAME("SC6") + " B " + CRLF 
                 cQuery1 += " ON A.[C5_NUM] = B.[C6_NUM] " + CRLF
