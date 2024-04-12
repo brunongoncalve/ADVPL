@@ -15,11 +15,11 @@ RELATORIO - ESPELHO DE DEVOLUÇÃO
 
 USER FUNCTION xESPELHO()
 
-Local cFTPHost := "ftp.example.com" // Endereço do servidor FTP
-Local cFTPUser := "seu_usuario_ftp" // Nome de usuário do FTP
-Local cFTPPassword := "sua_senha_ftp" // Senha do FTP
-Local cLocalFilePath := "caminho_do_arquivo_no_servidor/local.txt" // Caminho local do arquivo a ser enviado
-Local cRemoteFilePath := "caminho_no_ftp/remoto.txt" // Caminho remoto onde o arquivo será salvo no FTP
+Local cFTPHost := "alumbraprodutos145046.protheus.cloudtotvs.com.br:2600" // Endereço do servidor FTP
+Local cFTPUser := "ftp_CMT8F4_development" // Nome de usuário do FTP
+Local cFTPPassword := "FPcR6Mbv" // Senha do FTP
+Local cLocalFilePath := "C:\Users\bruno.goncalves\Desktop/teste.txt" // Caminho local do arquivo a ser enviado
+Local cRemoteFilePath := "teste_bruno/teste.txt" // Caminho remoto onde o arquivo será salvo no FTP
 
 IF !FTPFilePut(cFTPHost, cFTPUser, cFTPPassword, cLocalFilePath, cRemoteFilePath)
     Alert("Falha ao enviar o arquivo para o FTP!")

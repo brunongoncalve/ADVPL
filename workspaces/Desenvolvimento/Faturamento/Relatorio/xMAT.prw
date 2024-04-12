@@ -1,4 +1,4 @@
-#Include "PROTHEUS.CH"
+#INCLUDE "PROTHEUS.CH"
 #INCLUDE "TOTVS.ch"
 #INCLUDE "prtopdef.ch"
 //----------------------------------------------------------------------------------------------------------------------
@@ -10,16 +10,28 @@ RELATORIO - PEDIDOS POR CLIENTES
 */
 //----------------------------------------------------------------------------------------------------------------------
 
-USER FUNCTION xMATR730()
+USER FUNCTION xMAT()
 
     LOCAL oReport := NIL
     LOCAL aPergs  := {}
     LOCAL aResps  := {}
+    LOCAL cQuery3 := ""
 
-    AADD(aPergs, {2, "QUAL STATUS DA IMPRESSÃO", " ", {" ","AGUARDANDO IMPRESSÃO"},100,"",.F.})
-    AADD(aPergs, {1, "PEDIDO DE", SPACE(TAMSX3("C5_NUM")[1]) ,,,"SC5",, 100, .F.})
-    AADD(aPergs, {1, "PEDIDO ATE", SPACE(TAMSX3("C5_NUM")[1]) ,,,"SC5",, 100, .F.})
-    
+    cQuery3 := " SELECT A.[USR_DEPTO] " + CRLF
+    cQuery3 += " FROM [SYS_USR] A" + CRLF
+    cQuery3 += " WHERE A.[USR_ID] = '"+  __CUSERID +"'"
+
+    cAliasUS := MPSYSOPENQUERY(cQuery3)
+
+    IF (cAliasUS)->USR_DEPTO == "EXPEDICAO                               "
+        AADD(aPergs, {2, "QUAL STATUS DA IMPRESSÃO", " ", {" ","AGUARDANDO IMPRESSÃO"},100,"",.F.})
+        AADD(aPergs, {1, "PEDIDO DE", SPACE(TAMSX3("C5_NUM")[1]) ,,,"SC5",, 100, .F.})
+        AADD(aPergs, {1, "PEDIDO ATE", SPACE(TAMSX3("C5_NUM")[1]) ,,,"SC5",, 100, .F.})
+    ELSEIF (cAliasUS)->USR_DEPTO <> "EXPEDICAO                               "
+        AADD(aPergs, {1, "PEDIDO DE", SPACE(TAMSX3("C5_NUM")[1]) ,,,"SC5",, 100, .F.})
+        AADD(aPergs, {1, "PEDIDO ATE", SPACE(TAMSX3("C5_NUM")[1]) ,,,"SC5",, 100, .F.})    
+    ENDIF
+
         IF PARAMBOX(aPergs, "Parametros do relatorio", @aResps,,,,,,,, .T., .T.)
             oReport := REPORTDEF(aResps)
             oReport:PRINTDIALOG()
@@ -67,13 +79,15 @@ STATIC FUNCTION REPORTDEF(aResps)
     TRCELL():NEW(oSection2, "C6_DESCRI",  cAliasPD, "DESCRIÇÃO DO ITEM" ,,nSize1,,{|| (cAliasPD)->C6_DESCRI},cAlign,,cHeaderAlign,,nColSpace)
     TRCELL():NEW(oSection2, "C6_PRCVEN",  cAliasPD, "PR.UNIT"           ,,nSize,,{|| (cAliasPD)->C6_PRCVEN},cAlign,,cHeaderAlign,,nColSpace)
     TRCELL():NEW(oSection2, "C6_VALOR",   cAliasPD, "VL.PED"            ,,nSize,,{|| (cAliasPD)->C6_VALOR},cAlign,,cHeaderAlign,,nColSpace)
+    TRCELL():NEW(oSection2, "VALOR_EXP",  cAliasPD, "VL.Entrega"        ,,nSize,,{|| (cAliasPD)->VALOR_EXP},cAlign,,cHeaderAlign,,nColSpace)
     TRCELL():NEW(oSection2, "C6_ENDPAD",  cAliasPD, "DOCA"              ,,nSize,,{|| (cAliasPD)->C6_ENDPAD},cAlign,,cHeaderAlign,,nColSpace)
 
     oSection3 := TRSECTION():NEW(oReport)   
     TRCELL():NEW(oSection3, "C5_XOBS", cAliasOB, "OBSERVAÇÃO DO PEDIDO",,nSize1,,{|| (cAliasOB)->C5_XOBS},,lLineBreak,,,nColSpace,lAutoSize)
 
-    TRFUNCTION():NEW(oSection2:CELL("C6_VALOR") ,,"SUM",,,"@E 9,999,999,999.99",,.T.,.F.,,oSection2)
-    TRFUNCTION():NEW(oSection2:CELL("EMBAL")    ,,"SUM",,,"@E 9,999,999,999.99",,.T.,.F.,,oSection2)
+    TRFUNCTION():NEW(oSection2:CELL("C6_VALOR"),,"SUM",,,"@E 9,999,999,999.99",,.T.,.F.,,oSection2)
+    TRFUNCTION():NEW(oSection2:CELL("VALOR_EXP"),,"SUM",,,"@E 9,999,999,999.99",,.T.,.F.,,oSection2)
+    TRFUNCTION():NEW(oSection2:CELL("EMBAL"),,"SUM",,,"@E 9,999,999,999.99",,.T.,.F.,,oSection2)
 
 RETURN oReport
 
@@ -85,10 +99,17 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
     LOCAL cQuery      := ""
     LOCAL cQuery1     := ""
     LOCAL cQuery2     := ""
-    LOCAL cResult     := aResps[1]
-    LOCAL aPedidoDE   := aResps[2]
-    LOCAL aPedidoATE  := aResps[3]
     LOCAL aArea       := GETAREA()
+
+    IF LEN(aResps) == 3
+        cResult    := aResps[1]
+        aPedidoDE  := aResps[2]
+        aPedidoATE := aResps[3]
+    ELSEIF LEN(aResps) == 2
+        cResult    := ""
+        aPedidoDE  := aResps[1]
+        aPedidoATE := aResps[2]
+    ENDIF
 
     IF cResult == "AGUARDANDO IMPRESSÃO"
        cResult := "AX" 
@@ -145,7 +166,8 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
                 cQuery1 += " B.[C6_PRCVEN], " + CRLF
                 cQuery1 += " B.[C6_VALOR], " + CRLF
                 cQuery1 += " B.[C6_ENDPAD], " + CRLF
-                cQuery1 += " B.[C6_NUM] " + CRLF
+                cQuery1 += " B.[C6_NUM], " + CRLF
+                cQuery1 += " CASE WHEN B.[C6_BLQ] = 'R' THEN B.[C6_QTDEMP] * C6_PRCVEN ELSE B.[C6_QTDVEN] * C6_PRCVEN  END AS VALOR_EXP "+ CRLF
 	            cQuery1 += " FROM " + RETSQLNAME("SC5") + " A " + CRLF
                 cQuery1 += " LEFT JOIN " + RETSQLNAME("SC6") + " B " + CRLF 
                 cQuery1 += " ON A.[C5_NUM] = B.[C6_NUM] " + CRLF
@@ -189,7 +211,7 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
                             cQuery2 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_NUM] BETWEEN '"+ aPedidoDE +"' AND '"+ aPedidoATE +"'" + CRLF
                         ENDIF        
                         cQuery2 += " ORDER BY A.[C5_NUM]"
-                        
+
                         oStatement:SETQUERY(cQuery2)
                         oStatement:SETSTRING(1,OBS)                                  
                         cQuery2 := oStatement:GETFIXQUERY()
@@ -215,7 +237,7 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
                                         ENDIF
                                     ENDIF
                             RESTAREA(aArea)
-                            
+
                             oSection3:FINISH()
                             (cAliasOB)->(DBCLOSEAREA()) 
 
@@ -231,3 +253,4 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
     (cAliasCL)->(DBCLOSEAREA())
 
 RETURN
+

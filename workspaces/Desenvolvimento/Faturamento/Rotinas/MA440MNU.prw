@@ -12,6 +12,6 @@ TELA
 
 USER FUNCTION MA440MNU()
 
-    AADD(aRotina, {'Imprimir Pedidos', 'U_xMATR730EXP', 0, 0, 0, .F.} )
+    AADD(aRotina, {'Imprimir Pedidos', 'U_xMAT', 0, 0, 0, .F.} )
 
 RETURN NIL
