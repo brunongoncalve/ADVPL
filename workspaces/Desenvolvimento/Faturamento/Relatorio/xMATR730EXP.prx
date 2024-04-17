@@ -230,11 +230,11 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
                             DBSETORDER(1)
                                 DBSEEK(XFILIAL("SC5")+(cAliasCL)->C5_NUM)
                                     IF FOUND()
-                                        IF SC5->C5_XSTEX == 'AX' AND cResult == "AGUARDANDO IMPRESSÃO"
+                                        IF SC5->C5_XSTEX == 'AX' .AND. cResult == "AGUARDANDO IMPRESSÃO"
                                             RECLOCK("SC5", .F.)
                                                 SC5->C5_XSTEX := 'AL'
                                             MSUNLOCK()
-                                        ELSEIF SC5->C5_XSTEX == 'AX' AND cResult == ""
+                                        ELSEIF SC5->C5_XSTEX == 'AX' .AND. cResult == ""
                                             RECLOCK("SC5", .F.)
                                                 SC5->C5_XSTEX := 'AX'
                                             MSUNLOCK()  
