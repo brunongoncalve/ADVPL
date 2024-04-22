@@ -10,7 +10,7 @@ RELATORIO - PEDIDOS POR CLIENTES
 */
 //----------------------------------------------------------------------------------------------------------------------
 
-USER FUNCTION xMATR730()
+USER FUNCTION xMATR730EXP()
 
     LOCAL oReport := NIL
     LOCAL aPergs  := {}
@@ -83,7 +83,7 @@ STATIC FUNCTION REPORTDEF(aResps)
     TRCELL():NEW(oSection2, "C6_ENDPAD",  cAliasPD, "DOCA"              ,,nSize,,{|| (cAliasPD)->C6_ENDPAD},cAlign,,cHeaderAlign,,nColSpace)
 
     oSection3 := TRSECTION():NEW(oReport)   
-    TRCELL():NEW(oSection3, "C5_XOBS", cAliasOB, "OBSERVAÇÃO DO PEDIDO",,nSize1,,{|| (cAliasOB)->C5_XOBS},,lLineBreak,,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection3, "C5_XOBS", cAliasOB, "OBSERVAÇÃO DO PEDIDO",,,,{|| ALLTRIM((cAliasOB)->C5_XOBS)},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
 
     TRFUNCTION():NEW(oSection2:CELL("C6_VALOR"),,"SUM",,,"@E 9,999,999,999.99",,.T.,.F.,,oSection2)
     TRFUNCTION():NEW(oSection2:CELL("VALOR_EXP"),,"SUM",,,"@E 9,999,999,999.99",,.T.,.F.,,oSection2)
@@ -100,6 +100,7 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
     LOCAL cQuery1     := ""
     LOCAL cQuery2     := ""
     LOCAL aArea       := GETAREA()
+    LOCAL oStatement
 
     IF LEN(aResps) == 3
         cResult    := aResps[1]
@@ -137,9 +138,9 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
     cQuery += " LEFT JOIN " + RETSQLNAME("SA3") + " E " + CRLF
     cQuery += " ON A.[C5_VEND1] = E.[A3_COD] " + CRLF
     IF !EMPTY(cResult)
-        cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_XSTEX] = '" + cResult +"'" + CRLF
+        cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_XSTEX] = '" + cResult +"' AND B.[A1_LOJA] = '01'" + CRLF
     ELSE
-        cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_NUM] BETWEEN '"+ aPedidoDE +"' AND '"+ aPedidoATE +"'" + CRLF
+        cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_NUM] BETWEEN '"+ aPedidoDE +"' AND '"+ aPedidoATE +"' AND B.[A1_LOJA] = '01'" + CRLF
     ENDIF        
     cQuery += " ORDER BY A.[C5_NUM]"
 
@@ -173,10 +174,12 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
                 cQuery1 += " ON A.[C5_NUM] = B.[C6_NUM] " + CRLF
                 cQuery1 += " LEFT JOIN " + RETSQLNAME("SB1") + " C " + CRLF
                 cQuery1 += " ON B.[C6_PRODUTO] = C.[B1_COD] " + CRLF
+                cQuery1 += " LEFT JOIN " + RETSQLNAME("SA1") + " D " + CRLF
+                cQuery1 += " ON B.[C6_CLI] = D.[A1_COD] " + CRLF
                 IF !EMPTY(cResult)
-                    cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_XSTEX] = '" + cResult +"'" + CRLF
+                    cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_XSTEX] = '" + cResult +"' AND D.[A1_LOJA] = '01'" + CRLF
                 ELSE
-                    cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_NUM] BETWEEN '"+ aPedidoDE +"' AND '"+ aPedidoATE +"'" + CRLF
+                    cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_NUM] BETWEEN '"+ aPedidoDE +"' AND '"+ aPedidoATE +"' AND D.[A1_LOJA] = '01'" + CRLF
                 ENDIF        
                 cQuery1 += " ORDER BY A.[C5_NUM]"
                                                      
@@ -191,24 +194,24 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
                     ENDDO
 
                         DBSELECTAREA("SC5")
-                            DBSETORDER(1)
-                                DBSEEK(XFILIAL("SC5")+(cAliasCL)->C5_NUM)
-                                    IF FOUND()
-                                        OBS := u_LerMemoA(SC5->C5_XOBS)   
-                                    ENDIF
+                        DBSETORDER(1)
+                        DBSEEK(XFILIAL("SC5")+(cAliasCL)->C5_NUM)
+                            IF FOUND()
+                                OBS := u_LerMemoA(SC5->C5_XOBS)   
+                            ENDIF
                         RESTAREA(aArea)
 
                         oStatement := FWPREPAREDSTATEMENT():NEW()
 
-                        cQuery2 := " SELECT ? as C5_XOBS, " + CRLF
+                        cQuery2 := " SELECT ? AS C5_XOBS, " + CRLF
                         cQuery2 += " A.[C5_NUM] " + CRLF
                      	cQuery2 += " FROM " + RETSQLNAME("SC5") + " A " + CRLF
                         cQuery2 += " LEFT JOIN " + RETSQLNAME("SA1") + " B " + CRLF 
                         cQuery2 += " ON A.[C5_CLIENTE] = B.[A1_COD] " + CRLF
                         IF !EMPTY(cResult)
-                            cQuery2 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_XSTEX] = '" + cResult +"'" + CRLF
+                            cQuery2 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_XSTEX] = '" + cResult +"' AND B.[A1_LOJA] = '01'" + CRLF
                         ELSE
-                            cQuery2 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_NUM] BETWEEN '"+ aPedidoDE +"' AND '"+ aPedidoATE +"'" + CRLF
+                            cQuery2 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_NUM] BETWEEN '"+ aPedidoDE +"' AND '"+ aPedidoATE +"' AND B.[A1_LOJA] = '01'" + CRLF
                         ENDIF        
                         cQuery2 += " ORDER BY A.[C5_NUM]"
 
@@ -228,20 +231,20 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
 
                             DBSELECTAREA("SC5")
                             DBSETORDER(1)
-                                DBSEEK(XFILIAL("SC5")+(cAliasCL)->C5_NUM)
-                                    IF FOUND()
-                                        IF SC5->C5_XSTEX == 'AX' .AND. cResult == "AGUARDANDO IMPRESSÃO"
-                                            RECLOCK("SC5", .F.)
-                                                SC5->C5_XSTEX := 'AL'
-                                            MSUNLOCK()
-                                        ELSEIF SC5->C5_XSTEX == 'AX' .AND. cResult == ""
-                                            RECLOCK("SC5", .F.)
-                                                SC5->C5_XSTEX := 'AX'
-                                            MSUNLOCK()  
-                                        ENDIF
+                            DBSEEK(XFILIAL("SC5")+(cAliasCL)->C5_NUM)
+                                IF FOUND()
+                                    IF SC5->C5_XSTEX == 'AX' .AND. cResult == "AX"
+                                        RECLOCK("SC5", .F.)
+                                            SC5->C5_XSTEX := 'AL'
+                                        MSUNLOCK()
+                                    ELSEIF SC5->C5_XSTEX == 'AX' .AND. cResult == ""
+                                        RECLOCK("SC5", .F.)
+                                            SC5->C5_XSTEX := 'AX'
+                                        MSUNLOCK()  
                                     ENDIF
+                                ENDIF
                             RESTAREA(aArea)
-
+                            
                             oSection3:FINISH()
                             (cAliasOB)->(DBCLOSEAREA()) 
 
