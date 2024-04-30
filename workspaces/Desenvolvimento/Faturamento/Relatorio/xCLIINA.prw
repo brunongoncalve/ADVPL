@@ -11,20 +11,25 @@ RELATORIO - CLIENTES INATIVOS
 
 USER FUNCTION xCLIINA()
 
-    LOCAL oReport := NIL
-    LOCAL aPergs := {}
-    LOCAL aResps := {}
+    LOCAL oReport    := NIL
+    LOCAL aPergs     := {}
+    LOCAL aResps     := {}
 
-    AADD(aPergs, {1, "PERIODO DE",STOD(""),,,,, 100, .F.})
-
-    IF PARAMBOX(aPergs, "Parametros do relatorio", @aResps,,,,,,,, .T., .T.)
-        oReport := REPORTDEF(aResps)
+    IF CUSERNAME == "FATIMA.TOJO"
+        AADD(aPergs, {1, "INATIVAR CLIENTE",STOD(""),,,,,100,.F.})
+        IF PARAMBOX(aPergs,"Parametros do relatorio",@aResps,,,,,,,,.T., .T.)
+            IF LEN(aResps) == 1
+                MSBRGETDBASE()
+            ENDIF
+        ENDIF
+    ELSEIF CUSERNAME <> "FATIMA.TOJO"
+        oReport := REPORTDEF()
         oReport:PRINTDIALOG()
-    ENDIF
-        
+    ENDIF    
+
 RETURN
 
-STATIC FUNCTION REPORTDEF(aResps)
+STATIC FUNCTION REPORTDEF()
 
     LOCAL oReport      := NIL
     LOCAL oSection1    := NIL
@@ -38,32 +43,34 @@ STATIC FUNCTION REPORTDEF(aResps)
     LOCAL cNomeArq     := "CLIENTES INATIVOS"
     LOCAL cTitulo      := "CLIENTES INATIVOS"
 
-    oReport := TREPORT():NEW(cNomeArq, cTitulo, "", {|oReport| REPORTPRINT(oReport, @cAliasCL, aResps)}, "IMPRESSÃO DE RELATORIO")
+    oReport := TREPORT():NEW(cNomeArq, cTitulo, "", {|oReport| REPORTPRINT(oReport, @cAliasCL)}, "IMPRESSÃO DE RELATORIO")
 
     oSection1 := TRSECTION():NEW(oReport)
     TRCELL():NEW(oSection1,"A1_COD",cAliasCL,"COD.CLI",,nSize,,{|| (cAliasCL)->A1_COD},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1,"A1_NOME",cAliasCL,"NOME.CLI",,nSize,,{|| (cAliasCL)->A1_NOME},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1,"A1_VEND",cAliasCL,"COD.VEND",,nSize,,{|| (cAliasCL)->A1_VEND},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1,"A3_NOME",cAliasCL,"NOME.VEND",,nSize,,{|| (cAliasCL)->A3_NOME},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection1,"F2_EMISSAO",cAliasCL,"ULTIMA COMPRA",,nSize,,{|| (cAliasCL)->ULTIMA_COMPRA},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
 
 RETURN oReport
 
-STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, aResps)
+STATIC FUNCTION REPORTPRINT(oReport, cAliasCL)
 
     LOCAL oSection1 := oReport:SECTION(1)
     LOCAL cQuery    := ""
-    dPeriodoAno     := YEAR2STR(aResps[1])
-    dPeriodoMes     := MONTH2STR(aResps[1])
-    dPeriodoDia     := DAY2STR(aResps[1])
-    dPeriodo        := dPeriodoAno + dPeriodoMes + dPeriodoDia
 
-    cQuery := " SELECT A.[A1_COD], MAX(B.[F2_EMISSAO]) AS ULTIMA_COMPRA " + CRLF
+    cQuery := " SELECT A.[A1_COD], A.[A1_NOME], A.[A1_VEND], C.[A3_NOME], MAX(FORMAT(CONVERT(DATE, B.[F2_EMISSAO]), 'dd/MM/yy')) AS ULTIMA_COMPRA, A.[A1_MSBLQL] " + CRLF
     cQuery += " FROM " + RETSQLNAME("SA1") + " A " + CRLF
-    cQuery += " LEFT JOIN (SELECT A.[A1_COD], B.[F2_EMISSAO] FROM " + RETSQLNAME("SA1") + " A " + CRLF
+    cQuery += " LEFT JOIN (SELECT A.[A1_COD], B.[F2_EMISSAO], B.[F2_CLIENTE] FROM " + RETSQLNAME("SA1") + " A " + CRLF
     cQuery += " LEFT JOIN " + RETSQLNAME("SF2") + " B " + CRLF
     cQuery += " ON A.[A1_COD] = B.[F2_CLIENTE]) " + " B " + CRLF
-    cQuery += " ON A.[A1_COD] = B.[A1_COD] " + CRLF  
-    cQuery += " WHERE B.[F2_EMISSAO] BETWEEN '"+ dPeriodo +"' AND GETDATE() " + CRLF
-    cQuery += " GROUP BY A.[A1_COD] " + CRLF
-    cQuery += " ORDER BY A.[A1_COD] ASC " + CRLF
+    cQuery += " ON A.[A1_COD] = B.[F2_CLIENTE] " + CRLF
+    cQuery += " LEFT JOIN " + RETSQLNAME("SA3") + " C " + CRLF
+    cQuery += " ON A.[A1_VEND] = C.[A3_COD] " + CRLF  
+    cQuery += " WHERE A.[A1_LOJA] = '01' AND A.[A1_MSBLQL] = '1' AND NOT EXISTS (SELECT 1 FROM " + RETSQLNAME("SF2") + " B "  + CRLF
+    cQuery += " WHERE A.[A1_COD] = B.[F2_CLIENTE] AND B.[F2_EMISSAO] >= DATEADD(MONTH, -4, GETDATE())) AND B.[F2_EMISSAO] <> 'NULL'"  + CRLF
+    cQuery += " GROUP BY B.[F2_CLIENTE], A.[A1_COD], A.[A1_NOME], A.[A1_VEND], C.[A3_NOME], A.[A1_MSBLQL] " + CRLF
+    cQuery += " ORDER BY B.[F2_CLIENTE] ASC " + CRLF
 
     cAliasCL := MPSYSOPENQUERY(cQuery)
 
@@ -78,4 +85,107 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, aResps)
 
     (cAliasCL)->(DBCLOSEAREA())
 
-RETURN 
+RETURN
+
+STATIC FUNCTION MSBRGETDBASE()
+ 
+    LOCAL aDados    := {}
+    LOCAL cQuery1   := ""
+    LOCAL cSituacao := ""
+    LOCAL oBrowse   := NIL
+ 
+    DEFINE DIALOG oDlg TITLE "CLIENTES" FROM 180, 180 TO 550, 700 PIXEL
+
+        cQuery1 := " SELECT A.[A1_COD], A.[A1_NOME], A.[A1_MSBLQL], MAX(FORMAT(CONVERT(DATE, B.[F2_EMISSAO]), 'dd/MM/yy')) AS ULTIMA_COMPRA " + CRLF
+        cQuery1 += " FROM " + RETSQLNAME("SA1") + " A " + CRLF
+        cQuery1 += " LEFT JOIN (SELECT A.[A1_COD], B.[F2_EMISSAO], B.[F2_CLIENTE] FROM " + RETSQLNAME("SA1") + " A " + CRLF
+        cQuery1 += " LEFT JOIN " + RETSQLNAME("SF2") + " B " + CRLF
+        cQuery1 += " ON A.[A1_COD] = B.[F2_CLIENTE]) " + " B " + CRLF
+        cQuery1 += " ON A.[A1_COD] = B.[F2_CLIENTE] " + CRLF  
+        cQuery1 += " WHERE A.[A1_LOJA] = '01' AND NOT EXISTS (SELECT 1 FROM " + RETSQLNAME("SF2") + " B "  + CRLF
+        cQuery1 += " WHERE A.[A1_COD] = B.[F2_CLIENTE] AND B.[F2_EMISSAO] >= DATEADD(MONTH, -6, GETDATE())) AND B.[F2_EMISSAO] <> 'NULL'"  + CRLF
+        cQuery1 += " GROUP BY B.[F2_CLIENTE], A.[A1_COD], A.[A1_NOME], A.[A1_MSBLQL] " + CRLF
+        cQuery1 += " ORDER BY B.[F2_CLIENTE] ASC " + CRLF
+
+        cAliasCLI := MPSYSOPENQUERY(cQuery1)
+
+        WHILE (cAliasCLI)->(!EOF())
+            IF (cAliasCLI)->A1_MSBLQL == '2'
+                cSituacao := "ATIVO"
+            ELSE
+                cSituacao := "INATIVO"
+            ENDIF
+
+            AADD(aDados,{(cAliasCLI)->A1_COD,(cAliasCLI)->A1_NOME,cSituacao,(cAliasCLI)->ULTIMA_COMPRA})
+        
+            (cAliasCLI)->(DBSKIP())
+        ENDDO
+    
+        (cAliasCLI)->(DBCLOSEAREA())
+
+        oBrowse := MSBRGETDBASE():NEW(0,0,260,170,,,,oDlg,,,,,,,,,,,,.F.,"",.T.,,.F.,,,)
+        oBrowse:SETARRAY(aDados)
+
+        oBrowse:ADDCOLUMN(TCCOLUMN():NEW("COD. CLI",{|| aDados[oBrowse:nAt,1]},,,,"LEFT",,.F.,.F.,,,,.F.))
+        oBrowse:ADDCOLUMN(TCCOLUMN():NEW("NOME",{|| aDados[oBrowse:nAt,2]},,,,"LEFT",,.F.,.F.,,,,.F.))
+        oBrowse:ADDCOLUMN(TCCOLUMN():NEW("SITUAÇÃO",{|| aDados[oBrowse:nAt,3]},,,,"LEFT",,.F.,.F.,,,,.F.))
+        oBrowse:ADDCOLUMN(TCCOLUMN():NEW("ULTIMA COMPRA",{|| aDados[oBrowse:nAt,4]},,,,"LEFT",,.F.,.F.,,,,.F.))
+        oBrowse:REFRESH()
+
+        TBUTTON():NEW(172,002,"OK",oDlg,{|| oDlg:END(), MSGRUN("Inativando os clientes! Aguarde...","Inativação",{|| INACLI()})},40,010,,,.F.,.T.,.F.,,.F.,,,.F.)
+        TBUTTON():NEW(172,052,"Cancelar",oDlg,{|| oDlg:END()},40,010,,,.F.,.T.,.F.,,.F.,,,.F.) 
+
+    ACTIVATE DIALOG oDlg CENTERED
+
+RETURN
+
+STATIC FUNCTION INACLI()
+
+    LOCAL cQuery1       := ""
+    LOCAL aAuto         := {}
+    LOCAL cStatus       := ""
+    PRIVATE lMsHelpAuto := .T.
+    PRIVATE lMsErroAuto := .F.
+
+    cQuery1 := " SELECT A.[A1_COD], A.[A1_MSBLQL], MAX(B.[F2_EMISSAO]) AS ULTIMA_COMPRA " + CRLF
+    cQuery1 += " FROM " + RETSQLNAME("SA1") + " A " + CRLF
+    cQuery1 += " LEFT JOIN (SELECT A.[A1_COD], B.[F2_EMISSAO], B.[F2_CLIENTE] FROM " + RETSQLNAME("SA1") + " A " + CRLF
+    cQuery1 += " LEFT JOIN " + RETSQLNAME("SF2") + " B " + CRLF
+    cQuery1 += " ON A.[A1_COD] = B.[F2_CLIENTE]) " + " B " + CRLF
+    cQuery1 += " ON A.[A1_COD] = B.[F2_CLIENTE] " + CRLF  
+    cQuery1 += " WHERE A.[A1_LOJA] = '01' AND NOT EXISTS (SELECT 1 FROM " + RETSQLNAME("SF2") + " B "  + CRLF
+    cQuery1 += " WHERE A.[A1_COD] = B.[F2_CLIENTE] AND B.[F2_EMISSAO] >= DATEADD(MONTH, -6, GETDATE())) AND B.[F2_EMISSAO] <> 'NULL'"  + CRLF
+    cQuery1 += " GROUP BY B.[F2_CLIENTE], A.[A1_COD], A.[A1_MSBLQL] " + CRLF
+    cQuery1 += " ORDER BY B.[F2_CLIENTE] ASC " + CRLF
+
+    cAliasINA := MPSYSOPENQUERY(cQuery1)
+
+    WHILE (cAliasINA)->(!EOF())
+        IF (cAliasINA)->A1_MSBLQL == '2'
+            cStatus := '1'
+        ELSEIF (cAliasINA)->A1_MSBLQL == '1'    
+            cStatus := '1'
+        ENDIF
+    
+        AADD(aAuto,{"A1_COD",(cAliasINA)->A1_COD,NIL})
+        AADD(aAuto,{"A1_MSBLQL",cStatus,NIL})
+
+        lMsErroAuto := .F.
+
+        BEGIN TRANSACTION
+            MSEXECAUTO({|x,y| MATA030(x,y)},aAuto,4)
+            IF lMsErroAuto
+                MOSTRAERRO()
+                DISARMTRANSACTION()
+            ENDIF
+        END TRANSACTION    
+
+        aAuto := {}
+
+        (cAliasINA)->(DBSKIP())
+    ENDDO
+   
+    (cAliasINA)->(DBCLOSEAREA())
+    MSGINFO("Processo Finalizado !")
+
+RETURN
