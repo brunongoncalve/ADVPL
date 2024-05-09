@@ -2,7 +2,6 @@
 #INCLUDE 'TOPCONN.ch'
 #INCLUDE "FWPrintSetup.ch"
 #INCLUDE "protheus.ch"
-#INCLUDE "TOTVS.ch"
 
 //----------------------------------------------------------------------------------------------------------------------
 /* {Protheus.doc} ESPELHO DE DEVOLUÇÃO
@@ -14,7 +13,14 @@ RELATORIO - ESPELHO DE DEVOLUÇÃO
 //----------------------------------------------------------------------------------------------------------------------
 
 USER FUNCTION xESPELHO()
+    
+    Local aArea := GetArea()
+    Local cPasta := Directory(Alltrim("\system\tmp\arquivo")+"*.txt")
 
-bOk := CpyS2T( "\spool\pedido por clientes.prt", "C:\Users\bruno.goncalves\Desktop", .F. )
+    cTextHtml := "<!DOCTYPE html>"
+    
+    MemoWrite(cPasta, cTextHtml)
+    RestArea(aArea)
 
-RETURN bOk
+RETURN 
+
