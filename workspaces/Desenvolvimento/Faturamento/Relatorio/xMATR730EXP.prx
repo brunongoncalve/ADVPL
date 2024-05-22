@@ -127,7 +127,8 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
     cQuery += " FORMAT(CONVERT(DATE, A.[C5_EMISSAO]), 'dd/MM/yy') AS [C5_EMISSAO], " + CRLF
     cQuery += " C.[A4_NOME], " + CRLF
     cQuery += " D.[E4_DESCRI], " + CRLF
-    cQuery += " E.[A3_NOME] " + CRLF
+    cQuery += " E.[A3_NOME], " + CRLF
+    cQuery += " MAX(F.[F4_ESTOQUE]) AS CONTROLA_ESTOQUE " + CRLF
 	cQuery += " FROM " + RETSQLNAME("SC5") + " A " + CRLF
     cQuery += " LEFT JOIN " + RETSQLNAME("SA1") + " B " + CRLF
     cQuery += " ON A.[C5_CLIENTE] = B.[A1_COD] " + CRLF
@@ -137,15 +138,20 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
     cQuery += " ON A.[C5_CONDPAG] = D.[E4_CODIGO] " + CRLF
     cQuery += " LEFT JOIN " + RETSQLNAME("SA3") + " E " + CRLF
     cQuery += " ON A.[C5_VEND1] = E.[A3_COD] " + CRLF
+    cQuery += " LEFT JOIN (SELECT A.[C6_NUM], A.[C6_TES], B.[F4_ESTOQUE] FROM " + RETSQLNAME("SC6") + " A " + CRLF
+    cQuery += " LEFT JOIN " + RETSQLNAME("SF4") + " B " + CRLF
+    cQuery += " ON A.[C6_TES] = B.[F4_CODIGO]) AS F " + CRLF
+    cQuery += " ON A.[C5_NUM] = F.[C6_NUM] " + CRLF
     IF !EMPTY(cResult)
-        cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_XSTEX] = '" + cResult +"' AND B.[A1_LOJA] = '01'" + CRLF
+        cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_XSTEX] = '" + cResult +"' AND B.[A1_LOJA] = '01' AND F.[F4_ESTOQUE] <> 'N'" + CRLF
     ELSE
         cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_NUM] BETWEEN '"+ aPedidoDE +"' AND '"+ aPedidoATE +"' AND B.[A1_LOJA] = '01'" + CRLF
-    ENDIF        
-    cQuery += " ORDER BY A.[C5_NUM]"
+    ENDIF
+    cQuery += " GROUP BY A.[C5_NUM], B.[A1_COD], B.[A1_LOJA], B.[A1_NREDUZ], B.[A1_EST], B.[A1_END], A.[C5_TIPO], A.[C5_EMISSAO], C.[A4_NOME], D.[E4_DESCRI], E.[A3_NOME], F.[F4_ESTOQUE] " + CRLF       
+    cQuery += " ORDER BY A.[C5_NUM] "
 
     cAliasCL := MPSYSOPENQUERY(cQuery)
-    
+
         WHILE (cAliasCL)->(!EOF())
             oSection1:INIT()
             oSection1:PRINTLINE()
@@ -156,7 +162,7 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
             url  := "https://barcode.tec-it.com/barcode.ashx?data=" + (cAliasCL)->C5_NUM
             Html := HTTPGET(url)
             Html := MEMOWRITE(ALLTRIM("C:\imagem do pedido\barcode"+ (cAliasCL)->C5_NUM +".png"),Html)
-            oReport:SAYBITMAP(50,1700,"C:\imagem do pedido\barcode"+ (cAliasCL)->C5_NUM +".png",150,150) 
+            oReport:SAYBITMAP(50,1700,"C:\imagem do pedido\barcode"+ (cAliasCL)->C5_NUM +".png",150,150)
 
                 cQuery1 := " SELECT ROUND(COALESCE(B.[C6_QTDVEN] / NULLIF(C.[B1_CONV],0), 0), 1) AS [EMBAL], " + CRLF
                 cQuery1 += " CASE WHEN B.[C6_BLQ] = 'R' THEN CONCAT(COALESCE(B.[C6_QTDVEN] - B.[C6_QTDENT],''), ' ', COALESCE('C','')) " + CRLF
@@ -181,12 +187,12 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
                 ELSE
                     cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_NUM] BETWEEN '"+ aPedidoDE +"' AND '"+ aPedidoATE +"' AND D.[A1_LOJA] = '01'" + CRLF
                 ENDIF        
-                cQuery1 += " ORDER BY A.[C5_NUM]"
+                cQuery1 += " ORDER BY A.[C5_NUM] "
                                                      
                 cAliasPD := MPSYSOPENQUERY(cQuery1)
 
                     WHILE (cAliasPD)->(!EOF())
-                        IF (cAliasCL)->C5_NUM == (cAliasPD)->C6_NUM
+                        IF (cAliasCL)->C5_NUM == (cAliasPD)->C6_NUM 
                             oSection2:INIT()
                             oSection2:PRINTLINE()
                         ENDIF
@@ -260,4 +266,3 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
     (cAliasCL)->(DBCLOSEAREA())
 
 RETURN
-
