@@ -1,7 +1,5 @@
-#INCLUDE "RPTDEF.CH"
-#INCLUDE 'TOPCONN.ch'
-#INCLUDE "FWPrintSetup.ch"
-#INCLUDE "protheus.ch"
+#INCLUDE "TOTVS.CH"
+#INCLUDE "PROTHEUS.ch"
 
 //----------------------------------------------------------------------------------------------------------------------
 /* {Protheus.doc} ESPELHO DE DEVOLUÇÃO
@@ -14,145 +12,39 @@ RELATORIO - ESPELHO DE DEVOLUÇÃO
 
 USER FUNCTION xESPELHO()
 
-    LOCAL lExisteArquivo := FILE("tmp\arquivo.txt", 1, .T.)
-    LOCAL cTextHtml      := ""
-    LOCAL cQuery         := ""
-    LOCAL cQuery1        := ""
-    
-    cQuery := " SELECT TOP 1 "  + CRLF
-    cQuery += " A.[A1_CGC], " + CRLF
-    cQuery += " A.[A1_NOME], " + CRLF
-    cQuery += " A.[A1_END], " + CRLF
-    cQuery += " A.[A1_INSCR] " + CRLF
-    cQuery += " FROM " + RETSQLNAME("SA1") + " A " + CRLF
-    cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[A1_MSBLQL] =  '2'"
+    Local cArquivo := "tmp\arquivo.html"
+    Local cHtml	:= ""
 
-    cAlias := MPSYSOPENQUERY(cQuery)
+    cHtml := MemoRead(cArquivo)
 
-    cQuery1 := " SELECT TOP 10 "  + CRLF
-    cQuery1 += " A.[A1_CGC], " + CRLF
-    cQuery1 += " A.[A1_NOME], " + CRLF
-    cQuery1 += " A.[A1_END], " + CRLF
-    cQuery1 += " A.[A1_INSCR] " + CRLF
-    cQuery1 += " FROM " + RETSQLNAME("SA1") + " A " + CRLF
-    cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[A1_MSBLQL] =  '2'"
+    DEFINE DIALOG oDlg TITLE "Arquivo" FROM 0, 0 TO 550, 800 PIXEL
+    oEdit := tSimpleEditor():New(0, 0, oDlg, 500, 300)
+    oEdit:TextFormat(1)
+    oEdit:Load(" <!DOCTYPE html> "+;
+           " <html> "+;
+           " <head> "+;
+           " <style> "+;
+           " table { "+;
+           " width:100%; "+;
+           " } "+;
+           " table, th, td { "+;
+           " border: 1px solid black; "+;
+           " border-collapse: collapse; "+;
+           " } "+;
+           " </style> "+;
+           " </head> "+;
+           " <body> "+;
+           " "+;
+           " <table> "+;
+           " <tr style='width:100px' > "+;
+           " <th><span style='font-size:5pt; font-weight:50;'>MODELO DE NOTA FISCAL DE DEVOLUÇÃO</span></th> "+;
+           " <th><span style='font-size:5pt; font-weight:50;'>N° DA DEVOLUÇÃO <br> 8 <br> DATA DA DEVOLUÇÃO <br> 23/05/2024</span></th> "+;
+           " </tr> "+;
+           " </table> "+;
+           " </body> "+;
+           " </html> ")
+    oEdit:Align := CONTROL_ALIGN_ALLCLIENT 
+    ACTIVATE DIALOG oDlg ON INIT EnchoiceBar(oDlg,{|| oEdit:SaveToPDF("C:\tmp\contrato.pdf"), MsgInfo("Arquivo salvo em C:\tmp\contrato.pdf","Info") },{|| oDlg:End()}) CENTERED
 
-    cAlias1 := MPSYSOPENQUERY(cQuery1)
-
-    cTextHtml += " <!DOCTYPE html> " + CRLF
-    cTextHtml += " <html> " + CRLF
-    cTextHtml += " <head> " + CRLF
-    cTextHtml += " <style> " + CRLF
-    cTextHtml += " table { " + CRLF
-    cTextHtml += " width:100%; " + CRLF
-    cTextHtml += " } " + CRLF
-    cTextHtml += " table, th, td { " + CRLF
-    cTextHtml += " border: 1px solid black; " + CRLF
-    cTextHtml += " border-collapse: collapse; " + CRLF
-    cTextHtml += " } " + CRLF
-    cTextHtml += " th, td { " + CRLF
-    cTextHtml += " padding: 15px; " + CRLF
-    cTextHtml += " text-align: left; " + CRLF
-    cTextHtml += " } " + CRLF
-    cTextHtml += " </style> " + CRLF
-    cTextHtml += " </head> " + CRLF
-    cTextHtml += " <body> " + CRLF
-    cTextHtml += " " + CRLF
-    cTextHtml += " <table> " + CRLF
-    cTextHtml += " <tr> " + CRLF
-    cTextHtml += " <th><center><img src='C:\tmp\LGMID.png'></center></th> " + CRLF
-    cTextHtml += " <th><center><h4>MODELO DE NOTA FISCAL DE DEVOLUÇÃO</h4></center></th> " + CRLF
-    cTextHtml += " <th><center><h4>N° DA DEVOLUÇÃO <br> 8 <br> DATA DA DEVOLUÇÃO <br> 22/06/2024</h4></center></th> " + CRLF
-    cTextHtml += " </tr> " + CRLF
-    cTextHtml += " </table> " + CRLF
-    cTextHtml += " <br> " + CRLF
-    cTextHtml += " <h3>1 - Remente</h3> " + CRLF
-    cTextHtml += " <table> " + CRLF
-    cTextHtml += " <tr> " + CRLF
-    cTextHtml += " <th>CNPJ</th> " + CRLF
-    cTextHtml += " <th>RAZAO SOCIAL</th> " + CRLF
-    cTextHtml += " <th>ENDEREÇO</th> " + CRLF
-    cTextHtml += " <th>INSCRIÇÃO ESTADUAL</th> " + CRLF
-    cTextHtml += " </tr> " + CRLF
-    cTextHtml += " <tr> " + CRLF
-    cTextHtml += " <td> "+ (cAlias)->A1_CGC +"</td> " + CRLF
-    cTextHtml += " <td> "+ (cAlias)->A1_NOME +"</td> " + CRLF
-    cTextHtml += " <td> "+ (cAlias)->A1_END +"</td> " + CRLF
-    cTextHtml += " <td> "+ (cAlias)->A1_INSCR +"</td> " + CRLF
-    cTextHtml += " </tr> " + CRLF
-    cTextHtml += " </table> " + CRLF
-    cTextHtml += " <br> " + CRLF
-    cTextHtml += " <h3>2 - Natureza de Operação</h3> " + CRLF
-    cTextHtml += " <table> " + CRLF
-    cTextHtml += " <tr> " + CRLF
-    cTextHtml += " <th>DEVOLUÇÃO</th> " + CRLF
-    cTextHtml += " </tr> " + CRLF
-    cTextHtml += " </table> " + CRLF
-    cTextHtml += " <br> " + CRLF
-    cTextHtml += " <h3>3 - DESTINATARIO</h3> " + CRLF
-    cTextHtml += " <table> " + CRLF
-    cTextHtml += " <tr> " + CRLF
-    cTextHtml += " <th>CNPJ</th> " + CRLF
-    cTextHtml += " <th>RAZAO SOCIAL</th> " + CRLF
-    cTextHtml += " <th>ENDEREÇO</th> " + CRLF
-    cTextHtml += " <th>INSCRIÇÃO ESTADUAL</th> " + CRLF
-    cTextHtml += " </tr> " + CRLF
-    cTextHtml += " <tr> " + CRLF
-    cTextHtml += " <td> "+ (cAlias)->A1_CGC +"</td> " + CRLF
-    cTextHtml += " <td> "+ (cAlias)->A1_NOME +"</td> " + CRLF
-    cTextHtml += " <td> "+ (cAlias)->A1_END +"</td> " + CRLF
-    cTextHtml += " <td> "+ (cAlias)->A1_INSCR +"</td> " + CRLF
-    cTextHtml += " </tr> " + CRLF
-    cTextHtml += " </table> " + CRLF
-    cTextHtml += " <br> " + CRLF
-    cTextHtml += " <h3>4 - Dados do Produto</h3> " + CRLF
-    cTextHtml += " <table> " + CRLF
-    cTextHtml += " <tr> " + CRLF
-    cTextHtml += " <th>PROD</th> " + CRLF
-    cTextHtml += " <th>DESCRIÇÃO DO PRODUTO</th> " + CRLF
-    cTextHtml += " <th>CL FISCAL</th> " + CRLF
-    cTextHtml += " <th>CFOP</th> " + CRLF
-    cTextHtml += " <th>UN</th> " + CRLF
-    cTextHtml += " <th>QTDE</th> " + CRLF
-    cTextHtml += " <th>VL UNI</th> " + CRLF
-    cTextHtml += " <th>VL TOTAL</th> " + CRLF
-    cTextHtml += " <th>BASE ICMS</th> " + CRLF
-    cTextHtml += " <th>VL ICMS</th> " + CRLF
-    cTextHtml += " <th>VL IPI</th> " + CRLF
-    cTextHtml += " <th>%ICMS</th> " + CRLF
-    cTextHtml += " <th>%IPI</th> " + CRLF
-    cTextHtml += " <th>BASE ST</th> " + CRLF
-    cTextHtml += " <th>VL ST</th> " + CRLF
-    cTextHtml += " <th>MVA</th> " + CRLF
-    WHILE (cAlias1)->(!EOF())
-        cTextHtml += " <tr> " + CRLF
-        cTextHtml += " <td> "+ (cAlias1)->A1_CGC +"</td> " + CRLF
-        cTextHtml += " <td> "+ (cAlias1)->A1_NOME +"</td> " + CRLF
-        cTextHtml += " <td> "+ (cAlias1)->A1_END +"</td> " + CRLF
-        cTextHtml += " <td> "+ (cAlias1)->A1_INSCR +"</td> " + CRLF
-        (cAlias1)->(DBSKIP())
-    ENDDO
-    (cAlias1)->(DBCLOSEAREA())  
-    cTextHtml += " </tr> " + CRLF
-    cTextHtml += " </table> " + CRLF
-    cTextHtml += " <br> " + CRLF
-    cTextHtml += " <h3>5 - Dados do Adicionais</h3> " + CRLF
-    cTextHtml += " " + CRLF
-    cTextHtml += " </body> " + CRLF
-    cTextHtml += " </html> " + CRLF
-    
-    IF lExisteArquivo
-        RETURN "O arquivo já existe no servidor."
-    ELSE
-        hArquivo := FCREATE("tmp\arquivo.html") 
-        IF hArquivo > 0
-            FWRITE(hArquivo, cTextHtml)
-            FCLOSE(hArquivo)
-            RETURN "Arquivo criado com sucesso!"
-        ELSE
-            RETURN "Erro ao criar o arquivo."
-        ENDIF
-    ENDIF
-
-RETURN 
+RETURN
 
