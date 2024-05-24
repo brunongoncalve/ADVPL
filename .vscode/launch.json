@@ -75,7 +75,12 @@
 		},
 		{
 			"label": "sigafin"
+		},
+		{
+			"args": [],
+			"label": "u_xESPELHO"
 		}
 	],
-	"lastProgramExecuted": "sigafat"
+	"lastProgramExecuted": "u_xESPELHO",
+	"lastProgramArguments": []
 }
