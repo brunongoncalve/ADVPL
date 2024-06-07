@@ -32,7 +32,7 @@ USER FUNCTION xESPELHO()
     cQuery += " A.[A1_END], " + CRLF
     cQuery += " A.[A1_INSCR] " + CRLF
     cQuery += " FROM " + RETSQLNAME("SA1") + " A " + CRLF
-    cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[A1_MSBLQL] =  '2'"
+    cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[A1_MSBLQL] = '2'"
 
     cAlias := MPSYSOPENQUERY(cQuery)
 
@@ -42,7 +42,7 @@ USER FUNCTION xESPELHO()
     cQuery1 += " A.[A1_END], " + CRLF
     cQuery1 += " A.[A1_INSCR] " + CRLF
     cQuery1 += " FROM " + RETSQLNAME("SA1") + " A " + CRLF
-    cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[A1_MSBLQL] =  '2'"
+    cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[A1_MSBLQL] = '2'"
 
     cAlias1 := MPSYSOPENQUERY(cQuery1)
 
