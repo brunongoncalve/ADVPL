@@ -16,21 +16,19 @@ LOG PEDIDO DE VENDA
 */
 //----------------------------------------------------------------------------------------------------------------------
 
-USER FUNCTION M410STTS()
+User Function M410ALOK()
  
-    LOCAL _nOper  := PARAMIXB[1]
-    LOCAL aCampos := SC5->(DBSTRUCT())
-    LOCAL nI      := 0
-
-    IF _nOper == 4
-        IF CUSERNAME != "Administrador"
-            FOR nI := 1 TO LEN(aCampos)
-                cCampo := aCampos[nI][1]
-                ALERT(&("M->"+cCampo) + " " + &("SC5->"+cCampo))
-
-              
-            NEXT
-        ENDIF 
-    ENDIF
+Local lRet := .T.
  
-RETURN NIL
+If !Empty(SC5->C5_NOTA)
+    If ALTERA   //Alteração
+        MsgAlert("ALTERAÇÂO - Pedido já faturado.","ATENÇÃO")
+    ElseIf !INCLUI .And. !ALTERA    //Exclusão
+        MsgAlert("EXCLUSÃO - Pedido já faturado.","ATENÇÃO")
+    ElseIf INCLUI .And. IsInCallStack("A410COPIA")  //Cópia
+        MsgAlert("CÓPIA - Pedido já faturado.","ATENÇÃO")
+    EndIf
+    lRet := .F.
+EndIf
+ 
+Return lRet
