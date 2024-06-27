@@ -2,7 +2,7 @@
 #INCLUDE "TOTVS.ch"
 //----------------------------------------------------------------------------------------------------------------------
 /* {Protheus.doc} CLIENTES INATIVOS
-RELATORIO - CLIENTES INATIVOS
+ROTINA - CLIENTES INATIVOS
 @author    BRUNO NASCIMENTO GONÇALVES
 @since     20/04/2024
 @version   12/superior

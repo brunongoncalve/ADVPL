@@ -1,8 +1,9 @@
 #INCLUDE "PROTHEUS.CH"
 #INCLUDE "TOTVS.CH"
+
 //----------------------------------------------------------------------------------------------------------------------
 /* {Protheus.doc} LOG DE ALTERAÇÃO PEDIDO DE VENDA
-LOG PEDIDO DE VENDA
+PONTO DE ENTRADA - LOG PEDIDO DE VENDA
 @author    BRUNO NASCIMENTO GONÇALVES
 @since     06/06/2024
 @version   12/superior
