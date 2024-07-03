@@ -79,8 +79,11 @@
 		{
 			"args": [],
 			"label": "u_xESPELHO"
+		},
+		{
+			"label": "SIGAQIE"
 		}
 	],
-	"lastProgramExecuted": "sigafat",
+	"lastProgramExecuted": "SIGAQIE",
 	"lastProgramArguments": []
 }
