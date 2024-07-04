@@ -35,32 +35,38 @@ STATIC FUNCTION REPORTDEF(aResps)
     LOCAL lAutoSize    := .T.
     LOCAL cAlign       := "LEFT"
     LOCAL cHeaderAlign := "LEFT"
-    LOCAL cAliasPro    := ""
+    LOCAL cAlias       := ""
     LOCAL cNomeArq     := "PEDIDO POR CLIENTES"
     LOCAL cTitulo      := "PEDIDO POR CLIENTES"
 
-    oReport := TREPORT():NEW(cNomeArq,cTitulo,"",{|oReport| REPORTPRINT(oReport,@cAliasPro,aResps)}, "IMPRESSÃO DE RELATORIO")
+    oReport := TREPORT():NEW(cNomeArq,cTitulo,"",{|oReport| REPORTPRINT(oReport,@cAlias,aResps)}, "IMPRESSÃO DE RELATORIO")
 
     oSection1 := TRSECTION():NEW(oReport)
-    TRCELL():NEW(oSection1,"FOTO",cAliasPro,"COD.CLI",,nSize,,{|| Decode64((cAliasPro)->FOTO)},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1,"QE6_PRODUT",cAliasPro,"COD.CLI",,nSize,,{|| },cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
 
 RETURN oReport
 
-STATIC FUNCTION REPORTPRINT(oReport, cAliasPro, aResps)
+STATIC FUNCTION REPORTPRINT(oReport, cAlias, aResps)
 
     LOCAL oSection1  := oReport:SECTION(1)
     LOCAL cQuery     := ""
     LOCAL aProdutDe  := aResps[1]
     LOCAL aProdutAte := aResps[2]
+    LOCAL cAlias     := "REPOSIT"
+    LOCAL cTable     := "PROTHEUS_REPOSIT"
+
+    cQuery := CHANGEQUERY(cQuery)
+    cAlias := GETNEXTALIAS()
+    DBUSEAREA(.T.,'TOPCONN',cTable,cAlias,.F.,.T.)
 
     cQuery := " SELECT TOP 1 MAX(A.[QE6_DTINI]) AS DATA_FINAL, " + CRLF
     cQuery += " A.[QE6_DTDES] AS DATA_INICIO, " + CRLF
     cQuery += " A.[QE6_DTDES] AS DATA_INICIO, " + CRLF
-    cQuery += " C.[MEMO] AS FOTO" + CRLF
+    cQuery += " C.[MEMO] AS FOTO " + CRLF
     cQuery += " FROM " + RETSQLNAME("QE6") + " A " + CRLF
     cQuery += " LEFT JOIN " + RETSQLNAME("QE7") + " B " + CRLF
     cQuery += " ON A.[QE6_PRODUT] = B.[QE7_PRODUT] " + CRLF
-    cQuery += " LEFT JOIN " + RETSQLNAME("PROTHEUS_REPOSIT") + " C " + CRLF
+    cQuery += " LEFT JOIN " + RETSQLNAME(cTable) + " C " + CRLF
     cQuery += " ON A.[QE6_PRODUT] = C.[BMPNAME] " + CRLF
     cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[QE6_PRODUT] BETWEEN '"+ aProdutDe +"' AND '"+ aProdutAte +"' " + CRLF
     cQuery += " GROUP BY A.[QE6_DTINI], " + CRLF
@@ -68,19 +74,19 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasPro, aResps)
     cQuery += " C.[MEMO] " + CRLF
     cQuery += " ORDER BY A.[QE6_DTINI] DESC " + CRLF
 
-    cAliasPro := MPSYSOPENQUERY(cQuery)
+    cQuery := CHANGEQUERY(cQuery)
+    cAlias := GETNEXTALIAS()
 
-    WHILE (cAliasPro)->(!EOF())
-        Section1:INIT()
+    WHILE (cAlias)->(!EOF())
+        oSection1:INIT()
         oSection1:PRINTLINE()
         oSection1:SETPAGEBREAK(.T.)
-
-        oReport:SAYBITMAP(50,1700,(cAliasPro)->FOTO,150,150)
-
-        (cAliasPro)->(DBSKIP())
+        
+    
+        (cAlias)->(DBSKIP())
         oSection1:FINISH()
     ENDDO
 
-    (cAliasPro)->(DBCLOSEAREA())
+    (cAlias)->(DBCLOSEAREA())
 
 RETURN     
