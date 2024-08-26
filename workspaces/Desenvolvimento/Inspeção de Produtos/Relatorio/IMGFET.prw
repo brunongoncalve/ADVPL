@@ -41,8 +41,8 @@ STATIC FUNCTION REPORTDEF(aResps)
 
     oReport := TREPORT():NEW(cNomeArq,cTitulo,"",{|oReport| REPORTPRINT(oReport,@cAlias,aResps)}, "IMPRESSÃO DE RELATORIO")
 
-    oSection1 := TRSECTION():NEW(oReport)
-    TRCELL():NEW(oSection1,"QE6_PRODUT",cAliasPro,"COD.CLI",,nSize,,{|| },cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1, "A1_COD",      cAlias,  "COD.CLI"       ,,nSize,,{|| (cAliasCL)->A1_COD},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+
 
 RETURN oReport
 
@@ -52,12 +52,6 @@ STATIC FUNCTION REPORTPRINT(oReport, cAlias, aResps)
     LOCAL cQuery     := ""
     LOCAL aProdutDe  := aResps[1]
     LOCAL aProdutAte := aResps[2]
-    LOCAL cAlias     := "REPOSIT"
-    LOCAL cTable     := "PROTHEUS_REPOSIT"
-
-    cQuery := CHANGEQUERY(cQuery)
-    cAlias := GETNEXTALIAS()
-    DBUSEAREA(.T.,'TOPCONN',cTable,cAlias,.F.,.T.)
 
     cQuery := " SELECT TOP 1 MAX(A.[QE6_DTINI]) AS DATA_FINAL, " + CRLF
     cQuery += " A.[QE6_DTDES] AS DATA_INICIO, " + CRLF
@@ -66,7 +60,7 @@ STATIC FUNCTION REPORTPRINT(oReport, cAlias, aResps)
     cQuery += " FROM " + RETSQLNAME("QE6") + " A " + CRLF
     cQuery += " LEFT JOIN " + RETSQLNAME("QE7") + " B " + CRLF
     cQuery += " ON A.[QE6_PRODUT] = B.[QE7_PRODUT] " + CRLF
-    cQuery += " LEFT JOIN " + RETSQLNAME(cTable) + " C " + CRLF
+    cQuery += " LEFT JOIN " + RETSQLNAME("PROTHEUS_REPOSIT") + " C " + CRLF
     cQuery += " ON A.[QE6_PRODUT] = C.[BMPNAME] " + CRLF
     cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[QE6_PRODUT] BETWEEN '"+ aProdutDe +"' AND '"+ aProdutAte +"' " + CRLF
     cQuery += " GROUP BY A.[QE6_DTINI], " + CRLF
@@ -74,8 +68,7 @@ STATIC FUNCTION REPORTPRINT(oReport, cAlias, aResps)
     cQuery += " C.[MEMO] " + CRLF
     cQuery += " ORDER BY A.[QE6_DTINI] DESC " + CRLF
 
-    cQuery := CHANGEQUERY(cQuery)
-    cAlias := GETNEXTALIAS()
+    cAlias := MPSYSOPENQUERY(cQuery)
 
     WHILE (cAlias)->(!EOF())
         oSection1:INIT()

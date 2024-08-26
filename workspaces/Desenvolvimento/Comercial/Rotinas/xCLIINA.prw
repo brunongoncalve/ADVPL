@@ -94,7 +94,7 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasNU, aResps)
 
             cQuery1 := " SELECT TOP 10 A.[C5_NUM] " + CRLF
             cQuery1 += " FROM " + RETSQLNAME("SC5") + " A " + CRLF
-            cQuery1 += " WHERE A.[C5_CLIENTE] = '"+ (cAliasCL)->A1_COD +"'
+            cQuery1 += " WHERE A.[C5_CLIENTE] = '"+ (cAliasCL)->A1_COD +"'"
 
             cAliasNU := MPSYSOPENQUERY(cQuery1)
 
