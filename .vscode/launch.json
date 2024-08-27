@@ -82,8 +82,11 @@
 		},
 		{
 			"label": "SIGAQIE"
+		},
+		{
+			"label": "SIGAPCP"
 		}
 	],
-	"lastProgramExecuted": "SIGAQIE",
+	"lastProgramExecuted": "SIGAPCP",
 	"lastProgramArguments": []
 }
