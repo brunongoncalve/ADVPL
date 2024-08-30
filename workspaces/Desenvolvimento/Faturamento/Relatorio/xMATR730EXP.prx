@@ -69,7 +69,7 @@ STATIC FUNCTION REPORTDEF(aResps)
     TRCELL():NEW(oSection1, "C5_NUM",      cAliasCL,  "N PEDIDO"      ,,nSize,,{|| (cAliasCL)->C5_NUM},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection1, "C5_EMISSAO",  cAliasCL,  "EMISSAO"       ,,nSize,,{|| (cAliasCL)->C5_EMISSAO},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection1, "E4_DESCRI",   cAliasCL,  "COND.PAG"      ,,nSize,,{|| (cAliasCL)->E4_DESCRI},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection1, "C5_TIPO",     cAliasCL,  "TIPO. PED"     ,,nSize,,{|| (cAliasCL)->C5_TIPO},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1, "C5_PEDMER",   cAliasCL,  "PED.MERCANET"  ,,nSize,,{|| (cAliasCL)->C5_PEDMER},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection1, "A3_NOME",     cAliasCL,  "REPRESENTANTE" ,,nSize,,{|| (cAliasCL)->A3_NOME},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
 
     oSection2 := TRSECTION():NEW(oReport)
@@ -123,12 +123,12 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
     cQuery += " B.[A1_NREDUZ], " + CRLF
     cQuery += " TRIM(B.[A1_END]) + (' ' + '-' + ' ' + B.[A1_EST]) AS [A1_END], "  + CRLF
     cQuery += " A.[C5_NUM], " + CRLF
-    cQuery += " A.[C5_TIPO], " + CRLF
     cQuery += " FORMAT(CONVERT(DATE, A.[C5_EMISSAO]), 'dd/MM/yy') AS [C5_EMISSAO], " + CRLF
     cQuery += " C.[A4_NOME], " + CRLF
     cQuery += " D.[E4_DESCRI], " + CRLF
     cQuery += " E.[A3_NOME], " + CRLF
-    cQuery += " MAX(F.[F4_ESTOQUE]) AS CONTROLA_ESTOQUE " + CRLF
+    cQuery += " MAX(F.[F4_ESTOQUE]) AS CONTROLA_ESTOQUE, " + CRLF
+    cQuery += " A.[C5_PEDMER] " + CRLF
 	cQuery += " FROM " + RETSQLNAME("SC5") + " A " + CRLF
     cQuery += " LEFT JOIN " + RETSQLNAME("SA1") + " B " + CRLF
     cQuery += " ON A.[C5_CLIENTE] = B.[A1_COD] " + CRLF
@@ -147,7 +147,7 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
     ELSE
         cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_NUM] BETWEEN '"+ aPedidoDE +"' AND '"+ aPedidoATE +"' AND B.[A1_LOJA] = '01'" + CRLF
     ENDIF
-    cQuery += " GROUP BY A.[C5_NUM], B.[A1_COD], B.[A1_LOJA], B.[A1_NREDUZ], B.[A1_EST], B.[A1_END], A.[C5_TIPO], A.[C5_EMISSAO], C.[A4_NOME], D.[E4_DESCRI], E.[A3_NOME], F.[F4_ESTOQUE] " + CRLF       
+    cQuery += " GROUP BY A.[C5_NUM], B.[A1_COD], B.[A1_LOJA], B.[A1_NREDUZ], B.[A1_EST], B.[A1_END], A.[C5_TIPO], A.[C5_EMISSAO], C.[A4_NOME], D.[E4_DESCRI], E.[A3_NOME], F.[F4_ESTOQUE], A.[C5_PEDMER] " + CRLF       
     cQuery += " ORDER BY A.[C5_NUM] "
 
     cAliasCL := MPSYSOPENQUERY(cQuery)
