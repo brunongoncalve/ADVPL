@@ -143,7 +143,7 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
     cQuery += " ON A.[C6_TES] = B.[F4_CODIGO]) AS F " + CRLF
     cQuery += " ON A.[C5_NUM] = F.[C6_NUM] " + CRLF
     IF !EMPTY(cResult)
-        cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_XSTEX] = '" + cResult +"' AND B.[A1_LOJA] = '01' AND F.[F4_ESTOQUE] <> 'N'" + CRLF
+        cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_XSTEX] = '" + cResult +"' AND B.[A1_LOJA] = '01' AND F.[F4_ESTOQUE] <> 'N' AND B.[A1_COD] <> '45495'" + CRLF
     ELSE
         cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_NUM] BETWEEN '"+ aPedidoDE +"' AND '"+ aPedidoATE +"' AND B.[A1_LOJA] = '01'" + CRLF
     ENDIF
@@ -183,7 +183,7 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
                 cQuery1 += " LEFT JOIN " + RETSQLNAME("SA1") + " D " + CRLF
                 cQuery1 += " ON B.[C6_CLI] = D.[A1_COD] " + CRLF
                 IF !EMPTY(cResult)
-                    cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_XSTEX] = '" + cResult +"' AND D.[A1_LOJA] = '01'" + CRLF
+                    cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_XSTEX] = '" + cResult +"' AND D.[A1_LOJA] = '01' AND C.[A1_COD] <> '45495'" + CRLF
                 ELSE
                     cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_NUM] BETWEEN '"+ aPedidoDE +"' AND '"+ aPedidoATE +"' AND D.[A1_LOJA] = '01'" + CRLF
                 ENDIF        
@@ -215,7 +215,7 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
                         cQuery2 += " LEFT JOIN " + RETSQLNAME("SA1") + " B " + CRLF 
                         cQuery2 += " ON A.[C5_CLIENTE] = B.[A1_COD] " + CRLF
                         IF !EMPTY(cResult)
-                            cQuery2 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_XSTEX] = '" + cResult +"' AND B.[A1_LOJA] = '01'" + CRLF
+                            cQuery2 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_XSTEX] = '" + cResult +"' AND B.[A1_LOJA] = '01' AND B.[A1_COD] <> '45495'" + CRLF
                         ELSE
                             cQuery2 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_NUM] BETWEEN '"+ aPedidoDE +"' AND '"+ aPedidoATE +"' AND B.[A1_LOJA] = '01'" + CRLF
                         ENDIF        
