@@ -21,10 +21,10 @@ USER FUNCTION teste()
     AADD(aPergs, {1, "CLIENTE DE", SPACE(TAMSX3("A1_COD")[1]) ,,,"SA1",, 100, .F.})
     AADD(aPergs, {1, "CLIENTE ATE", SPACE(TAMSX3("A1_COD")[1]) ,,,"SA1",, 100, .F.})
     
-        IF PARAMBOX(aPergs, "Parametros do relatorio", @aResps,,,,,,,, .T., .T.)
-            oReport := REPORTDEF(aResps)
-            oReport:PRINTDIALOG()
-        ENDIF
+    IF PARAMBOX(aPergs, "Parametros do relatorio", @aResps,,,,,,,, .T., .T.)
+        oReport := REPORTDEF(aResps)
+        oReport:PRINTDIALOG()
+    ENDIF
 
 RETURN
 
