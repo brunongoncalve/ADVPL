@@ -13,7 +13,7 @@ TELA - DE PARA CFOP
 //----------------------------------------------------------------------------------------------------------------------
 
 /*
-2 - visualiza
+2 - visualiza 
 3 - inclui
 4 - altera
 5 - exclui
@@ -22,17 +22,18 @@ TELA - DE PARA CFOP
 
 USER FUNCTION xCADCFOP()
 
+    Local aArea   := GetArea()
     LOCAL oBrowse := FWLOADBRW("xCADCFOP")
  
     oBrowse:ACTIVATE()
-
-RETURN
+    RestArea(aArea)
+RETURN NIL
 
 STATIC FUNCTION BROWSEDEF()
 
     LOCAL oBrowse := FWMBROWSE():NEW()
 
-    oBrowse:SETALIAS("ZZ9")
+    oBrowse:SETALIAS("ZA2")
     oBrowse:SETDESCRIPTION("CADASTRO - DE PARA CFOP")
     oBrowse:ACTIVATE()
 
@@ -42,22 +43,20 @@ STATIC FUNCTION MENUDEF()
 
     LOCAL aMenu := {}
 
-    ADD OPTION aMenu TITLE 'Incluir' ACTION 'VIEWDEF.xCADCFOP' OPERATION 3 ACCESS 0
-    ADD OPTION aMenu TITLE 'Visualizar' ACTION 'VIEWDEF.xCADCFOP' OPERATION 2 ACCESS 0
-    ADD OPTION aMenu TITLE "Alterar" ACTION 'U_ALERT' OPERATION 4 ACCESS 0
+    ADD OPTION aMenu TITLE 'Visualizar' ACTION 'VIEWDEF.xCADCFOP' OPERATION 3 ACCESS 0
 
 RETURN aMenu
 
 STATIC FUNCTION MODELDEF()
 
     LOCAL oModel := NIL
-    LOCAL oStructZZ9 := FWFORMSTRUCT(1, "ZZ9")
+    LOCAL oStructZA2 := FWFORMSTRUCT(1, "ZA2")
 
     oModel := MPFORMMODEL():NEW("xCADCFOPM")
-    oModel:ADDFIELDS("FORMZZ9",,oStructZZ9)
-    oModel:SETPRIMARYKEY({"ZZ9_FILIAL","ZZ9_CODREC"})
+    oModel:ADDFIELDS("FORMZA2",,oStructZA2)
+    oModel:SETPRIMARYKEY({"ZA2_FILIAL","ZA2_COD"})
     oModel:SETDESCRIPTION("DE PARA CFOP")
-    oModel:GETMODEL("FORMZZ9"):SETDESCRIPTION("CADASTRO DE PARA CFOP")
+    oModel:GETMODEL("FORMZA2"):SETDESCRIPTION("CADASTRO DE PARA CFOP")
 
 RETURN oModel
 
@@ -65,20 +64,14 @@ STATIC FUNCTION VIEWDEF()
 
     LOCAL oView := NIL
     LOCAL oModel := FWLOADMODEL("xCADCFOP")
-    LOCAL oStructZZ9 := FWFORMSTRUCT(2, "ZZ9")
+    LOCAL oStructZA2 := FWFORMSTRUCT(2, "ZA2")
 
     oView := FWFORMVIEW():NEW()
     oView:SETMODEL(oModel)
-    oView:ADDFIELD("VIEWZZ9",oStructZZ9,"FORMZZ9")
-    oView:CREATEHORIZONTALBOX("TELAZZ9",100)
-    oView:ENABLETITLEVIEW("VIEWZZ9","DE PARA CFOP")
+    oView:ADDFIELD("VIEWZA2",oStructZA2,"FORMZA2")
+    oView:CREATEHORIZONTALBOX("TELAZA2",100)
+    oView:ENABLETITLEVIEW("VIEWZA2","DE PARA CFOP")
     oView:SETCLOSEONOK({||.T.})
-    oView:SETOWNERVIEW("VIEWZZ9","TELAZZ9")
+    oView:SETOWNERVIEW("VIEWZA2","TELAZA2")
 
 RETURN oView
-
-STATIC FUNCTION ALERT()
-
-    ALERT("OIIII")
-
-RETURN 

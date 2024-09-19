@@ -13,15 +13,24 @@ RELATORIO - CONFERENCIA OP
 USER FUNCTION xCONFEOP()
 
     LOCAL oReport := NIL
-    
-    PERGUNTE("ALUM002",.T.,"CONFERENCIA DE OP")
+    LOCAL aPergs  := {}
+    LOCAL aResps  := {}
 
-    oReport := REPORTDEF(MV_PAR01,MV_PAR02,MV_PAR03,MV_PAR04,MV_PAR05)
-    oReport:PRINTDIALOG()
+
+    AADD(aPergs, {1, "Produto De", SPACE(TAMSX3("B1_COD")[1]),,,"SB1",,100,.F.})
+    AADD(aPergs, {1, "Produto Ate", SPACE(TAMSX3("B1_COD")[1]),,,"SB1",,100,.F.})
+    AADD(aPergs, {1, "OP De", SPACE(TAMSX3("C2_OP")[1]),,,"SC2",,100,.F.})
+    AADD(aPergs, {1, "OP Ate", SPACE(TAMSX3("C2_OP")[1]),,,"SC2",,100,.F.})
+    AADD(aPergs, {1, "DATA ATE",STOD(""),,,,,100,.F.})
+    
+    IF PARAMBOX(aPergs,"Parametros do relatorio",@aResps,,,,,,,, .T., .T.)
+        oReport := REPORTDEF(aResps)
+        oReport:PRINTDIALOG()
+    ENDIF   
 
 RETURN
 
-STATIC FUNCTION REPORTDEF(MV_PAR01,MV_PAR02,MV_PAR03,MV_PAR04,MV_PAR05)
+STATIC FUNCTION REPORTDEF(aResps)
 
     LOCAL oReport      := NIL
     LOCAL oSection1    := NIL
@@ -35,26 +44,31 @@ STATIC FUNCTION REPORTDEF(MV_PAR01,MV_PAR02,MV_PAR03,MV_PAR04,MV_PAR05)
     LOCAL cNomeArq     := "CONFERENCIA DE OP"
     LOCAL cTitulo      := "CONFERENCIA DE OP"
 
-    oReport := TREPORT():NEW(cNomeArq,cTitulo,"",{|oReport| REPORTPRINT(oReport,@cAliasOP,MV_PAR01,MV_PAR02,MV_PAR03,MV_PAR04,MV_PAR05)},"IMPRESSÃO DE RELATORIO")
+    oReport := TREPORT():NEW(cNomeArq,cTitulo,"",{|oReport| REPORTPRINT(oReport,@cAliasOP,aResps)},"IMPRESSÃO DE RELATORIO")
 
     oSection1 := TRSECTION():NEW(oReport)
     TRCELL():NEW(oSection1,"C2_OP",cAliasOP,"ORDEM DE PRODUÇÃO",,nSize,,{|| (cAliasOP)->C2_OP},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection1,"PROD_PAI",cAliasOP,"PRDUTO PAI",,nSize,,{|| (cAliasOP)->PROD_PAI},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection1,"PROD_FILHO",cAliasOP,"PRDUTO FILHO",,nSize,,{|| (cAliasOP)->PROD_FILHO},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1,"PROD_PAI",cAliasOP,"PRODUTO PAI",,nSize,,{|| (cAliasOP)->PROD_PAI},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1,"PROD_FILHO",cAliasOP,"PRODUTO FILHO",,nSize,,{|| (cAliasOP)->PROD_FILHO},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection1,"QTD_BAIXA",cAliasOP,"QUANTIDADE BAIXA",,nSize,,{|| (cAliasOP)->QTD_BAIXA},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection1,"PERIODO",cAliasOP,"PERIODO",,nSize,,{|| (cAliasOP)->PERIODO},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection1,"QT_PRODUZIDA",cAliasOP,"QUANTIDADE PRODUZIDA",,nSize,,{|| (cAliasOP)->QT_PRODUZIDA},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection1,"QTD_ENG",cAliasOP,"QUANTIDADE ENGENHARIA",,nSize,,{|| (cAliasOP)->QTD_ENG},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection1,"DIFERENCA",cAliasOP,"DIFERENCA",,nSize,,{|| (cAliasOP)->DIFERENCA},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
 
 RETURN oReport
 
-STATIC FUNCTION REPORTPRINT(oReport,cAliasOP,MV_PAR01,MV_PAR02,MV_PAR03,MV_PAR04,MV_PAR05)
+STATIC FUNCTION REPORTPRINT(oReport,cAliasOP,aResps)
 
-    LOCAL oSection1 := oReport:SECTION(1)
-    LOCAL cQuery    := ""
-    
-    dPeriodoAno := YEAR2STR(MV_PAR05)
-    dPeriodoMes := MONTH2STR(MV_PAR05)
+    LOCAL oSection1   := oReport:SECTION(1)
+    LOCAL cProdutoDe  := aResps[1]
+    LOCAL cProdutoAte := aResps[2]
+    LOCAL cOPDe       := aResps[3]
+    LOCAL cOPAte      := aResps[4]
+    LOCAL cQuery      := ""
+
+    dPeriodoAno := YEAR2STR(aResps[5])
+    dPeriodoMes := MONTH2STR(aResps[5])
     dPeriodo    := dPeriodoMes + "/" + dPeriodoAno
 
     cQuery := " SELECT T.*, ISNULL(SUM(C.D3_QUANT),0) AS QT_PRODUZIDA, " + CRLF
@@ -77,7 +91,7 @@ STATIC FUNCTION REPORTPRINT(oReport,cAliasOP,MV_PAR01,MV_PAR02,MV_PAR03,MV_PAR04
     cQuery += " FROM " + RETSQLNAME("SG1") + "" + CRLF
     cQuery += " GROUP BY G1_COD,G1_COMP,G1_TRT,D_E_L_E_T_) AS SG1 " + CRLF
     cQuery += " ON SG1.G1_COD = T.PROD_PAI AND SG1.G1_COMP = T.PROD_FILHO AND  SG1.G1_TRT = T.D3_TRT  AND SG1.D_E_L_E_T_ = ' ' " + CRLF
-    cQuery += " WHERE T.PROD_PAI BETWEEN '"+MV_PAR01+"' AND '"+MV_PAR02+"' AND T.C2_OP BETWEEN '"+MV_PAR03+"' AND '"+MV_PAR04+"' AND T.PERIODO >= '"+dPeriodo+"' " + CRLF
+    cQuery += " WHERE T.PROD_PAI BETWEEN '"+cProdutoDe+"' AND '"+cProdutoAte+"' AND T.C2_OP BETWEEN '"+cOPDe+"' AND '"+cOPAte+"' AND T.PERIODO >= '"+dPeriodo+"' " + CRLF
     cQuery += " GROUP BY T.C2_OP,T.PROD_PAI,T.PROD_FILHO,T.QTD_BAIXA,T.D3_TM,T.PERIODO,T.D3_TRT " + CRLF
     cQuery += " ORDER BY PERIODO,C2_OP "
 
@@ -93,6 +107,5 @@ STATIC FUNCTION REPORTPRINT(oReport,cAliasOP,MV_PAR01,MV_PAR02,MV_PAR03,MV_PAR04
     oSection1:FINISH()
     (cAliasOP)->(DBCLOSEAREA())
 
-RETURN     
-
+RETURN  
 
