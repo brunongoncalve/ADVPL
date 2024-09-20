@@ -21,7 +21,7 @@ USER FUNCTION xCONFEOP()
     AADD(aPergs, {1, "Produto Ate", SPACE(TAMSX3("B1_COD")[1]),,,"SB1",,100,.F.})
     AADD(aPergs, {1, "OP De", SPACE(TAMSX3("C2_OP")[1]),,,"SC2",,100,.F.})
     AADD(aPergs, {1, "OP Ate", SPACE(TAMSX3("C2_OP")[1]),,,"SC2",,100,.F.})
-    AADD(aPergs, {1, "DATA ATE",STOD(""),,,,,100,.F.})
+    AADD(aPergs, {1, "Periodo De",STOD(""),,,,,100,.F.})
     
     IF PARAMBOX(aPergs,"Parametros do relatorio",@aResps,,,,,,,, .T., .T.)
         oReport := REPORTDEF(aResps)
