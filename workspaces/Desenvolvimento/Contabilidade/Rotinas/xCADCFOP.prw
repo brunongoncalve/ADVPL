@@ -12,14 +12,6 @@ TELA - DE PARA CFOP
 */
 //----------------------------------------------------------------------------------------------------------------------
 
-/*
-2 - visualiza 
-3 - inclui
-4 - altera
-5 - exclui
-6 - outras ações
-*/
-
 USER FUNCTION xCADCFOP()
 
     LOCAL oBrowse := FWMBROWSE():NEW()
@@ -36,6 +28,9 @@ STATIC FUNCTION MENUDEF()
 
     ADD OPTION aMenu TITLE 'Incluir' ACTION 'VIEWDEF.xCFOP' OPERATION MODEL_OPERATION_INSERT ACCESS 0
     ADD OPTION aMenu TITLE 'Alterar' ACTION 'VIEWDEF.xCFOP' OPERATION MODEL_OPERATION_UPDATE ACCESS 0
+    ADD OPTION aMenu TITLE 'Visualizar' ACTION 'VIEWDEF.xCFOP' OPERATION MODEL_OPERATION_VIEW ACCESS 0
+    ADD OPTION aMenu TITLE 'Copiar' ACTION 'VIEWDEF.xCFOP' OPERATION MODEL_OPERATION_COPY ACCESS 0
+    ADD OPTION aMenu TITLE 'Excluir' ACTION 'VIEWDEF.xCFOP' OPERATION MODEL_OPERATION_DELETE ACCESS 0
 
 RETURN aMenu
 
