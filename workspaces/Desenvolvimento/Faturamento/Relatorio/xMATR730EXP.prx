@@ -118,18 +118,31 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
 
     FWDIRREMOVE("C:\imagem do pedido",.T.,.T.)
 
-    cQuery := " SELECT B.[A1_COD], " + CRLF
-    cQuery += " B.[A1_LOJA], " + CRLF
-    cQuery += " B.[A1_NREDUZ], " + CRLF
-    cQuery += " TRIM(B.[A1_END]) + (' ' + '-' + ' ' + B.[A1_EST]) AS [A1_END], "  + CRLF
-    cQuery += " A.[C5_NUM], " + CRLF
-    cQuery += " FORMAT(CONVERT(DATE, A.[C5_EMISSAO]), 'dd/MM/yy') AS [C5_EMISSAO], " + CRLF
-    cQuery += " C.[A4_NOME], " + CRLF
-    cQuery += " D.[E4_DESCRI], " + CRLF
-    cQuery += " E.[A3_NOME], " + CRLF
-    cQuery += " MAX(F.[F4_ESTOQUE]) AS CONTROLA_ESTOQUE, " + CRLF
-    cQuery += " A.[C5_PEDMER] " + CRLF
-	cQuery += " FROM " + RETSQLNAME("SC5") + " A " + CRLF
+      
+    cQuery := " SELECT  CASE " + CRLF
+    cQuery += " WHEN A.[C5_TIPO] = 'B' THEN A.[C5_CLIENTE] " + CRLF
+    cQuery += " ELSE B.[A1_COD] " + CRLF
+	cQuery += "	END AS [CODIGO_CLIENTE], " + CRLF
+	cQuery += "	CASE " + CRLF
+    cQuery += " WHEN A.[C5_TIPO] = 'B' THEN G.[A2_LOJA] " + CRLF
+    cQuery += " ELSE B.[A1_LOJA] " + CRLF
+	cQuery += "	END AS [LOJA], " + CRLF
+	cQuery += "	CASE " + CRLF
+    cQuery += " WHEN A.[C5_TIPO] = 'B' THEN G.[A2_NREDUZ] " + CRLF
+    cQuery += " ELSE B.[A1_NREDUZ] " + CRLF
+	cQuery += "	END AS [NOME], " + CRLF
+	cQuery += " CASE " + CRLF 
+    cQuery += " WHEN A.[C5_TIPO] = 'B' THEN TRIM(G.[A2_END]) + (' ' + '-' + ' ' + G.[A2_EST]) " + CRLF
+    cQuery += " ELSE TRIM(B.[A1_END]) + (' ' + '-' + ' ' + B.[A1_EST]) " + CRLF
+	cQuery += "	END AS [ENDERECO], " + CRLF
+	cQuery += "	A.[C5_NUM], " + CRLF
+	cQuery += "	FORMAT(CONVERT(DATE, A.[C5_EMISSAO]), 'dd/MM/yy') AS [EMISSAO], " + CRLF
+	cQuery += "	C.[A4_NOME], " + CRLF
+	cQuery += "	D.[E4_DESCRI], " + CRLF
+	cQuery += "	E.[A3_NOME], " + CRLF
+	cQuery += "	MAX(F.[F4_ESTOQUE]) AS CONTROLA_ESTOQUE, " + CRLF
+	cQuery += "	A.[C5_PEDMER] " + CRLF
+    cQuery += " FROM " + RETSQLNAME("SC5") + " A " + CRLF
     cQuery += " LEFT JOIN " + RETSQLNAME("SA1") + " B " + CRLF
     cQuery += " ON A.[C5_CLIENTE] = B.[A1_COD] " + CRLF
     cQuery += " LEFT JOIN " + RETSQLNAME("SA4") + " C " + CRLF
@@ -137,17 +150,44 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
     cQuery += " LEFT JOIN " + RETSQLNAME("SE4") + " D " + CRLF
     cQuery += " ON A.[C5_CONDPAG] = D.[E4_CODIGO] " + CRLF
     cQuery += " LEFT JOIN " + RETSQLNAME("SA3") + " E " + CRLF
-    cQuery += " ON A.[C5_VEND1] = E.[A3_COD] " + CRLF
-    cQuery += " LEFT JOIN (SELECT A.[C6_NUM], A.[C6_TES], B.[F4_ESTOQUE] FROM " + RETSQLNAME("SC6") + " A " + CRLF
+    cQuery += " ON A.[C5_VEND1] = E.[A3_COD] " + CRLF 
+    cQuery += " LEFT JOIN (SELECT A.[C6_NUM], A.[C6_TES], A.[C6_LOCAL], B.[F4_ESTOQUE] FROM " + RETSQLNAME("SC6") + " A " + CRLF
     cQuery += " LEFT JOIN " + RETSQLNAME("SF4") + " B " + CRLF
     cQuery += " ON A.[C6_TES] = B.[F4_CODIGO]) AS F " + CRLF
     cQuery += " ON A.[C5_NUM] = F.[C6_NUM] " + CRLF
+    cQuery += " LEFT JOIN " + RETSQLNAME("SA2") + " G " + CRLF
+    cQuery += " ON A.[C5_CLIENTE] = G.[A2_COD] " + CRLF
     IF !EMPTY(cResult)
-        cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_XSTEX] = '" + cResult +"' AND B.[A1_LOJA] = '01' AND F.[F4_ESTOQUE] <> 'N' AND B.[A1_COD] <> '45495'" + CRLF
+        cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_XSTEX] = '"+cResult+"' AND F.[F4_ESTOQUE] <> 'N' AND F.[C6_LOCAL] = '006' AND " + CRLF
+        cQuery += " CASE " + CRLF
+        cQuery += " WHEN B.A1_LOJA = '01' THEN B.A1_LOJA " + CRLF
+        cQuery += " WHEN G.A2_LOJA = '01' THEN G.A2_LOJA " + CRLF
+        cQuery += " END = 01 " + CRLF
     ELSE
-        cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_NUM] BETWEEN '"+ aPedidoDE +"' AND '"+ aPedidoATE +"' AND B.[A1_LOJA] = '01'" + CRLF
+        cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_NUM] BETWEEN '"+aPedidoDE+"' AND '"+aPedidoATE+"' AND F.[F4_ESTOQUE] <> 'N' AND F.[C6_LOCAL] = '006' AND " + CRLF
+        cQuery += " CASE " + CRLF
+        cQuery += " WHEN B.A1_LOJA = '01' THEN B.A1_LOJA " + CRLF
+        cQuery += " WHEN G.A2_LOJA = '01' THEN G.A2_LOJA " + CRLF
+        cQuery += " END = 01 " + CRLF
     ENDIF
-    cQuery += " GROUP BY A.[C5_NUM], B.[A1_COD], B.[A1_LOJA], B.[A1_NREDUZ], B.[A1_EST], B.[A1_END], A.[C5_TIPO], A.[C5_EMISSAO], C.[A4_NOME], D.[E4_DESCRI], E.[A3_NOME], F.[F4_ESTOQUE], A.[C5_PEDMER] " + CRLF       
+    cQuery += " GROUP BY A.[C5_CLIENTE], " + CRLF
+    cQuery += " A.[C5_NUM], " + CRLF
+    cQuery += " B.[A1_COD], " + CRLF
+	cQuery += "	B.[A1_LOJA], " + CRLF
+	cQuery += "	B.[A1_NREDUZ], " + CRLF
+	cQuery += "	B.[A1_EST], " + CRLF
+	cQuery += "	B.[A1_END], " + CRLF
+	cQuery += "	A.[C5_TIPO], " + CRLF
+	cQuery += "	A.[C5_EMISSAO], " + CRLF
+	cQuery += "	C.[A4_NOME], " + CRLF
+	cQuery += "	D.[E4_DESCRI], " + CRLF
+	cQuery += "	E.[A3_NOME], " + CRLF
+	cQuery += "	F.[F4_ESTOQUE], " + CRLF
+	cQuery += "	A.[C5_PEDMER], " + CRLF
+	cQuery += "	G.[A2_LOJA], " + CRLF
+	cQuery += "	G.[A2_END], " + CRLF
+	cQuery += "	G.[A2_NREDUZ], " + CRLF
+	cQuery += "	G.[A2_EST] " + CRLF
     cQuery += " ORDER BY A.[C5_NUM] "
 
     cAliasCL := MPSYSOPENQUERY(cQuery)
@@ -174,7 +214,7 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
                 cQuery1 += " B.[C6_VALOR], " + CRLF
                 cQuery1 += " B.[C6_ENDPAD], " + CRLF
                 cQuery1 += " B.[C6_NUM], " + CRLF
-                cQuery1 += " CASE WHEN B.[C6_BLQ] = 'R' THEN B.[C6_QTDEMP] * B.[C6_PRCVEN] ELSE B.[C6_QTDVEN] * B.[C6_PRCVEN]  END AS [VALOR_EXP] "+ CRLF
+                cQuery1 += " CASE WHEN B.[C6_BLQ] = 'R' THEN B.[C6_QTDEMP] * B.[C6_PRCVEN] ELSE B.[C6_QTDVEN] * B.[C6_PRCVEN]  END AS [VALOR_EXP] " + CRLF
 	            cQuery1 += " FROM " + RETSQLNAME("SC5") + " A " + CRLF
                 cQuery1 += " LEFT JOIN " + RETSQLNAME("SC6") + " B " + CRLF 
                 cQuery1 += " ON A.[C5_NUM] = B.[C6_NUM] " + CRLF
@@ -183,9 +223,9 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
                 cQuery1 += " LEFT JOIN " + RETSQLNAME("SA1") + " D " + CRLF
                 cQuery1 += " ON B.[C6_CLI] = D.[A1_COD] " + CRLF
                 IF !EMPTY(cResult)
-                    cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_XSTEX] = '" + cResult +"' AND D.[A1_LOJA] = '01' AND C.[A1_COD] <> '45495'" + CRLF
+                    cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_XSTEX] = '" + cResult +"'" + CRLF
                 ELSE
-                    cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_NUM] BETWEEN '"+ aPedidoDE +"' AND '"+ aPedidoATE +"' AND D.[A1_LOJA] = '01'" + CRLF
+                    cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_NUM] BETWEEN '"+ aPedidoDE +"' AND '"+ aPedidoATE +"'" + CRLF
                 ENDIF        
                 cQuery1 += " ORDER BY A.[C5_NUM] "
                                                      
@@ -215,9 +255,9 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
                         cQuery2 += " LEFT JOIN " + RETSQLNAME("SA1") + " B " + CRLF 
                         cQuery2 += " ON A.[C5_CLIENTE] = B.[A1_COD] " + CRLF
                         IF !EMPTY(cResult)
-                            cQuery2 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_XSTEX] = '" + cResult +"' AND B.[A1_LOJA] = '01' AND B.[A1_COD] <> '45495'" + CRLF
+                            cQuery2 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_XSTEX] = '" + cResult +"'" + CRLF
                         ELSE
-                            cQuery2 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_NUM] BETWEEN '"+ aPedidoDE +"' AND '"+ aPedidoATE +"' AND B.[A1_LOJA] = '01'" + CRLF
+                            cQuery2 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_NUM] BETWEEN '"+ aPedidoDE +"' AND '"+ aPedidoATE +"'" + CRLF
                         ENDIF        
                         cQuery2 += " ORDER BY A.[C5_NUM]"
 
