@@ -118,7 +118,6 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
 
     FWDIRREMOVE("C:\imagem do pedido",.T.,.T.)
 
-      
     cQuery := " SELECT  CASE " + CRLF
     cQuery += " WHEN A.[C5_TIPO] = 'B' THEN A.[C5_CLIENTE] " + CRLF
     cQuery += " ELSE B.[A1_COD] " + CRLF
