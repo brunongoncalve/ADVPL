@@ -18,8 +18,6 @@ USER FUNCTION xCADCFOP()
     
     oBrowse:SETALIAS("ZA2")
     oBrowse:SETDESCRIPTION("De / Para - CFOP")
-    oBrowse:ADDLEGEND("ZA2->D_E_L_E_T_ == '*'","RED","CADASTRO INATIVO")
-    oBrowse:ADDLEGEND("ZA2->D_E_L_E_T_ == '*'","GREEN","CADASTRO ATIVO")
     oBrowse:ACTIVATE()
 
 RETURN
@@ -37,7 +35,7 @@ RETURN aMenu
 
 STATIC FUNCTION MODELDEF()
 
-    LOCAL oModel := NIL
+    LOCAL oModel := NIL6
     LOCAL oStructZA2 := FWFORMSTRUCT(1, "ZA2")
 
     oModel := MPFORMMODEL():NEW("xCADCFOPM")
