@@ -35,7 +35,7 @@ RETURN aMenu
 
 STATIC FUNCTION MODELDEF()
 
-    LOCAL oModel := NIL6
+    LOCAL oModel := NIL
     LOCAL oStructZA2 := FWFORMSTRUCT(1, "ZA2")
 
     oModel := MPFORMMODEL():NEW("xCADCFOPM")
