@@ -83,7 +83,7 @@ STATIC FUNCTION REPORTDEF(aResps)
     TRCELL():NEW(oSection2, "C6_ENDPAD",  cAliasPD, "DOCA"              ,,nSize,,{|| (cAliasPD)->C6_ENDPAD},cAlign,,cHeaderAlign,,nColSpace)
 
     oSection3 := TRSECTION():NEW(oReport)   
-    TRCELL():NEW(oSection3,"C5_XOBS",cAliasOB,"OBSERVAÇÃO DO PEDIDO",,,,{|| ALLTRIM((cAliasOB)->C5_XOBS)},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection3,"C5_XOBS",cAliasOB,"OBSERVAÇÃO DO PEDIDO",,nSize1,,{|| ALLTRIM((cAliasOB)->C5_XOBS)},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
 
     TRFUNCTION():NEW(oSection2:CELL("C6_VALOR") ,,"SUM",,,"@E 9,999,999,999.99",,.T.,.F.,,oSection2)
     TRFUNCTION():NEW(oSection2:CELL("VALOR_EXP"),,"SUM",,,"@E 9,999,999,999.99",,.T.,.F.,,oSection2)
