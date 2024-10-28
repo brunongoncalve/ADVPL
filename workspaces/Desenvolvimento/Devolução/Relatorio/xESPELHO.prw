@@ -1,6 +1,3 @@
-#INCLUDE "RPTDEF.CH"
-#INCLUDE 'TOPCONN.ch'
-#INCLUDE "FWPrintSetup.ch"
 #INCLUDE "PROTHEUS.ch"
 #INCLUDE "TOTVS.ch"
 
@@ -37,8 +34,9 @@ STATIC FUNCTION REPORTDEF(aResps)
     LOCAL oSection4    := NIL
     LOCAL oSection5    := NIL
     LOCAL nColSpace    := 0
-    LOCAL nSize        := 10
-    LOCAL nSize1       := 255
+    LOCAL nSize        := 30
+    LOCAL nSize1       := 100
+    LOCAL nSize2       := 60
     LOCAL lLineBreak   := .T.
     LOCAL lAutoSize    := .T.
     LOCAL cAlign       := "LEFT"
@@ -88,7 +86,7 @@ STATIC FUNCTION REPORTDEF(aResps)
     TRCELL():NEW(oSection4,"",,"BASE ST",,nSize,,{||(cAliasPRO)->D2_BASETST},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
 
     oSection5 := TRSECTION():NEW(oReport)
-    TRCELL():NEW(oSection5,"",,"INFORMAÇÕES",,nSize1,,{|| "ATENÇÃO: ESTE PROTOCOLO TEM VALIDADE DE 90 DIAS. APÓS ESTE PERÍODO, O MESMO SERÁ CANCELADO. A NF DE DEVOLUÇÃO DEVERÁ SER ENVIADA PARA CONFERÊNCIA DA ALUMBRA NO PRAZO DE 12 HORAS APÓS A SUA EMISSÃO, UMA VEZ QUE SE FOR NECESSÁRIO O CANCELAMENTO DA MESMA, O CLIENTE TERÁ O PRAZO DE 24HORAS. Modelo de nota fiscal de devolução referente a(s) NF(s):"},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection5,"",,"INFORMAÇÕES",,nSize2,,{|| "ATENÇÃO: ESTE PROTOCOLO TEM VALIDADE DE 90 DIAS. APÓS ESTE PERÍODO, O MESMO SERÁ CANCELADO. A NF DE DEVOLUÇÃO DEVERÁ SER ENVIADA PARA CONFERÊNCIA DA ALUMBRA NO PRAZO DE 12 HORAS APÓS A SUA EMISSÃO, UMA VEZ QUE SE FOR NECESSÁRIO O CANCELAMENTO DA MESMA, O CLIENTE TERÁ O PRAZO DE 24HORAS. Modelo de nota fiscal de devolução referente a(s) NF(s):"},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     
     oSection6 := TRSECTION():NEW(oReport)
     TRCELL():NEW(oSection6,"",,"SERIE",,nSize,,{|| (cAliasNFS)->F2_SERIE},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
@@ -97,9 +95,13 @@ STATIC FUNCTION REPORTDEF(aResps)
     TRCELL():NEW(oSection6,"",,"DT DE EMISSAO" ,,nSize,,{|| (cAliasNFS)->EMISSAO},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection6,"",,"CHAVE NF-E",,nSize1,,{|| (cAliasNFS)->F2_CHVNFE},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     
-    TRFUNCTION():NEW(oSection4:CELL("QTDE"),,"SUM",,,"@E 9,999,999,999.99",,.T.,.F.,,oSection4)
-    TRFUNCTION():NEW(oSection4:CELL("VL UNIT"),,"SUM",,,"@E 9,999,999,999.99",,.T.,.F.,,oSection4)
-    
+    TRFUNCTION():NEW(oSection4:CELL("BASE ICMS"),,"SUM",,"BASE CÁLCULO ICMS","@E 9,999,999,999.99",,.T.,.F.,,oSection4)
+    //TRFUNCTION():NEW(oSection4:CELL("VL ICMS"),,"SUM",,"TOTAL ICMS","@E 9,999,999,999.99",,.T.,.F.,,oSection4)
+    //TRFUNCTION():NEW(oSection4:CELL("BASE ST"),,"SUM",,"BASE CÁLCULO ICMS ST","@E 9,999,999,999.99",,.T.,.F.,,oSection4)
+    //TRFUNCTION():NEW(oSection4:CELL("VL ST"),,"SUM",,"TOTAL ICMS ST","@E 9,999,999,999.99",,.T.,.F.,,oSection4)
+    //TRFUNCTION():NEW(oSection4:CELL("VL TOTAL"),,"SUM",,"TOTAL DOS PRODUTOS","@E 9,999,999,999.99",,.T.,.F.,,oSection4)
+    //TRFUNCTION():NEW(oSection4:CELL("VL IPI"),,"SUM",,"TOTAL IPI","@E 9,999,999,999.99",,.T.,.F.,,oSection4)
+
 RETURN oReport
 
 STATIC FUNCTION REPORTPRINT(oReport,cAliasRM,cAliasPRO,cAliasNFS,aResps)

@@ -196,12 +196,13 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
             oSection1:PRINTLINE()
             oSection1:SETPAGEBREAK(.T.)
 
-            FWMAKEDIR("c:\imagem do pedido")
+            FWMAKEDIR("C:\imagem do pedido")
 
             url  := "https://barcode.tec-it.com/barcode.ashx?data=" + (cAliasCL)->C5_NUM
-            Html1 := HTTPGET(url)
-            Html1 := MEMOWRITE(ALLTRIM("C:\imagem do pedido\barcode"+ (cAliasCL)->C5_NUM +".png"),Html1)
-            oReport:SAYBITMAP(50,1700,"C:\imagem do pedido\barcode"+ (cAliasCL)->C5_NUM +".png",150,150)
+            Html := HTTPGET(url)
+            Html1 := cValToChar(Html)
+            MEMOWRITE(ALLTRIM("C:\imagem do pedido\"+ (cAliasCL)->C5_NUM +".jpg"),ALLTRIM(Html1))
+            oReport:SAYBITMAP(50,1700,"C:\imagem do pedido\"+ (cAliasCL)->C5_NUM +".jpg",150,150)
 
                 cQuery1 := " SELECT ROUND(COALESCE(B.[C6_QTDVEN] / NULLIF(C.[B1_CONV],0), 0), 1) AS [EMBAL], " + CRLF
                 cQuery1 += " CASE WHEN B.[C6_BLQ] = 'R' THEN CONCAT(COALESCE(B.[C6_QTDVEN] - B.[C6_QTDENT],''), ' ', COALESCE('C','')) " + CRLF
