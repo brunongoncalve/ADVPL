@@ -74,21 +74,26 @@ STATIC FUNCTION REPORTDEF(aResps)
     oSection4 := TRSECTION():NEW(oReport)
     TRCELL():NEW(oSection4,"",,"PRODUTO",,nSize,,{||(cAliasPRO)->ZZY_PROD},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection4,"",,"DESC.PRODUTO",,nSize1,,{||(cAliasPRO)->B1_DESC},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection4,"",,"CL FISCAL",,nSize,,{||(cAliasPRO)->D2_CLASFIS},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection4,"",,"CL FISCAL",,nSize,,{||(cAliasPRO)->B1_POSIPI},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection4,"",,"CFOP",,nSize,,{||(cAliasPRO)->ZA2_CFOPIM},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection4,"",,"UM",,nSize,,{||(cAliasPRO)->D2_UM},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection4,"",,"QTDE",,nSize,,{||(cAliasPRO)->D2_QUANT},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection4,"",,"VL UNIT",,nSize,,{||(cAliasPRO)->D2_PRUNIT},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection4,"",,"QTDE",,nSize,,{||(cAliasPRO)->ZZY_QTD},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection4,"",,"VL UNIT",,nSize,,{||(cAliasPRO)->D2_PRCVEN},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection4,"",,"VL TOTAL",,nSize,,{||(cAliasPRO)->D2_TOTAL},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection4,"",,"BASE ICMS",,nSize,,{||(cAliasPRO)->D2_BASEICM},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection4,"",,"VL ICMS",,nSize,,{||(cAliasPRO)->D2_VALICM},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection4,"",,"VL IPI",,nSize,,{||(cAliasPRO)->D2_VALIPI},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection4,"",,"BASE ST",,nSize,,{||(cAliasPRO)->D2_BASETST},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection4,"",,"% ICMS",,nSize,,{||(cAliasPRO)->D2_PICM},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection4,"",,"% IPI",,nSize,,{||(cAliasPRO)->D2_IPI},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection4,"",,"BASE ST",,nSize,,{||(cAliasPRO)->D2_BRICMS},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection4,"",,"VL ST",,nSize,,{||(cAliasPRO)->D2_ICMSRET},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection4,"",,"MVA",,nSize,,{||(cAliasPRO)->D2_MARGEM},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
 
     oSection5 := TRSECTION():NEW(oReport)
-    TRCELL():NEW(oSection5,"",,"INFORMAÇÕES",,nSize2,,{|| "ATENÇÃO: ESTE PROTOCOLO TEM VALIDADE DE 90 DIAS. APÓS ESTE PERÍODO, O MESMO SERÁ CANCELADO. A NF DE DEVOLUÇÃO DEVERÁ SER ENVIADA PARA CONFERÊNCIA DA ALUMBRA NO PRAZO DE 12 HORAS APÓS A SUA EMISSÃO, UMA VEZ QUE SE FOR NECESSÁRIO O CANCELAMENTO DA MESMA, O CLIENTE TERÁ O PRAZO DE 24HORAS. Modelo de nota fiscal de devolução referente a(s) NF(s):"},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection5,"",,"INFORMAÇÕES",,nSize2,,{||"ATENÇÃO: ESTE PROTOCOLO TEM VALIDADE DE 90 DIAS. APÓS ESTE PERÍODO, O MESMO SERÁ CANCELADO. A NF DE DEVOLUÇÃO DEVERÁ SER ENVIADA PARA CONFERÊNCIA DA ALUMBRA NO PRAZO DE 12 HORAS APÓS A SUA EMISSÃO, UMA VEZ QUE SE FOR NECESSÁRIO O CANCELAMENTO DA MESMA, O CLIENTE TERÁ O PRAZO DE 24HORAS. Modelo de nota fiscal de devolução referente a(s) NF(s):"},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     
     oSection6 := TRSECTION():NEW(oReport)
+    TRCELL():NEW(oSection6,"",,"PROTOCOLO",,nSize,,{|| (cAliasNFS)->ZZW_NUM},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection6,"",,"SERIE",,nSize,,{|| (cAliasNFS)->F2_SERIE},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection6,"",,"NOTA",,nSize,,{|| (cAliasNFS)->F2_DOC},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection6,"",,"SEQUENCIA",,nSize,,{|| (cAliasNFS)->D2_ITEM},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
@@ -148,17 +153,24 @@ STATIC FUNCTION REPORTPRINT(oReport,cAliasRM,cAliasPRO,cAliasNFS,aResps)
             oReport:SKIPLINE(3)
 
             cQuery1 := " SELECT B.[ZZY_PROD], " + CRLF
-	        cQuery1 += " D.[B1_DESC], " + CRLF
-            cQuery1 += " C.[D2_CLASFIS], " + CRLF
-	        cQuery1 += " C.[D2_UM], " + CRLF
-	        cQuery1 += " C.[D2_QUANT], " + CRLF
-	        cQuery1 += " C.[D2_PRUNIT], " + CRLF
-	        cQuery1 += " C.[D2_TOTAL], " + CRLF
-	        cQuery1 += " C.[D2_BASEICM], " + CRLF
-	        cQuery1 += " C.[D2_VALICM], " + CRLF
-	        cQuery1 += " C.[D2_VALIPI], " + CRLF
-            cQuery1 += " C.[D2_BASETST], " + CRLF
-            cQuery1 += " E.[ZA2_CFOPIM] " + CRLF
+            cQuery1 += " D.[B1_DESC], " + CRLF
+            cQuery1 += " D.[B1_POSIPI], " + CRLF
+	        cQuery1 += " E.[ZA2_CFOPIM], " + CRLF
+            cQuery1 += " C.[D2_UM], " + CRLF
+            cQuery1 += " B.[ZZY_QTD], " + CRLF
+            cQuery1 += " C.[D2_PRCVEN], " + CRLF
+            cQuery1 += " B.[ZZY_QTD] * C.[D2_PRCVEN] AS [D2_TOTAL], " + CRLF
+            cQuery1 += " C.[D2_BASEICM], " + CRLF
+            cQuery1 += " C.[D2_VALICM], " + CRLF
+            cQuery1 += " C.[D2_VALIPI], " + CRLF
+            cQuery1 += " C.[D2_PICM], " + CRLF
+	        cQuery1 += " C.[D2_IPI], " + CRLF
+	        cQuery1 += " CASE " + CRLF
+	        cQuery1 += " WHEN A.[ZZW_ST] = '2' THEN '0' " + CRLF
+		    cQuery1 += " ELSE C.[D2_BRICMS] " + CRLF
+	        cQuery1 += " END AS [D2_BRICMS], " + CRLF
+	        cQuery1 += " C.[D2_ICMSRET], " + CRLF
+	        cQuery1 += " C.[D2_MARGEM] " + CRLF
             cQuery1 += " FROM " + RETSQLNAME("ZZW") + " A " + CRLF  
             cQuery1 += " LEFT JOIN " + RETSQLNAME("ZZY") + " B " + CRLF 
             cQuery1 += " ON A.[ZZW_NUM] = B.[ZZY_NUM]
@@ -179,7 +191,8 @@ STATIC FUNCTION REPORTPRINT(oReport,cAliasRM,cAliasPRO,cAliasNFS,aResps)
                     (cAliasPRO)->(DBSKIP())
                 ENDDO
 
-                cQuery2 := " SELECT D.[F2_SERIE], " + CRLF
+                cQuery2 := " SELECT A.[ZZW_NUM], " + CRLF
+                cQuery2 += " D.[F2_SERIE], " + CRLF
                 cQuery2 += " D.[F2_DOC], " + CRLF
                 cQuery2 += " C.[D2_ITEM], " + CRLF
                 cQuery2 += " FORMAT(CONVERT(DATE, D.[F2_EMISSAO]), 'dd/MM/yy') AS [EMISSAO], " + CRLF
