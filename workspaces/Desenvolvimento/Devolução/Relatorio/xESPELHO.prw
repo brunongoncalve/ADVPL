@@ -14,18 +14,21 @@ USER FUNCTION xESPELHO()
 
     LOCAL oReport := NIL
     LOCAL aPergs  := {}
-    LOCAL aResps  := {}
+    LOCAL nProtoc := ZZW->ZZW_NUM
+    LOCAL cStatus := ZZW->ZZW_STSMER
 
-    AADD(aPergs,{1,"Protocolo",SPACE(TAMSX3("ZZW_NUM")[1]),,,"",,100,.F.})
+    AADD(aPergs,{1,"Protocolo",nProtoc,,,"",,100,.T.})
 
-    IF PARAMBOX(aPergs, "Parametros do relatorio", @aResps,,,,,,,,.T.,.T.)
-        oReport := REPORTDEF(aResps)
+    IF cStatus == 'APR'
+        oReport := REPORTDEF(aPergs)
         oReport:PRINTDIALOG()
+    ELSE 
+        FWALERTWARNING("Realize a aprovação do protocolo para a emissão do espelho da nota fiscal.", "Atenção !")
     ENDIF
-
+    
 RETURN
 
-STATIC FUNCTION REPORTDEF(aResps)
+STATIC FUNCTION REPORTDEF(aPergs)
 
     LOCAL oReport      := NIL
     LOCAL oSection1    := NIL
@@ -47,7 +50,7 @@ STATIC FUNCTION REPORTDEF(aResps)
     LOCAL cNomeArq     := "ESPELHO DA NOTA"
     LOCAL cTitulo      := "MODELO DE NOTA FISCAL DE DEVOLUÇÃO"
 
-    oReport := TREPORT():NEW(cNomeArq,cTitulo,"",{|oReport| REPORTPRINT(oReport,@cAliasRM,@cAliasPRO,@cAliasNFS,aResps)},"IMPRESSÃO DE RELATORIO")
+    oReport := TREPORT():NEW(cNomeArq,cTitulo,"",{|oReport| REPORTPRINT(oReport,@cAliasRM,@cAliasPRO,@cAliasNFS,aPergs)},"IMPRESSÃO DE RELATORIO")
 
     oSection1 := TRSECTION():NEW(oReport)
     TRCELL():NEW(oSection1,"",,"REMETENTE",,nSize,,{||},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
@@ -91,10 +94,9 @@ STATIC FUNCTION REPORTDEF(aResps)
     TRCELL():NEW(oSection4,"",,"TOTAL NF",,nSize,,{||(cAliasPRO)->TOTAL_DA_NOTA},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
 
     oSection5 := TRSECTION():NEW(oReport)
-    TRCELL():NEW(oSection5,"",,"INFORMAÇÕES",,nSize2,,{||"ATENÇÃO: ESTE PROTOCOLO TEM VALIDADE DE 90 DIAS. APÓS ESTE PERÍODO, O MESMO SERÁ CANCELADO. A NF DE DEVOLUÇÃO DEVERÁ SER ENVIADA PARA CONFERÊNCIA DA ALUMBRA NO PRAZO DE 12 HORAS APÓS A SUA EMISSÃO, UMA VEZ QUE SE FOR NECESSÁRIO O CANCELAMENTO DA MESMA, O CLIENTE TERÁ O PRAZO DE 24HORAS. Modelo de nota fiscal de devolução referente a(s) NF(s):"},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection5,"",,"INFORMAÇÕES ADICIONAIS",,nSize2,,{||"ATENÇÃO: ESTE PROTOCOLO TEM VALIDADE DE 90 DIAS. APÓS ESTE PERÍODO, O MESMO SERÁ CANCELADO. A NF DE DEVOLUÇÃO DEVERÁ SER ENVIADA PARA CONFERÊNCIA DA ALUMBRA NO PRAZO DE 12 HORAS APÓS A SUA EMISSÃO, UMA VEZ QUE SE FOR NECESSÁRIO O CANCELAMENTO DA MESMA, O CLIENTE TERÁ O PRAZO DE 24HORAS. Modelo de nota fiscal de devolução referente a(s) NF(s): PROTOCOLO: "+aPergs[1][3]+""},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     
     oSection6 := TRSECTION():NEW(oReport)
-    TRCELL():NEW(oSection6,"",,"PROTOCOLO",,nSize,,{|| (cAliasNFS)->ZZW_NUM},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection6,"",,"SERIE",,nSize,,{|| (cAliasNFS)->F2_SERIE},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection6,"",,"NOTA",,nSize,,{|| (cAliasNFS)->F2_DOC},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection6,"",,"SEQUENCIA",,nSize,,{|| (cAliasNFS)->D2_ITEM},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
@@ -111,7 +113,7 @@ STATIC FUNCTION REPORTDEF(aResps)
 
 RETURN oReport
 
-STATIC FUNCTION REPORTPRINT(oReport,cAliasRM,cAliasPRO,cAliasNFS,aResps)
+STATIC FUNCTION REPORTPRINT(oReport,cAliasRM,cAliasPRO,cAliasNFS,aPergs)
 
     LOCAL oSection1 := oReport:SECTION(1)
     LOCAL oSection2 := oReport:SECTION(2)
@@ -122,7 +124,7 @@ STATIC FUNCTION REPORTPRINT(oReport,cAliasRM,cAliasPRO,cAliasNFS,aResps)
     LOCAL cQuery    := ""
     LOCAL cQuery1   := ""
     LOCAL cQuery2   := ""
-    LOCAL aPro      := aResps[1]
+    LOCAL aPro      := aPergs[1][3]
 
     cQuery := " SELECT TOP 1 " + CRLF
     cQuery += " C.[A1_CGC], " + CRLF
@@ -194,8 +196,7 @@ STATIC FUNCTION REPORTPRINT(oReport,cAliasRM,cAliasPRO,cAliasNFS,aResps)
                     (cAliasPRO)->(DBSKIP())
                 ENDDO
 
-                cQuery2 := " SELECT A.[ZZW_NUM], " + CRLF
-                cQuery2 += " D.[F2_SERIE], " + CRLF
+                cQuery2 := " SELECT D.[F2_SERIE], " + CRLF
                 cQuery2 += " D.[F2_DOC], " + CRLF
                 cQuery2 += " C.[D2_ITEM], " + CRLF
                 cQuery2 += " FORMAT(CONVERT(DATE, D.[F2_EMISSAO]), 'dd/MM/yy') AS [EMISSAO], " + CRLF
