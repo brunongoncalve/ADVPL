@@ -200,8 +200,7 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
 
             url  := "https://barcode.tec-it.com/barcode.ashx?data=" + (cAliasCL)->C5_NUM
             Html := HTTPGET(url)
-            Html1 := cValToChar(Html)
-            MEMOWRITE(ALLTRIM("C:\imagem do pedido\"+ (cAliasCL)->C5_NUM +".jpg"),ALLTRIM(Html1))
+            MEMOWRITE(ALLTRIM("C:\imagem do pedido\"+ (cAliasCL)->C5_NUM +".jpg"),ALLTRIM(Html))
             oReport:SAYBITMAP(50,1700,"C:\imagem do pedido\"+ (cAliasCL)->C5_NUM +".jpg",150,150)
 
                 cQuery1 := " SELECT ROUND(COALESCE(B.[C6_QTDVEN] / NULLIF(C.[B1_CONV],0), 0), 1) AS [EMBAL], " + CRLF

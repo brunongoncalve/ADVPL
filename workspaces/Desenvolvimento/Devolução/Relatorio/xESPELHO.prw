@@ -35,7 +35,7 @@ STATIC FUNCTION REPORTDEF(aResps)
     LOCAL oSection5    := NIL
     LOCAL nColSpace    := 0
     LOCAL nSize        := 30
-    LOCAL nSize1       := 100
+    LOCAL nSize1       := 80
     LOCAL nSize2       := 60
     LOCAL lLineBreak   := .T.
     LOCAL lAutoSize    := .T.
@@ -88,6 +88,7 @@ STATIC FUNCTION REPORTDEF(aResps)
     TRCELL():NEW(oSection4,"",,"BASE ST",,nSize,,{||(cAliasPRO)->D2_BRICMS},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection4,"",,"VL ST",,nSize,,{||(cAliasPRO)->D2_ICMSRET},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection4,"",,"MVA",,nSize,,{||(cAliasPRO)->D2_MARGEM},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection4,"",,"TOTAL NF",,nSize,,{||(cAliasPRO)->TOTAL_DA_NOTA},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
 
     oSection5 := TRSECTION():NEW(oReport)
     TRCELL():NEW(oSection5,"",,"INFORMAÇÕES",,nSize2,,{||"ATENÇÃO: ESTE PROTOCOLO TEM VALIDADE DE 90 DIAS. APÓS ESTE PERÍODO, O MESMO SERÁ CANCELADO. A NF DE DEVOLUÇÃO DEVERÁ SER ENVIADA PARA CONFERÊNCIA DA ALUMBRA NO PRAZO DE 12 HORAS APÓS A SUA EMISSÃO, UMA VEZ QUE SE FOR NECESSÁRIO O CANCELAMENTO DA MESMA, O CLIENTE TERÁ O PRAZO DE 24HORAS. Modelo de nota fiscal de devolução referente a(s) NF(s):"},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
@@ -101,11 +102,12 @@ STATIC FUNCTION REPORTDEF(aResps)
     TRCELL():NEW(oSection6,"",,"CHAVE NF-E",,nSize1,,{|| (cAliasNFS)->F2_CHVNFE},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     
     TRFUNCTION():NEW(oSection4:CELL("BASE ICMS"),,"SUM",,"BASE CÁLCULO ICMS","@E 9,999,999,999.99",,.T.,.F.,,oSection4)
-    //TRFUNCTION():NEW(oSection4:CELL("VL ICMS"),,"SUM",,"TOTAL ICMS","@E 9,999,999,999.99",,.T.,.F.,,oSection4)
-    //TRFUNCTION():NEW(oSection4:CELL("BASE ST"),,"SUM",,"BASE CÁLCULO ICMS ST","@E 9,999,999,999.99",,.T.,.F.,,oSection4)
-    //TRFUNCTION():NEW(oSection4:CELL("VL ST"),,"SUM",,"TOTAL ICMS ST","@E 9,999,999,999.99",,.T.,.F.,,oSection4)
-    //TRFUNCTION():NEW(oSection4:CELL("VL TOTAL"),,"SUM",,"TOTAL DOS PRODUTOS","@E 9,999,999,999.99",,.T.,.F.,,oSection4)
-    //TRFUNCTION():NEW(oSection4:CELL("VL IPI"),,"SUM",,"TOTAL IPI","@E 9,999,999,999.99",,.T.,.F.,,oSection4)
+    TRFUNCTION():NEW(oSection4:CELL("VL ICMS"),,"SUM",,"TOTAL ICMS","@E 9,999,999,999.99",,.T.,.F.,,oSection4)
+    TRFUNCTION():NEW(oSection4:CELL("BASE ST"),,"SUM",,"BASE CÁLCULO ICMS ST","@E 9,999,999,999.99",,.T.,.F.,,oSection4)
+    TRFUNCTION():NEW(oSection4:CELL("VL ST"),,"SUM",,"TOTAL ICMS ST","@E 9,999,999,999.99",,.T.,.F.,,oSection4)
+    TRFUNCTION():NEW(oSection4:CELL("VL TOTAL"),,"SUM",,"TOTAL DOS PRODUTOS","@E 9,999,999,999.99",,.T.,.F.,,oSection4)
+    TRFUNCTION():NEW(oSection4:CELL("VL IPI"),,"SUM",,"TOTAL IPI","@E 9,999,999,999.99",,.T.,.F.,,oSection4)
+    TRFUNCTION():NEW(oSection4:CELL("TOTAL NF"),,"SUM",,"TOTAL DA NOTA","@E 9,999,999,999.99",,.T.,.F.,,oSection4)
 
 RETURN oReport
 
@@ -159,8 +161,8 @@ STATIC FUNCTION REPORTPRINT(oReport,cAliasRM,cAliasPRO,cAliasNFS,aResps)
             cQuery1 += " C.[D2_UM], " + CRLF
             cQuery1 += " B.[ZZY_QTD], " + CRLF
             cQuery1 += " C.[D2_PRCVEN], " + CRLF
-            cQuery1 += " B.[ZZY_QTD] * C.[D2_PRCVEN] AS [D2_TOTAL], " + CRLF
-            cQuery1 += " C.[D2_BASEICM], " + CRLF
+            cQuery1 += " C.[D2_PRCVEN] * B.[ZZY_QTD] AS [D2_TOTAL], " + CRLF
+            cQuery1 += " C.[D2_BASEICM] * B.[ZZY_QTD] AS [D2_BASEICM], " + CRLF
             cQuery1 += " C.[D2_VALICM], " + CRLF
             cQuery1 += " C.[D2_VALIPI], " + CRLF
             cQuery1 += " C.[D2_PICM], " + CRLF
@@ -170,7 +172,8 @@ STATIC FUNCTION REPORTPRINT(oReport,cAliasRM,cAliasPRO,cAliasNFS,aResps)
 		    cQuery1 += " ELSE C.[D2_BRICMS] " + CRLF
 	        cQuery1 += " END AS [D2_BRICMS], " + CRLF
 	        cQuery1 += " C.[D2_ICMSRET], " + CRLF
-	        cQuery1 += " C.[D2_MARGEM] " + CRLF
+	        cQuery1 += " C.[D2_MARGEM], " + CRLF
+            cQuery1 += " C.[D2_PRCVEN] * B.[ZZY_QTD] + C.[D2_VALIPI] AS [TOTAL_DA_NOTA] " + CRLF
             cQuery1 += " FROM " + RETSQLNAME("ZZW") + " A " + CRLF  
             cQuery1 += " LEFT JOIN " + RETSQLNAME("ZZY") + " B " + CRLF 
             cQuery1 += " ON A.[ZZW_NUM] = B.[ZZY_NUM]
