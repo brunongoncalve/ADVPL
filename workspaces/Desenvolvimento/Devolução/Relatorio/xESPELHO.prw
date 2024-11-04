@@ -1,5 +1,6 @@
 #INCLUDE "PROTHEUS.ch"
 #INCLUDE "TOTVS.ch"
+#Include "REPORT.ch"
 
 //----------------------------------------------------------------------------------------------------------------------
 /* {Protheus.doc} ESPELHO DE DEVOLUÇÃO
@@ -37,8 +38,8 @@ STATIC FUNCTION REPORTDEF(aPergs)
     LOCAL oSection4    := NIL
     LOCAL oSection5    := NIL
     LOCAL nColSpace    := 0
-    LOCAL nSize        := 30
-    LOCAL nSize1       := 80
+    LOCAL nSize        := 25
+    LOCAL nSize1       := 90
     LOCAL nSize2       := 60
     LOCAL lLineBreak   := .T.
     LOCAL lAutoSize    := .T.
@@ -83,15 +84,15 @@ STATIC FUNCTION REPORTDEF(aPergs)
     TRCELL():NEW(oSection4,"",,"QTDE",,nSize,,{||(cAliasPRO)->ZZY_QTD},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection4,"",,"VL UNIT",,nSize,,{||(cAliasPRO)->D2_PRCVEN},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection4,"",,"VL TOTAL",,nSize,,{||(cAliasPRO)->D2_TOTAL},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection4,"",,"BASE ICMS",,nSize,,{||(cAliasPRO)->D2_BASEICM},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection4,"",,"B.ICMS",,nSize,,{||(cAliasPRO)->D2_BASEICM},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection4,"",,"VL ICMS",,nSize,,{||(cAliasPRO)->D2_VALICM},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection4,"",,"VL IPI",,nSize,,{||(cAliasPRO)->D2_VALIPI},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection4,"",,"% ICMS",,nSize,,{||(cAliasPRO)->D2_PICM},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection4,"",,"% IPI",,nSize,,{||(cAliasPRO)->D2_IPI},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection4,"",,"BASE ST",,nSize,,{||(cAliasPRO)->D2_BRICMS},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection4,"",,"B.ST",,nSize,,{||(cAliasPRO)->D2_BRICMS},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection4,"",,"VL ST",,nSize,,{||(cAliasPRO)->D2_ICMSRET},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection4,"",,"MVA",,nSize,,{||(cAliasPRO)->D2_MARGEM},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection4,"",,"TOTAL NF",,nSize,,{||(cAliasPRO)->TOTAL_DA_NOTA},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection4,"",,"TL NF",,nSize,,{||(cAliasPRO)->TOTAL_DA_NOTA},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
 
     oSection5 := TRSECTION():NEW(oReport)
     TRCELL():NEW(oSection5,"",,"INFORMAÇÕES ADICIONAIS",,nSize2,,{||"ATENÇÃO: ESTE PROTOCOLO TEM VALIDADE DE 90 DIAS. APÓS ESTE PERÍODO, O MESMO SERÁ CANCELADO. A NF DE DEVOLUÇÃO DEVERÁ SER ENVIADA PARA CONFERÊNCIA DA ALUMBRA NO PRAZO DE 12 HORAS APÓS A SUA EMISSÃO, UMA VEZ QUE SE FOR NECESSÁRIO O CANCELAMENTO DA MESMA, O CLIENTE TERÁ O PRAZO DE 24HORAS. Modelo de nota fiscal de devolução referente a(s) NF(s): PROTOCOLO: "+aPergs[1][3]+""},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
@@ -100,16 +101,16 @@ STATIC FUNCTION REPORTDEF(aPergs)
     TRCELL():NEW(oSection6,"",,"SERIE",,nSize,,{|| (cAliasNFS)->F2_SERIE},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection6,"",,"NOTA",,nSize,,{|| (cAliasNFS)->F2_DOC},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection6,"",,"SEQUENCIA",,nSize,,{|| (cAliasNFS)->D2_ITEM},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection6,"",,"DT DE EMISSAO" ,,nSize,,{|| (cAliasNFS)->EMISSAO},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection6,"",,"DATA DE EMISSAO" ,,nSize,,{|| (cAliasNFS)->EMISSAO},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection6,"",,"CHAVE NF-E",,nSize1,,{|| (cAliasNFS)->F2_CHVNFE},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     
-    TRFUNCTION():NEW(oSection4:CELL("BASE ICMS"),,"SUM",,"BASE CÁLCULO ICMS","@E 9,999,999,999.99",,.T.,.F.,,oSection4)
+    TRFUNCTION():NEW(oSection4:CELL("B.ICMS"),,"SUM",,"BASE CÁLCULO ICMS","@E 9,999,999,999.99",,.T.,.F.,,oSection4)
     TRFUNCTION():NEW(oSection4:CELL("VL ICMS"),,"SUM",,"TOTAL ICMS","@E 9,999,999,999.99",,.T.,.F.,,oSection4)
-    TRFUNCTION():NEW(oSection4:CELL("BASE ST"),,"SUM",,"BASE CÁLCULO ICMS ST","@E 9,999,999,999.99",,.T.,.F.,,oSection4)
+    TRFUNCTION():NEW(oSection4:CELL("B.ST"),,"SUM",,"BASE CÁLCULO ICMS ST","@E 9,999,999,999.99",,.T.,.F.,,oSection4)
     TRFUNCTION():NEW(oSection4:CELL("VL ST"),,"SUM",,"TOTAL ICMS ST","@E 9,999,999,999.99",,.T.,.F.,,oSection4)
     TRFUNCTION():NEW(oSection4:CELL("VL TOTAL"),,"SUM",,"TOTAL DOS PRODUTOS","@E 9,999,999,999.99",,.T.,.F.,,oSection4)
     TRFUNCTION():NEW(oSection4:CELL("VL IPI"),,"SUM",,"TOTAL IPI","@E 9,999,999,999.99",,.T.,.F.,,oSection4)
-    TRFUNCTION():NEW(oSection4:CELL("TOTAL NF"),,"SUM",,"TOTAL DA NOTA","@E 9,999,999,999.99",,.T.,.F.,,oSection4)
+    TRFUNCTION():NEW(oSection4:CELL("TL NF"),,"SUM",,"TOTAL DA NOTA","@E 9,999,999,999.99",,.T.,.F.,,oSection4)
 
 RETURN oReport
 
@@ -126,13 +127,15 @@ STATIC FUNCTION REPORTPRINT(oReport,cAliasRM,cAliasPRO,cAliasNFS,aPergs)
     LOCAL cQuery2   := ""
     LOCAL aPro      := aPergs[1][3]
 
-    cQuery := " SELECT TOP 1 " + CRLF
+    cQuery := " SELECT DISTINCT " + CRLF
     cQuery += " C.[A1_CGC], " + CRLF
 	cQuery += " C.[A1_NOME], " + CRLF
 	cQuery += " C.[A1_END], " + CRLF
 	cQuery += " C.[A1_EST], " + CRLF
 	cQuery += " C.[A1_MUN], " + CRLF
-	cQuery += " C.[A1_INSCR] " + CRLF
+	cQuery += " C.[A1_INSCR], " + CRLF
+    cQuery += " A.[ZZW_NUM], " + CRLF
+    cQuery += " B.[ZZY_NF] " + CRLF
     cQuery += " FROM " + RETSQLNAME("ZZW") + " A " + CRLF 
     cQuery += " LEFT JOIN " + RETSQLNAME("ZZY") + " B " + CRLF 
     cQuery += " ON A.[ZZW_NUM] = B.[ZZY_NUM] " + CRLF
@@ -141,7 +144,7 @@ STATIC FUNCTION REPORTPRINT(oReport,cAliasRM,cAliasPRO,cAliasNFS,aPergs)
     cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[ZZW_NUM] = '"+ aPro +"'" + CRLF
 
     cAliasRM := MPSYSOPENQUERY(cQuery)
-    
+
         WHILE (cAliasRM)->(!EOF())
             oSection1:INIT()
             oSection1:PRINTLINE()
@@ -157,6 +160,9 @@ STATIC FUNCTION REPORTPRINT(oReport,cAliasRM,cAliasPRO,cAliasNFS,aPergs)
             oReport:SKIPLINE(3)
 
             cQuery1 := " SELECT B.[ZZY_PROD], " + CRLF
+            cQuery1 += " A.[ZZW_NUM], " + CRLF
+            cQuery1 += " B.[ZZY_NUM], " + CRLF
+            cQuery1 += " B.[ZZY_NF], " + CRLF
             cQuery1 += " D.[B1_DESC], " + CRLF
             cQuery1 += " D.[B1_POSIPI], " + CRLF
 	        cQuery1 += " E.[ZA2_CFOPIM], " + CRLF
@@ -190,9 +196,10 @@ STATIC FUNCTION REPORTPRINT(oReport,cAliasRM,cAliasPRO,cAliasNFS,aPergs)
             cAliasPRO := MPSYSOPENQUERY(cQuery1)
 
                 WHILE (cAliasPRO)->(!EOF())
-                    oSection4:INIT()
-                    oSection4:PRINTLINE()
-
+                    IF (cAliasRM)->ZZY_NF == (cAliasPRO)->ZZY_NF
+                        oSection4:INIT()
+                        oSection4:PRINTLINE()
+                    ENDIF
                     (cAliasPRO)->(DBSKIP())
                 ENDDO
 
@@ -200,7 +207,10 @@ STATIC FUNCTION REPORTPRINT(oReport,cAliasRM,cAliasPRO,cAliasNFS,aPergs)
                 cQuery2 += " D.[F2_DOC], " + CRLF
                 cQuery2 += " C.[D2_ITEM], " + CRLF
                 cQuery2 += " FORMAT(CONVERT(DATE, D.[F2_EMISSAO]), 'dd/MM/yy') AS [EMISSAO], " + CRLF
-	            cQuery2 += " D.[F2_CHVNFE] " + CRLF
+	            cQuery2 += " D.[F2_CHVNFE], " + CRLF
+                cQuery2 += " A.[ZZW_NUM], " + CRLF
+                cQuery2 += " B.[ZZY_NUM], " + CRLF
+                cQuery2 += " B.[ZZY_NF] " + CRLF
                 cQuery2 += " FROM " + RETSQLNAME("ZZW") + " A " + CRLF  
                 cQuery2 += " LEFT JOIN " + RETSQLNAME("ZZY") + " B " + CRLF 
                 cQuery2 += " ON A.[ZZW_NUM] = B.[ZZY_NUM]
@@ -218,9 +228,10 @@ STATIC FUNCTION REPORTPRINT(oReport,cAliasRM,cAliasPRO,cAliasNFS,aPergs)
                 oSection5:FINISH()
 
                     WHILE (cAliasNFS)->(!EOF())
-                        oSection6:INIT()
-                        oSection6:PRINTLINE()
-
+                        IF (cAliasRM)->ZZY_NF == (cAliasNFS)->ZZY_NF
+                            oSection6:INIT()
+                            oSection6:PRINTLINE()
+                        ENDIF
                         (cAliasNFS)->(DBSKIP())
                     ENDDO
 
