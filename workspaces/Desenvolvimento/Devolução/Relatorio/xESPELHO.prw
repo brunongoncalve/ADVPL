@@ -171,8 +171,8 @@ STATIC FUNCTION REPORTPRINT(oReport,cAliasRM,cAliasPRO,cAliasNFS,aPergs)
             cQuery1 += " C.[D2_PRCVEN], " + CRLF
             cQuery1 += " C.[D2_PRCVEN] * B.[ZZY_QTD] AS [D2_TOTAL], " + CRLF
             cQuery1 += " C.[D2_BASEICM] * B.[ZZY_QTD] AS [D2_BASEICM], " + CRLF
-            cQuery1 += " C.[D2_VALICM], " + CRLF
-            cQuery1 += " C.[D2_VALIPI], " + CRLF
+            cQuery1 += " C.[D2_BASEICM] * C.[D2_PICM] AS [D2_VALICM], " + CRLF
+            cQuery1 += " C.[D2_PRCVEN] * C.[D2_IPI] AS [D2_VALIPI] , " + CRLF
             cQuery1 += " C.[D2_PICM], " + CRLF
 	        cQuery1 += " C.[D2_IPI], " + CRLF
 	        cQuery1 += " CASE " + CRLF
