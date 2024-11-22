@@ -88,8 +88,11 @@
 		},
 		{
 			"label": "U_XINSERI"
+		},
+		{
+			"label": "U_XTESTE1"
 		}
 	],
-	"lastProgramExecuted": "sigaest",
+	"lastProgramExecuted": "U_XTESTE1",
 	"lastProgramArguments": []
 }
