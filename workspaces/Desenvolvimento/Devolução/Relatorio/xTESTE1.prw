@@ -53,19 +53,17 @@ USER FUNCTION xTESTE1()
     cQuery += " ON B.[ZZY_PROD] = D.[B1_COD] " + CRLF
     cQuery += " LEFT JOIN " + RETSQLNAME("ZA2") + " E " + CRLF
     cQuery += " ON C.[D2_TES] = E.[ZA2_TESSAI] " + CRLF
-    cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[ZZW_NUM] = '60000010'" + CRLF
+    cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[ZZW_NUM] = '60000010'"
 
-    cQuery := CHANGEQUERY(cQuery)
-    cAlias := GETNEXTALIAS()
-    DBUSEAREA(.T.,'TOPCONN',TCGENQRY(,,cQuery),cAlias,.F.,.T.)
-
+    cAlias := MPSYSOPENQUERY(cQuery)
+   
     ALERT(LEN(cAlias))
  
     oPrinter := FWMSPRINTER():NEW("exemplo.rel",IMP_PDF,lAdjustToLegacy,cLocal,lDisableSetup,,,,,,.F.,)
     oFont1   := TFont():New("Courier New",,9,.T.)
  
     oPrinter:BOX(20,5,70,100,"-5")
-    oPrinter:SAYBITMAP(25,10,"C:\Logo\logo_novo.png",90,28)
+    oPrinter:SAYBITMAP(27,10,"C:\Logo\logo_novo.png",90,28)
     oPrinter:BOX(20,100,70,500,"-5")
     oPrinter:SAY(50,200,"MODELO DE NOTA FISCAL DE DEVOLUÇÃO")
     oPrinter:BOX(20,500,70,590,"-5")
@@ -86,7 +84,7 @@ USER FUNCTION xTESTE1()
     oPrinter:SAY(318,190,"CL FISCAL",oFont1)
     oPrinter:SAY(318,235,"CFOP",oFont1)
     oPrinter:SAY(318,260,"UM",oFont1)
-    oPrinter:SAY(318,280,"QTDE",oFont1)
+    oPrinter:SAY(318,275,"QTDE",oFont1)
     oPrinter:SAY(318,300,"VL UNIT",oFont1)
     oPrinter:SAY(318,335,"VL TOTAL",oFont1)
     oPrinter:SAY(318,420,"BASE ICMS",oFont1)
@@ -99,7 +97,7 @@ USER FUNCTION xTESTE1()
             oPrinter:SAY(nVert,235,(cAlias)->ZA2_CFOPIM,oFont1)
             oPrinter:SAY(nVert,260,(cAlias)->D2_UM,oFont1)
             oPrinter:SAY(nVert,264,STR((cAlias)->ZZY_QTD,6),oFont1)
-            oPrinter:SAY(nVert,275,STR((cAlias)->D2_PRCVEN,10,2),oFont1)
+            oPrinter:SAY(nVert,280,STR((cAlias)->D2_PRCVEN,10,2),oFont1)
             oPrinter:SAY(nVert,320,STR((cAlias)->D2_TOTAL,10,2),oFont1)
             oPrinter:SAY(nVert,370,STR((cAlias)->D2_BASEICM),oFont1)
             oPrinter:SAY(nVert,460,STR((cAlias)->D2_VALICM,10,2),oFont1)
