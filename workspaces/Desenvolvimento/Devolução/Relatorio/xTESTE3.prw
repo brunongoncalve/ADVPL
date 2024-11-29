@@ -17,9 +17,7 @@ USER FUNCTION xTESTE1()
     LOCAL lDisableSetup   := .T.
     LOCAL cLocal          := "\spool"
     LOCAL cQuery          := ""
-    LOCAL cQuery1         := ""
     LOCAL nVert           := 329
-    LOCAL nLinfim         := 850
     LOCAL nI              := 0
     LOCAL oPrinter
 
@@ -44,15 +42,19 @@ USER FUNCTION xTESTE1()
 
     cAlias := MPSYSOPENQUERY(cQuery)
 
-    nNF := (cAlias)->ZZY_NF
-
     WHILE (cAlias)->(!EOF())
-        IF (cAlias)->ZZY_NF <> nNF
-            oPrinter:STARTPAGE()
-            oPrinter:BOX(20,5,70,100,"-5")
-            oPrinter:SAYBITMAP(27,10,"C:\Logo\logo_novo.png",90,28)
-            oPrinter:ENDPAGE()
+        IF LEN(cAlias) > 1
+            cIni := oPrinter:STARTPAGE()
+            cFin := oPrinter:ENDPAGE()
+        ELSE 
+            cIni := NIL
+            cFin := NIL
         ENDIF
+        
+        cIni
+        oPrinter:BOX(20,5,70,100,"-5")
+        oPrinter:SAYBITMAP(27,10,"C:\Logo\logo_novo.png",90,28)
+        cFin
     ENDDO
 
     oPrinter:SETUP()
