@@ -24,7 +24,7 @@ USER FUNCTION xTESTE1()
     LOCAL oPrinter
 
     oPrinter := FWMSPRINTER():NEW("exemplo.rel",IMP_PDF,lAdjustToLegacy,cLocal,lDisableSetup,,,,,,.F.,)
-    oFont    := TFont():New("Courier New",,9,.T.)
+    oFont    := TFont():New("Arial",,9,.T.)
 
     cQuery := " SELECT DISTINCT " + CRLF
     cQuery += " C.[A1_CGC], " + CRLF
@@ -34,13 +34,24 @@ USER FUNCTION xTESTE1()
 	cQuery += " C.[A1_MUN], " + CRLF
 	cQuery += " C.[A1_INSCR], " + CRLF
     cQuery += " A.[ZZW_NUM], " + CRLF
-    cQuery += " B.[ZZY_NF] " + CRLF
+    cQuery += " B.[ZZY_NF], " + CRLF
+    cQuery += " SUM(D.[D2_PRCVEN] * B.[ZZY_QTD] + D.[D2_VALIPI]) AS [TOTAL_DA_NOTA] " + CRLF
     cQuery += " FROM " + RETSQLNAME("ZZW") + " A " + CRLF 
     cQuery += " LEFT JOIN " + RETSQLNAME("ZZY") + " B " + CRLF 
     cQuery += " ON A.[ZZW_NUM] = B.[ZZY_NUM] " + CRLF
     cQuery += " LEFT JOIN " + RETSQLNAME("SA1") + " C " + CRLF 
     cQuery += " ON A.[ZZW_CLI] = C.[A1_COD] " + CRLF
-    cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[ZZW_NUM] = '60000015'"
+    cQuery += " LEFT JOIN " + RETSQLNAME("SD2") + " D " + CRLF
+    cQuery += " ON B.[ZZY_NF] = D.[D2_DOC] AND B.[ZZY_SERIE] = D.[D2_SERIE] AND B.[ZZY_PROD] = D.[D2_COD] " + CRLF
+    cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[ZZW_NUM] = '60000015'" + CRLF
+    cQuery += " GROUP BY C.[A1_CGC], " + CRLF
+	cQuery += " C.[A1_NOME], " + CRLF
+	cQuery += " C.[A1_END], " + CRLF
+	cQuery += " C.[A1_EST], " + CRLF
+	cQuery += " C.[A1_MUN], " + CRLF
+	cQuery += " C.[A1_INSCR], " + CRLF
+	cQuery += " A.[ZZW_NUM], " + CRLF
+    cQuery += " B.[ZZY_NF] " + CRLF
 
     cQuery := CHANGEQUERY(cQuery)
     cAlias := GETNEXTALIAS()
@@ -49,7 +60,7 @@ USER FUNCTION xTESTE1()
     WHILE (cAlias)->(!EOF())
         oPrinter:STARTPAGE()
         oPrinter:BOX(20,5,70,100,"-5")
-        oPrinter:SAYBITMAP(27,10,"tmp\logo_novo.png",90,28)
+        oPrinter:SAYBITMAP(28,9,"tmp\logo_novo.png",90,28)
         oPrinter:BOX(20,100,70,500,"-5")
         oPrinter:SAY(50,200,"MODELO DE NOTA FISCAL DE DEVOLUÇÃO",oFont)
         oPrinter:BOX(20,500,70,590,"-5")
@@ -95,8 +106,7 @@ USER FUNCTION xTESTE1()
 	    cQuery1 += " ELSE C.[D2_BRICMS] " + CRLF
 	    cQuery1 += " END AS [D2_BRICMS], " + CRLF
 	    cQuery1 += " C.[D2_ICMSRET], " + CRLF
-	    cQuery1 += " C.[D2_MARGEM], " + CRLF
-        cQuery1 += " C.[D2_PRCVEN] * B.[ZZY_QTD] + C.[D2_VALIPI] AS [TOTAL_DA_NOTA] " + CRLF
+	    cQuery1 += " C.[D2_MARGEM] " + CRLF
         cQuery1 += " FROM " + RETSQLNAME("ZZW") + " A " + CRLF  
         cQuery1 += " LEFT JOIN " + RETSQLNAME("ZZY") + " B " + CRLF 
         cQuery1 += " ON A.[ZZW_NUM] = B.[ZZY_NUM]
@@ -149,21 +159,47 @@ USER FUNCTION xTESTE1()
         oPrinter:SAY(nVert4,370,"TESTE",oFont)
         oPrinter:SAY(nVert3,470,"TOTAL IPI")
         oPrinter:SAY(nVert4,470,"TESTE",oFont)
-        oPrinter:SAY(nVert3,530,"TOTAL DA NOTA")
-        oPrinter:SAY(nVert4,530,"TESTE",oFont)
+        oPrinter:SAY(nVert3,520,"TOTAL DA NOTA")
+        oPrinter:SAY(nVert4,495,STR((cAlias)->TOTAL_DA_NOTA),oFont)
         oPrinter:SAY(nVert5,10,"5 - Informações Adicionais",oFont)
+        nVert6  := nVert5 + 10
+        nVert7  := nVert5 + 20
+        nVert8  := nVert5 + 30
+        nVert9  := nVert5 + 40
+        nVert10 := nVert5 + 50
+        nHori1  := nHori  + 100
+        oPrinter:BOX(nVert6,5,nHori1,590,"-5")
+        oPrinter:SAY(nVert7,7," ATENÇÃO: ESTE PROTOCOLO TEM VALIDADE DE 90 DIAS. APÓS ESTE PERÍODO, O MESMO SERÁ CANCELADO. ",oFont)
+        oPrinter:SAY(nVert8,7," A NF DE DEVOLUÇÃO DEVERÁ SER ENVIADA PARA CONFERÊNCIA DA ALUMBRA NO PRAZO DE 12 HORAS APÓS A SUA EMISSÃO, ",oFont)
+        oPrinter:SAY(nVert9,7," UMA VEZ QUE SE FOR NECESSÁRIO O CANCELAMENTO DA MESMA, O CLIENTE TERÁ O PRAZO DE 24HORAS. ",oFont)
+        oPrinter:SAY(nVert10,7," Modelo de nota fiscal de devolução referente a(s) NF(s): ",oFont)
+        nVert11 := nVert10 += 5
+        nVert12 := nVert10 += 7
+        nHori2  := nHori1  += 10
+        oPrinter:BOX(nVert11,5,nHori2,590,"-5")
+        oPrinter:SAY(nVert12,10,"SERIE")
+        oPrinter:SAY(nVert12,60,"NF-E")
+        oPrinter:SAY(nVert12,110,"DATA DE EMISSÃO")
+        oPrinter:SAY(nVert12,210,"CHAVE NF-E")
 
         (cAlias1)->(DBCLOSEAREA())      
 
         oPrinter:ENDPAGE()
 
-        nVert  := 328
-        nVert1 := 330
-        nHori  := 320
-        nVert2 := NIL
-        nVert3 := NIL
-        nVert4 := NIL
-        nVert5 := NIL
+        nVert   := 328
+        nVert1  := 330
+        nHori   := 320
+        nVert2  := NIL
+        nVert3  := NIL
+        nVert4  := NIL
+        nVert5  := NIL
+        nVert6  := NIL
+        nVert7  := NIL
+        nVert8  := NIL
+        nVert9  := NIL
+        nVert10 := NIL
+        nVert11 := NIL
+        nVert12 := NIL
 
        (cAlias)->(DBSKIP()) 
     ENDDO
@@ -175,5 +211,3 @@ USER FUNCTION xTESTE1()
         oPrinter:PREVIEW()
     ENDIF 
 RETURN 
-
-//oPrinter:SAY(nVert5,10,"5 - Informações Adicionais",oFont)
