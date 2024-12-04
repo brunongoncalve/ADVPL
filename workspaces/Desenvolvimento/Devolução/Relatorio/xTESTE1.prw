@@ -18,6 +18,7 @@ USER FUNCTION xTESTE1()
     LOCAL cLocal          := "\spool"
     LOCAL cQuery          := ""
     LOCAL cQuery1         := ""
+    LOCAL cQuery2         := ""
     LOCAL nVert           := 328
     LOCAL nVert1          := 330
     LOCAL nHori           := 320
@@ -35,6 +36,7 @@ USER FUNCTION xTESTE1()
 	cQuery += " C.[A1_INSCR], " + CRLF
     cQuery += " A.[ZZW_NUM], " + CRLF
     cQuery += " B.[ZZY_NF], " + CRLF
+    cQuery += " FORMAT(CONVERT(DATE, A.[ZZW_DTINI]), 'dd/MM/yyyy') AS [EMISSAO], " + CRLF
     cQuery += " SUM(D.[D2_PRCVEN] * B.[ZZY_QTD] + D.[D2_VALIPI]) AS [TOTAL_DA_NOTA] " + CRLF
     cQuery += " FROM " + RETSQLNAME("ZZW") + " A " + CRLF 
     cQuery += " LEFT JOIN " + RETSQLNAME("ZZY") + " B " + CRLF 
@@ -51,7 +53,8 @@ USER FUNCTION xTESTE1()
 	cQuery += " C.[A1_MUN], " + CRLF
 	cQuery += " C.[A1_INSCR], " + CRLF
 	cQuery += " A.[ZZW_NUM], " + CRLF
-    cQuery += " B.[ZZY_NF] " + CRLF
+    cQuery += " B.[ZZY_NF], " + CRLF
+    cQuery += " A.[ZZW_DTINI] " + CRLF
 
     cQuery := CHANGEQUERY(cQuery)
     cAlias := GETNEXTALIAS()
@@ -64,11 +67,15 @@ USER FUNCTION xTESTE1()
         oPrinter:BOX(20,100,70,500,"-5")
         oPrinter:SAY(50,200,"MODELO DE NOTA FISCAL DE DEVOLUÇÃO",oFont)
         oPrinter:BOX(20,500,70,590,"-5")
-        oPrinter:SAY(35,505,"N DA DEVOLUÇÃO",oFont)
-        oPrinter:SAY(50,505,"8",oFont)
-        oPrinter:SAY(65,505,"28/03/2024",oFont)
+        oPrinter:SAY(35,505,"PROTOCOLO",oFont)
+        oPrinter:SAY(50,505,(cAlias)->ZZW_NUM,oFont)
+        oPrinter:SAY(65,505,(cAlias)->EMISSAO,oFont)
         oPrinter:SAY(90,10,"1 - Remetente",oFont)
         oPrinter:BOX(150,5,100,590,"-5")
+        oPrinter:SAY(110,10,"CNPJ/CPF: "+(cAlias)->A1_CGC+"",oFont)
+        oPrinter:SAY(120,10,"NOME/RAZÃO SOCIAL: "+(cAlias)->A1_NOME+"",oFont)
+        oPrinter:SAY(130,10,"ENDEREÇO: "+ALLTRIM((cAlias)->A1_END)+" - "+ALLTRIM((cAlias)->A1_MUN)+" - "+ALLTRIM((cAlias)->A1_EST)+"",oFont)
+        oPrinter:SAY(140,10,"INSCRIÇÃO ESTADUAL: "+(cAlias)->A1_INSCR+"",oFont)
         oPrinter:SAY(170,10,"2 - Natureza de Operação",oFont)
         oPrinter:BOX(180,5,200,590,"-5")
         oPrinter:SAY(193,10,"Devolução",oFont)
@@ -78,14 +85,18 @@ USER FUNCTION xTESTE1()
         oPrinter:BOX(310,5,320,590,"-5")
         oPrinter:SAY(318,10,"ITEM",oFont)
         oPrinter:SAY(318,40,"DESCRIÇÃO DO PRODUTO",oFont)
-        oPrinter:SAY(318,190,"CL FISCAL",oFont)
-        oPrinter:SAY(318,235,"CFOP",oFont)
-        oPrinter:SAY(318,260,"UM",oFont)
-        oPrinter:SAY(318,275,"QTDE",oFont)
-        oPrinter:SAY(318,300,"VL UNIT",oFont)
-        oPrinter:SAY(318,335,"VL TOTAL",oFont)
-        oPrinter:SAY(318,420,"BASE ICMS",oFont)
-        oPrinter:SAY(318,470,"VL ICMS",oFont)
+        oPrinter:SAY(318,175,"CL FISCAL",oFont)
+        oPrinter:SAY(318,210,"CFOP",oFont)
+        //oPrinter:SAY(318,240,"UM",oFont)
+        //oPrinter:SAY(318,275,"QTDE",oFont)
+        //oPrinter:SAY(318,300,"VL UNIT",oFont)
+        //oPrinter:SAY(318,335,"VL TOTAL",oFont)
+        //oPrinter:SAY(318,375,"BASE ICMS",oFont)
+        //oPrinter:SAY(318,420,"VL ICMS",oFont)
+        //oPrinter:SAY(318,455,"VL IPI",oFont)
+        //oPrinter:SAY(318,480,"% ICMS",oFont)
+        //oPrinter:SAY(318,510,"% IPI",oFont)
+        //oPrinter:SAY(318,535,"BASE ST",oFont)
         
         cQuery1 := " SELECT B.[ZZY_PROD], " + CRLF
         cQuery1 += " B.[ZZY_NF], " + CRLF
@@ -129,12 +140,16 @@ USER FUNCTION xTESTE1()
                 oPrinter:SAY(nVert,40,(cAlias1)->B1_DESC,oFont)
                 oPrinter:SAY(nVert,190,(cAlias1)->B1_POSIPI,oFont)
                 oPrinter:SAY(nVert,235,(cAlias1)->ZA2_CFOPIM,oFont)
-                oPrinter:SAY(nVert,260,(cAlias1)->D2_UM,oFont)
-                oPrinter:SAY(nVert,264,STR((cAlias1)->ZZY_QTD,6),oFont)
-                oPrinter:SAY(nVert,280,STR((cAlias1)->D2_PRCVEN,10,2),oFont)
-                oPrinter:SAY(nVert,320,STR((cAlias1)->D2_TOTAL,10,2),oFont)
-                oPrinter:SAY(nVert,370,STR((cAlias1)->D2_BASEICM),oFont)
-                oPrinter:SAY(nVert,460,STR((cAlias1)->D2_VALICM,10,2),oFont)
+                //oPrinter:SAY(nVert,260,(cAlias1)->D2_UM,oFont)
+               // oPrinter:SAY(nVert,270,STR((cAlias1)->ZZY_QTD,6),oFont)
+                //oPrinter:SAY(nVert,292,STR((cAlias1)->D2_PRCVEN,10,2),oFont)
+                //oPrinter:SAY(nVert,330,STR((cAlias1)->D2_TOTAL,10,2),oFont)
+                //oPrinter:SAY(nVert,376,STR((cAlias1)->D2_BASEICM,10,2),oFont)
+                //oPrinter:SAY(nVert,415,STR((cAlias1)->D2_VALICM,10,2),oFont)
+                //oPrinter:SAY(nVert,446,STR((cAlias1)->D2_VALIPI,10,2),oFont) 
+                //oPrinter:SAY(nVert,475,STR((cAlias1)->D2_PICM,10,2),oFont)
+                //oPrinter:SAY(nVert,500,STR((cAlias1)->D2_IPI,10,2),oFont)
+                //oPrinter:SAY(nVert,520,STR((cAlias1)->D2_BRICMS,10,2),oFont)
                 nVert  += 10
                 nVert1 += 10
                 nHori  += 10
@@ -181,11 +196,51 @@ USER FUNCTION xTESTE1()
         oPrinter:SAY(nVert12,60,"NF-E")
         oPrinter:SAY(nVert12,110,"DATA DE EMISSÃO")
         oPrinter:SAY(nVert12,210,"CHAVE NF-E")
+        nVert13 := nVert12 += 10
+        nHori3  := nHori2  += 0
+        nVert14 := nVert13 += 0
+
+        cQuery2 := " SELECT D.[F2_SERIE], " + CRLF
+        cQuery2 += " D.[F2_DOC], " + CRLF
+        cQuery2 += " C.[D2_ITEM], " + CRLF
+        cQuery2 += " FORMAT(CONVERT(DATE, D.[F2_EMISSAO]), 'dd/MM/yyyy') AS [EMISSAO], " + CRLF
+	    cQuery2 += " D.[F2_CHVNFE], " + CRLF
+        cQuery2 += " A.[ZZW_NUM], " + CRLF
+        cQuery2 += " B.[ZZY_NUM], " + CRLF
+        cQuery2 += " B.[ZZY_NF] " + CRLF
+        cQuery2 += " FROM " + RETSQLNAME("ZZW") + " A " + CRLF  
+        cQuery2 += " LEFT JOIN " + RETSQLNAME("ZZY") + " B " + CRLF 
+        cQuery2 += " ON A.[ZZW_NUM] = B.[ZZY_NUM]
+        cQuery2 += " LEFT JOIN " + RETSQLNAME("SD2") + " C " + CRLF 
+        cQuery2 += " ON B.[ZZY_NF] = C.[D2_DOC] AND B.[ZZY_SERIE] = C.[D2_SERIE] AND B.[ZZY_PROD] = C.[D2_COD]" + CRLF
+        cQuery2 += " LEFT JOIN " + RETSQLNAME("SF2") + " D " + CRLF 
+        cQuery2 += " ON B.[ZZY_NF] = D.[F2_DOC] AND B.[ZZY_SERIE] = D.[F2_SERIE] " + CRLF
+        cQuery2 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[ZZW_NUM] = '60000015'" + CRLF
+
+        cQuery2 := CHANGEQUERY(cQuery2)
+        cAlias2 := GETNEXTALIAS()
+        DBUSEAREA(.T.,'TOPCONN',TCGENQRY(,,cQuery2),cAlias2,.F.,.T.)
+
+            WHILE (cAlias2)->(!Eof())
+                IF (cAlias)->ZZY_NF == (cAlias2)->ZZY_NF
+                    oPrinter:BOX(nVert13,5,nHori3,590,"-5")
+                    oPrinter:SAY(nVert14,10,(cAlias2)->F2_SERIE)
+                    oPrinter:SAY(nVert14,50,(cAlias2)->F2_DOC)
+                    oPrinter:SAY(nVert14,100,(cAlias2)->EMISSAO)
+                    oPrinter:SAY(nVert14,210,(cAlias2)->F2_CHVNFE)
+                    nVert13 += 7
+                    nVert14 += 7
+                    nHori3  += 7
+                ENDIF
+
+                (cAlias2)->(DBSKIP()) 
+            ENDDO
+
+            (cAlias2)->(DBCLOSEAREA())
 
         (cAlias1)->(DBCLOSEAREA())      
 
         oPrinter:ENDPAGE()
-
         nVert   := 328
         nVert1  := 330
         nHori   := 320
@@ -200,6 +255,9 @@ USER FUNCTION xTESTE1()
         nVert10 := NIL
         nVert11 := NIL
         nVert12 := NIL
+        nVert13 := NIL
+        nVert14 := NIL
+        nHori3  := NIL
 
        (cAlias)->(DBSKIP()) 
     ENDDO
@@ -211,3 +269,7 @@ USER FUNCTION xTESTE1()
         oPrinter:PREVIEW()
     ENDIF 
 RETURN 
+
+    //oPrinter:SAY(319,470,"BASE ST",oFont1)
+    //oPrinter:SAY(319,490,"VL ST",oFont1)
+    //oPrinter:SAY(319,510,"MVA",oFont1)
