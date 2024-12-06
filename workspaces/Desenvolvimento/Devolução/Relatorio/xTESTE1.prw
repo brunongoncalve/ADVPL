@@ -36,6 +36,7 @@ USER FUNCTION xTESTE1()
 	cQuery += " A.[ZA3_ESTESP], " + CRLF
 	cQuery += " A.[ZA3_INSCES], " + CRLF
     cQuery += " B.[ZA4_DOCESP], " + CRLF
+    cQuery += " A.[ZA3_DTEMIS], " + CRLF
 	cQuery += " SUM(B.[ZA4_PRCESP] * B.[ZA4_QTDESP] + B.[ZA4_VIPIES]) AS TOTAL " + CRLF
     cQuery += " FROM " + RETSQLNAME("ZA3") + " A " + CRLF
     cQuery += " LEFT JOIN " + RETSQLNAME("ZA4") + " B " + CRLF
@@ -48,6 +49,7 @@ USER FUNCTION xTESTE1()
 	cQuery += " A.[ZA3_MUNESP], " + CRLF
 	cQuery += " A.[ZA3_ESTESP], " + CRLF
 	cQuery += " A.[ZA3_INSCES], " + CRLF
+    cQuery += " A.[ZA3_DTEMIS], " + CRLF
 	cQuery += " B.[ZA4_DOCESP] "
 
     cQuery := CHANGEQUERY(cQuery)
@@ -63,13 +65,13 @@ USER FUNCTION xTESTE1()
         oPrinter:BOX(20,500,70,590,"-5")
         oPrinter:SAY(35,505,"PROTOCOLO",oFont)
         oPrinter:SAY(50,505,(cAlias)->ZA3_NUM,oFont)
-        oPrinter:SAY(65,505,(cAlias)->EMISSAO,oFont)
+        oPrinter:SAY(65,505,(cAlias)->ZA3_DTEMIS,oFont)
         oPrinter:SAY(90,10,"1 - Remetente",oFont)
         oPrinter:BOX(150,5,100,590,"-5")
-        oPrinter:SAY(110,10,"CNPJ/CPF: "+(cAlias)->A1_CGC+"",oFont)
-        oPrinter:SAY(120,10,"NOME/RAZÃO SOCIAL: "+(cAlias)->A1_NOME+"",oFont)
-        oPrinter:SAY(130,10,"ENDEREÇO: "+ALLTRIM((cAlias)->A1_END)+" - "+ALLTRIM((cAlias)->A1_MUN)+" - "+ALLTRIM((cAlias)->A1_EST)+"",oFont)
-        oPrinter:SAY(140,10,"INSCRIÇÃO ESTADUAL: "+(cAlias)->A1_INSCR+"",oFont)
+        oPrinter:SAY(110,10,"CNPJ/CPF: "+(cAlias)->ZA3_CGCESP+"",oFont)
+        oPrinter:SAY(120,10,"NOME/RAZÃO SOCIAL: "+(cAlias)->ZA3_NOMEES+"",oFont)
+        oPrinter:SAY(130,10,"ENDEREÇO: "+ALLTRIM((cAlias)->ZA3_ENDESP)+" - "+ALLTRIM((cAlias)->ZA3_MUNESP)+" - "+ALLTRIM((cAlias)->ZA3_ESTESP)+"",oFont)
+        oPrinter:SAY(140,10,"INSCRIÇÃO ESTADUAL: "+(cAlias)->ZA3_INSCES+"",oFont)
         oPrinter:SAY(170,10,"2 - Natureza de Operação",oFont)
         oPrinter:BOX(180,5,200,590,"-5")
         oPrinter:SAY(193,10,"Devolução",oFont)
@@ -93,7 +95,7 @@ USER FUNCTION xTESTE1()
         //oPrinter:SAY(318,535,"BASE ST",oFont)
         
         cQuery1 := " SELECT " + CRLF
-        cQuery1 := " B.[ZA4_PRODES], " + CRLF
+        cQuery1 += " B.[ZA4_PRODES], " + CRLF
         cQuery1 += " SUBSTRING(B.[ZA4_DESCES],1,31) AS [ZA4_DESCES], " + CRLF
         cQuery1 += " B.[ZA4_CLFIES], " + CRLF
         cQuery1 += " D.[ZA2_CFOPIM], " + CRLF
@@ -168,7 +170,7 @@ USER FUNCTION xTESTE1()
         oPrinter:SAY(nVert3,470,"TOTAL IPI")
         oPrinter:SAY(nVert4,470,"TESTE",oFont)
         oPrinter:SAY(nVert3,520,"TOTAL DA NOTA")
-        oPrinter:SAY(nVert4,495,STR((cAlias)->TOTAL_DA_NOTA),oFont)
+        oPrinter:SAY(nVert4,495,STR((cAlias)->TOTAL),oFont)
         oPrinter:SAY(nVert5,10,"5 - Informações Adicionais",oFont)
         nVert6  := nVert5 + 10
         nVert7  := nVert5 + 20
