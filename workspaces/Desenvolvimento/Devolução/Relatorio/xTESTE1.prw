@@ -27,34 +27,28 @@ USER FUNCTION xTESTE1()
     oPrinter := FWMSPRINTER():NEW("exemplo.rel",IMP_PDF,lAdjustToLegacy,cLocal,lDisableSetup,,,,,,.F.,)
     oFont    := TFont():New("Arial",,9,.T.)
 
-    cQuery := " SELECT DISTINCT " + CRLF
-    cQuery += " C.[A1_CGC], " + CRLF
-	cQuery += " C.[A1_NOME], " + CRLF
-	cQuery += " C.[A1_END], " + CRLF
-	cQuery += " C.[A1_EST], " + CRLF
-	cQuery += " C.[A1_MUN], " + CRLF
-	cQuery += " C.[A1_INSCR], " + CRLF
-    cQuery += " A.[ZZW_NUM], " + CRLF
-    cQuery += " B.[ZZY_NF], " + CRLF
-    cQuery += " FORMAT(CONVERT(DATE, A.[ZZW_DTINI]), 'dd/MM/yyyy') AS [EMISSAO], " + CRLF
-    cQuery += " SUM(D.[D2_PRCVEN] * B.[ZZY_QTD] + D.[D2_VALIPI]) AS [TOTAL_DA_NOTA] " + CRLF
-    cQuery += " FROM " + RETSQLNAME("ZZW") + " A " + CRLF 
-    cQuery += " LEFT JOIN " + RETSQLNAME("ZZY") + " B " + CRLF 
-    cQuery += " ON A.[ZZW_NUM] = B.[ZZY_NUM] " + CRLF
-    cQuery += " LEFT JOIN " + RETSQLNAME("SA1") + " C " + CRLF 
-    cQuery += " ON A.[ZZW_CLI] = C.[A1_COD] " + CRLF
-    cQuery += " LEFT JOIN " + RETSQLNAME("SD2") + " D " + CRLF
-    cQuery += " ON B.[ZZY_NF] = D.[D2_DOC] AND B.[ZZY_SERIE] = D.[D2_SERIE] AND B.[ZZY_PROD] = D.[D2_COD] " + CRLF
-    cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[ZZW_NUM] = '60000000'" + CRLF
-    cQuery += " GROUP BY C.[A1_CGC], " + CRLF
-	cQuery += " C.[A1_NOME], " + CRLF
-	cQuery += " C.[A1_END], " + CRLF
-	cQuery += " C.[A1_EST], " + CRLF
-	cQuery += " C.[A1_MUN], " + CRLF
-	cQuery += " C.[A1_INSCR], " + CRLF
-	cQuery += " A.[ZZW_NUM], " + CRLF
-    cQuery += " B.[ZZY_NF], " + CRLF
-    cQuery += " A.[ZZW_DTINI] " + CRLF
+    cQuery := " SELECT " + CRLF
+    cQuery += " A.[ZA3_NUM], " + CRLF
+    cQuery += " A.[ZA3_CGCESP], " + CRLF
+	cQuery += " A.[ZA3_NOMEES], " + CRLF
+	cQuery += " A.[ZA3_ENDESP], " + CRLF
+	cQuery += " A.[ZA3_MUNESP], " + CRLF
+	cQuery += " A.[ZA3_ESTESP], " + CRLF
+	cQuery += " A.[ZA3_INSCES], " + CRLF
+    cQuery += " B.[ZA4_DOCESP], " + CRLF
+	cQuery += " SUM(B.[ZA4_PRCESP] * B.[ZA4_QTDESP] + B.[ZA4_VIPIES]) AS TOTAL " + CRLF
+    cQuery += " FROM " + RETSQLNAME("ZA3") + " A " + CRLF
+    cQuery += " LEFT JOIN " + RETSQLNAME("ZA4") + " B " + CRLF
+    cQuery += " ON A.[ZA3_NUM] = B.[ZA4_NUM] " + CRLF
+    cQuery += " WHERE A.[ZA3_NUM] = '60000000' " + CRLF
+    cQuery += " GROUP BY A.[ZA3_NUM], " + CRLF
+    cQuery += " A.[ZA3_CGCESP], " + CRLF
+	cQuery += " A.[ZA3_NOMEES], " + CRLF
+	cQuery += " A.[ZA3_ENDESP], " + CRLF
+	cQuery += " A.[ZA3_MUNESP], " + CRLF
+	cQuery += " A.[ZA3_ESTESP], " + CRLF
+	cQuery += " A.[ZA3_INSCES], " + CRLF
+	cQuery += " B.[ZA4_DOCESP] "
 
     cQuery := CHANGEQUERY(cQuery)
     cAlias := GETNEXTALIAS()
@@ -68,7 +62,7 @@ USER FUNCTION xTESTE1()
         oPrinter:SAY(50,200,"MODELO DE NOTA FISCAL DE DEVOLUÇÃO",oFont)
         oPrinter:BOX(20,500,70,590,"-5")
         oPrinter:SAY(35,505,"PROTOCOLO",oFont)
-        oPrinter:SAY(50,505,(cAlias)->ZZW_NUM,oFont)
+        oPrinter:SAY(50,505,(cAlias)->ZA3_NUM,oFont)
         oPrinter:SAY(65,505,(cAlias)->EMISSAO,oFont)
         oPrinter:SAY(90,10,"1 - Remetente",oFont)
         oPrinter:BOX(150,5,100,590,"-5")
@@ -98,36 +92,35 @@ USER FUNCTION xTESTE1()
         //oPrinter:SAY(318,510,"% IPI",oFont)
         //oPrinter:SAY(318,535,"BASE ST",oFont)
         
-        cQuery1 := " SELECT B.[ZZY_PROD], " + CRLF
-        cQuery1 += " B.[ZZY_NF], " + CRLF
-        cQuery1 += " SUBSTRING(D.[B1_DESC],1,31) AS [B1_DESC], " + CRLF
-        cQuery1 += " D.[B1_POSIPI], " + CRLF
-        cQuery1 += " E.[ZA2_CFOPIM], " + CRLF
-        cQuery1 += " C.[D2_UM], " + CRLF
-        cQuery1 += " B.[ZZY_QTD], " + CRLF
-        cQuery1 += " C.[D2_PRCVEN], " + CRLF
-        cQuery1 += " C.[D2_PRCVEN] * B.[ZZY_QTD] AS [D2_TOTAL], " + CRLF
-        cQuery1 += " C.[D2_BASEICM] * B.[ZZY_QTD] AS [D2_BASEICM], " + CRLF
-        cQuery1 += " C.[D2_BASEICM] * C.[D2_PICM] AS [D2_VALICM], " + CRLF
-        cQuery1 += " C.[D2_PRCVEN] * C.[D2_IPI] AS [D2_VALIPI] , " + CRLF
-        cQuery1 += " C.[D2_PICM], " + CRLF
-	    cQuery1 += " C.[D2_IPI], " + CRLF
+        cQuery1 := " SELECT " + CRLF
+        cQuery1 := " B.[ZA4_PRODES], " + CRLF
+        cQuery1 += " SUBSTRING(B.[ZA4_DESCES],1,31) AS [ZA4_DESCES], " + CRLF
+        cQuery1 += " B.[ZA4_CLFIES], " + CRLF
+        cQuery1 += " D.[ZA2_CFOPIM], " + CRLF
+        cQuery1 += " B.[ZA4_UMESPE], " + CRLF
+        cQuery1 += " B.[ZA4_QTDESP], " + CRLF
+        cQuery1 += " B.[ZA4_PRCESP], " + CRLF
+        cQuery1 += " B.[ZA4_PRCESP] * B.[ZA4_QTDESP] AS [ZA4_TLESPE], " + CRLF
+        cQuery1 += " B.[ZA4_BICMES] * B.[ZA4_QTDESP] AS [ZA4_BICMES], " + CRLF
+        cQuery1 += " B.[ZA4_BICMES] * B.[ZA4_PICMES] AS [ZA4_VICMES], " + CRLF
+        cQuery1 += " B.[ZA4_PRCESP] * B.[ZA4_IPIESP] AS [ZA4_VIPIES], " + CRLF
+        cQuery1 += " B.[D2_PICMES], " + CRLF
+	    cQuery1 += " B.[ZA4_IPIESP], " + CRLF
 	    cQuery1 += " CASE " + CRLF
-	    cQuery1 += " WHEN A.[ZZW_ST] = '2' THEN '0' " + CRLF
-	    cQuery1 += " ELSE C.[D2_BRICMS] " + CRLF
-	    cQuery1 += " END AS [D2_BRICMS], " + CRLF
-	    cQuery1 += " C.[D2_ICMSRET], " + CRLF
-	    cQuery1 += " C.[D2_MARGEM] " + CRLF
-        cQuery1 += " FROM " + RETSQLNAME("ZZW") + " A " + CRLF  
-        cQuery1 += " LEFT JOIN " + RETSQLNAME("ZZY") + " B " + CRLF 
-        cQuery1 += " ON A.[ZZW_NUM] = B.[ZZY_NUM]
+	    cQuery1 += " WHEN A.[ZA3_ST] = '2' THEN '0' " + CRLF
+	    cQuery1 += " ELSE B.[ZA4_BRICES] " + CRLF
+	    cQuery1 += " END AS [ZA4_BRICES], " + CRLF
+	    cQuery1 += " B.[ZA4_ICRETE], " + CRLF
+	    cQuery1 += " B.[ZA4_MARESP], " + CRLF
+        cQuery1 += " B.[ZA4_DTEMIS] " + CRLF
+        cQuery1 += " FROM " + RETSQLNAME("ZA3") + " A " + CRLF  
+        cQuery1 += " LEFT JOIN " + RETSQLNAME("ZA4") + " B " + CRLF 
+        cQuery1 += " ON A.[ZA3_NUM] = B.[ZA4_NUM]
         cQuery1 += " LEFT JOIN " + RETSQLNAME("SD2") + " C " + CRLF 
-        cQuery1 += " ON B.[ZZY_NF] = C.[D2_DOC] AND B.[ZZY_SERIE] = C.[D2_SERIE] AND B.[ZZY_PROD] = C.[D2_COD] " + CRLF
-        cQuery1 += " LEFT JOIN " + RETSQLNAME("SB1") + " D " + CRLF 
-        cQuery1 += " ON B.[ZZY_PROD] = D.[B1_COD] " + CRLF
-        cQuery1 += " LEFT JOIN " + RETSQLNAME("ZA2") + " E " + CRLF
+        cQuery1 += " ON B.[ZA4_NF] = C.[D2_DOC] AND B.[ZA4_SERESP] = C.[D2_SERIE] AND B.[ZA4_PROD] = C.[D2_COD] " + CRLF
+        cQuery1 += " LEFT JOIN " + RETSQLNAME("ZA2") + " D " + CRLF
         cQuery1 += " ON C.[D2_TES] = E.[ZA2_TESSAI] " + CRLF
-        cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[ZZW_NUM] = '60000000'"
+        cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[ZA3_NUM] = '60000000'"
 
         cQuery1 := CHANGEQUERY(cQuery1)
         cAlias1 := GETNEXTALIAS()
