@@ -45,7 +45,7 @@ USER FUNCTION xTESTE1()
     cQuery += " ON A.[ZZW_CLI] = C.[A1_COD] " + CRLF
     cQuery += " LEFT JOIN " + RETSQLNAME("SD2") + " D " + CRLF
     cQuery += " ON B.[ZZY_NF] = D.[D2_DOC] AND B.[ZZY_SERIE] = D.[D2_SERIE] AND B.[ZZY_PROD] = D.[D2_COD] " + CRLF
-    cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[ZZW_NUM] = '60000015'" + CRLF
+    cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[ZZW_NUM] = '60000000'" + CRLF
     cQuery += " GROUP BY C.[A1_CGC], " + CRLF
 	cQuery += " C.[A1_NOME], " + CRLF
 	cQuery += " C.[A1_END], " + CRLF
@@ -86,9 +86,9 @@ USER FUNCTION xTESTE1()
         oPrinter:SAY(318,10,"ITEM",oFont)
         oPrinter:SAY(318,40,"DESCRIÇÃO DO PRODUTO",oFont)
         oPrinter:SAY(318,175,"CL FISCAL",oFont)
-        oPrinter:SAY(318,210,"CFOP",oFont)
-        //oPrinter:SAY(318,240,"UM",oFont)
-        //oPrinter:SAY(318,275,"QTDE",oFont)
+        oPrinter:SAY(318,215,"CFOP",oFont)
+        oPrinter:SAY(318,240,"UM",oFont)
+        oPrinter:SAY(318,255,"QTDE",oFont)
         //oPrinter:SAY(318,300,"VL UNIT",oFont)
         //oPrinter:SAY(318,335,"VL TOTAL",oFont)
         //oPrinter:SAY(318,375,"BASE ICMS",oFont)
@@ -127,7 +127,7 @@ USER FUNCTION xTESTE1()
         cQuery1 += " ON B.[ZZY_PROD] = D.[B1_COD] " + CRLF
         cQuery1 += " LEFT JOIN " + RETSQLNAME("ZA2") + " E " + CRLF
         cQuery1 += " ON C.[D2_TES] = E.[ZA2_TESSAI] " + CRLF
-        cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[ZZW_NUM] = '60000015'"
+        cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[ZZW_NUM] = '60000000'"
 
         cQuery1 := CHANGEQUERY(cQuery1)
         cAlias1 := GETNEXTALIAS()
@@ -138,10 +138,10 @@ USER FUNCTION xTESTE1()
                 oPrinter:BOX(nVert1,5,nHori,590,"-5")
                 oPrinter:SAY(nVert,10,(cAlias1)->ZZY_PROD,oFont)
                 oPrinter:SAY(nVert,40,(cAlias1)->B1_DESC,oFont)
-                oPrinter:SAY(nVert,190,(cAlias1)->B1_POSIPI,oFont)
-                oPrinter:SAY(nVert,235,(cAlias1)->ZA2_CFOPIM,oFont)
-                //oPrinter:SAY(nVert,260,(cAlias1)->D2_UM,oFont)
-               // oPrinter:SAY(nVert,270,STR((cAlias1)->ZZY_QTD,6),oFont)
+                oPrinter:SAY(nVert,175,(cAlias1)->B1_POSIPI,oFont)
+                oPrinter:SAY(nVert,215,"5201",oFont)
+                oPrinter:SAY(nVert,240,(cAlias1)->D2_UM,oFont)
+                oPrinter:SAY(nVert,250,STR((cAlias1)->ZZY_QTD,6),oFont)
                 //oPrinter:SAY(nVert,292,STR((cAlias1)->D2_PRCVEN,10,2),oFont)
                 //oPrinter:SAY(nVert,330,STR((cAlias1)->D2_TOTAL,10,2),oFont)
                 //oPrinter:SAY(nVert,376,STR((cAlias1)->D2_BASEICM,10,2),oFont)
@@ -215,7 +215,7 @@ USER FUNCTION xTESTE1()
         cQuery2 += " ON B.[ZZY_NF] = C.[D2_DOC] AND B.[ZZY_SERIE] = C.[D2_SERIE] AND B.[ZZY_PROD] = C.[D2_COD]" + CRLF
         cQuery2 += " LEFT JOIN " + RETSQLNAME("SF2") + " D " + CRLF 
         cQuery2 += " ON B.[ZZY_NF] = D.[F2_DOC] AND B.[ZZY_SERIE] = D.[F2_SERIE] " + CRLF
-        cQuery2 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[ZZW_NUM] = '60000015'" + CRLF
+        cQuery2 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[ZZW_NUM] = '60000000'" + CRLF
 
         cQuery2 := CHANGEQUERY(cQuery2)
         cAlias2 := GETNEXTALIAS()
