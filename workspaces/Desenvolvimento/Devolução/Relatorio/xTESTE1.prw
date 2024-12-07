@@ -18,7 +18,7 @@ USER FUNCTION xTESTE1()
     LOCAL cLocal          := "\spool"
     LOCAL cQuery          := ""
     LOCAL cQuery1         := ""
-    LOCAL cQuery2         := ""
+    //LOCAL cQuery2         := ""
     LOCAL nVert           := 328
     LOCAL nVert1          := 330
     LOCAL nHori           := 320
@@ -85,15 +85,17 @@ USER FUNCTION xTESTE1()
         oPrinter:SAY(318,215,"CFOP",oFont)
         oPrinter:SAY(318,240,"UM",oFont)
         oPrinter:SAY(318,255,"QTDE",oFont)
-        //oPrinter:SAY(318,300,"VL UNIT",oFont)
-        //oPrinter:SAY(318,335,"VL TOTAL",oFont)
-        //oPrinter:SAY(318,375,"BASE ICMS",oFont)
-        //oPrinter:SAY(318,420,"VL ICMS",oFont)
-        //oPrinter:SAY(318,455,"VL IPI",oFont)
-        //oPrinter:SAY(318,480,"% ICMS",oFont)
-        //oPrinter:SAY(318,510,"% IPI",oFont)
-        //oPrinter:SAY(318,535,"BASE ST",oFont)
-        
+        oPrinter:SAY(318,280,"VL UNIT",oFont)
+        oPrinter:SAY(318,315,"VL TOTAL",oFont)
+        oPrinter:SAY(318,355,"BASE ICMS",oFont)
+        oPrinter:SAY(318,400,"VL ICMS",oFont)
+        oPrinter:SAY(318,435,"VL IPI",oFont)
+        oPrinter:SAY(318,460,"% ICMS",oFont)
+        oPrinter:SAY(318,490,"% IPI",oFont)
+        oPrinter:SAY(318,510,"BASE ST",oFont)
+        oPrinter:SAY(318,546,"VL ST",oFont)
+        oPrinter:SAY(318,572,"MVA",oFont)
+
         cQuery1 := " SELECT " + CRLF
         cQuery1 += " B.[ZA4_PRODES], " + CRLF
         cQuery1 += " SUBSTRING(B.[ZA4_DESCES],1,31) AS [ZA4_DESCES], " + CRLF
@@ -106,22 +108,24 @@ USER FUNCTION xTESTE1()
         cQuery1 += " B.[ZA4_BICMES] * B.[ZA4_QTDESP] AS [ZA4_BICMES], " + CRLF
         cQuery1 += " B.[ZA4_BICMES] * B.[ZA4_PICMES] AS [ZA4_VICMES], " + CRLF
         cQuery1 += " B.[ZA4_PRCESP] * B.[ZA4_IPIESP] AS [ZA4_VIPIES], " + CRLF
-        cQuery1 += " B.[D2_PICMES], " + CRLF
+        cQuery1 += " B.[ZA4_PICMES], " + CRLF
 	    cQuery1 += " B.[ZA4_IPIESP], " + CRLF
-	    cQuery1 += " CASE " + CRLF
-	    cQuery1 += " WHEN A.[ZA3_ST] = '2' THEN '0' " + CRLF
-	    cQuery1 += " ELSE B.[ZA4_BRICES] " + CRLF
-	    cQuery1 += " END AS [ZA4_BRICES], " + CRLF
+	    //cQuery1 += " CASE " + CRLF
+	    //cQuery1 += " WHEN A.[ZA3_ST] = '2' THEN '0' " + CRLF
+	    //cQuery1 += " ELSE B.[ZA4_BRICES] " + CRLF
+	    //cQuery1 += " END AS [ZA4_BRICES], " + CRLF
+        cQuery1 += " B.[ZA4_BRICES], " + CRLF
 	    cQuery1 += " B.[ZA4_ICRETE], " + CRLF
 	    cQuery1 += " B.[ZA4_MARESP], " + CRLF
-        cQuery1 += " B.[ZA4_DTEMIS] " + CRLF
+        cQuery1 += " B.[ZA4_DOCESP], " + CRLF
+        cQuery1 += " B.[ZA4_EMIESP] " + CRLF
         cQuery1 += " FROM " + RETSQLNAME("ZA3") + " A " + CRLF  
         cQuery1 += " LEFT JOIN " + RETSQLNAME("ZA4") + " B " + CRLF 
-        cQuery1 += " ON A.[ZA3_NUM] = B.[ZA4_NUM]
+        cQuery1 += " ON A.[ZA3_NUM] = B.[ZA4_NUM] " + CRLF 
         cQuery1 += " LEFT JOIN " + RETSQLNAME("SD2") + " C " + CRLF 
-        cQuery1 += " ON B.[ZA4_NF] = C.[D2_DOC] AND B.[ZA4_SERESP] = C.[D2_SERIE] AND B.[ZA4_PROD] = C.[D2_COD] " + CRLF
+        cQuery1 += " ON B.[ZA4_DOCESP] = C.[D2_DOC] AND B.[ZA4_SERESP] = C.[D2_SERIE] AND B.[ZA4_PRODES] = C.[D2_COD] " + CRLF
         cQuery1 += " LEFT JOIN " + RETSQLNAME("ZA2") + " D " + CRLF
-        cQuery1 += " ON C.[D2_TES] = E.[ZA2_TESSAI] " + CRLF
+        cQuery1 += " ON C.[D2_TES] = D.[ZA2_TESSAI] " + CRLF
         cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[ZA3_NUM] = '60000000'"
 
         cQuery1 := CHANGEQUERY(cQuery1)
@@ -129,22 +133,24 @@ USER FUNCTION xTESTE1()
         DBUSEAREA(.T.,'TOPCONN',TCGENQRY(,,cQuery1),cAlias1,.F.,.T.)
 
         WHILE (cAlias1)->(!Eof())
-            IF (cAlias)->ZZY_NF == (cAlias1)->ZZY_NF
+            IF (cAlias)->ZA4_DOCESP == (cAlias1)->ZA4_DOCESP
                 oPrinter:BOX(nVert1,5,nHori,590,"-5")
-                oPrinter:SAY(nVert,10,(cAlias1)->ZZY_PROD,oFont)
-                oPrinter:SAY(nVert,40,(cAlias1)->B1_DESC,oFont)
-                oPrinter:SAY(nVert,175,(cAlias1)->B1_POSIPI,oFont)
+                oPrinter:SAY(nVert,10,(cAlias1)->ZA4_PRODES,oFont)
+                oPrinter:SAY(nVert,40,(cAlias1)->ZA4_DESCES,oFont)
+                oPrinter:SAY(nVert,175,(cAlias1)->ZA4_CLFIES,oFont)
                 oPrinter:SAY(nVert,215,"5201",oFont)
-                oPrinter:SAY(nVert,240,(cAlias1)->D2_UM,oFont)
-                oPrinter:SAY(nVert,250,STR((cAlias1)->ZZY_QTD,6),oFont)
-                //oPrinter:SAY(nVert,292,STR((cAlias1)->D2_PRCVEN,10,2),oFont)
-                //oPrinter:SAY(nVert,330,STR((cAlias1)->D2_TOTAL,10,2),oFont)
-                //oPrinter:SAY(nVert,376,STR((cAlias1)->D2_BASEICM,10,2),oFont)
-                //oPrinter:SAY(nVert,415,STR((cAlias1)->D2_VALICM,10,2),oFont)
-                //oPrinter:SAY(nVert,446,STR((cAlias1)->D2_VALIPI,10,2),oFont) 
-                //oPrinter:SAY(nVert,475,STR((cAlias1)->D2_PICM,10,2),oFont)
-                //oPrinter:SAY(nVert,500,STR((cAlias1)->D2_IPI,10,2),oFont)
-                //oPrinter:SAY(nVert,520,STR((cAlias1)->D2_BRICMS,10,2),oFont)
+                oPrinter:SAY(nVert,240,(cAlias1)->ZA4_UMESPE,oFont)
+                oPrinter:SAY(nVert,252,STR((cAlias1)->ZA4_QTDESP,6),oFont)
+                oPrinter:SAY(nVert,275,STR((cAlias1)->ZA4_PRCESP,10,2),oFont)
+                oPrinter:SAY(nVert,310,STR((cAlias1)->ZA4_TLESPE,10,2),oFont)
+                oPrinter:SAY(nVert,356,STR((cAlias1)->ZA4_BICMES,10,2),oFont)
+                oPrinter:SAY(nVert,395,STR((cAlias1)->ZA4_VICMES,10,2),oFont)
+                oPrinter:SAY(nVert,425,STR((cAlias1)->ZA4_VIPIES,10,2),oFont) 
+                oPrinter:SAY(nVert,455,STR((cAlias1)->ZA4_PICMES,10,2),oFont)
+                oPrinter:SAY(nVert,480,STR((cAlias1)->ZA4_IPIESP,10,2),oFont)
+                oPrinter:SAY(nVert,510,STR((cAlias1)->ZA4_BRICES,10,2),oFont)
+                oPrinter:SAY(nVert,537,STR((cAlias1)->ZA4_ICRETE,10,2),oFont)
+                oPrinter:SAY(nVert,560,STR((cAlias1)->ZA4_MARESP,10,2),oFont)
                 nVert  += 10
                 nVert1 += 10
                 nHori  += 10
@@ -200,24 +206,24 @@ USER FUNCTION xTESTE1()
         cQuery2 += " C.[D2_ITEM], " + CRLF
         cQuery2 += " FORMAT(CONVERT(DATE, D.[F2_EMISSAO]), 'dd/MM/yyyy') AS [EMISSAO], " + CRLF
 	    cQuery2 += " D.[F2_CHVNFE], " + CRLF
-        cQuery2 += " A.[ZZW_NUM], " + CRLF
-        cQuery2 += " B.[ZZY_NUM], " + CRLF
-        cQuery2 += " B.[ZZY_NF] " + CRLF
-        cQuery2 += " FROM " + RETSQLNAME("ZZW") + " A " + CRLF  
-        cQuery2 += " LEFT JOIN " + RETSQLNAME("ZZY") + " B " + CRLF 
-        cQuery2 += " ON A.[ZZW_NUM] = B.[ZZY_NUM]
+        cQuery2 += " A.[ZA3_NUM], " + CRLF
+        cQuery2 += " B.[ZA4_NUM], " + CRLF
+        cQuery2 += " B.[ZA4_DOCESP] " + CRLF
+        cQuery2 += " FROM " + RETSQLNAME("ZA3") + " A " + CRLF  
+        cQuery2 += " LEFT JOIN " + RETSQLNAME("ZA4") + " B " + CRLF 
+        cQuery2 += " ON A.[ZA3_NUM] = B.[ZA4_NUM] " + CRLF 
         cQuery2 += " LEFT JOIN " + RETSQLNAME("SD2") + " C " + CRLF 
-        cQuery2 += " ON B.[ZZY_NF] = C.[D2_DOC] AND B.[ZZY_SERIE] = C.[D2_SERIE] AND B.[ZZY_PROD] = C.[D2_COD]" + CRLF
+        cQuery2 += " ON B.[ZA4_DOCESP] = C.[D2_DOC] AND B.[ZA4_SERESP] = C.[D2_SERIE] AND B.[ZA4_PRODES] = C.[D2_COD] " + CRLF
         cQuery2 += " LEFT JOIN " + RETSQLNAME("SF2") + " D " + CRLF 
-        cQuery2 += " ON B.[ZZY_NF] = D.[F2_DOC] AND B.[ZZY_SERIE] = D.[F2_SERIE] " + CRLF
-        cQuery2 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[ZZW_NUM] = '60000000'" + CRLF
+        cQuery2 += " ON B.[ZA4_DOCESP] = D.[F2_DOC] AND B.[ZA4_SERESP] = D.[F2_SERIE] " + CRLF
+        cQuery2 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[ZA3_NUM] = '60000000'"
 
         cQuery2 := CHANGEQUERY(cQuery2)
         cAlias2 := GETNEXTALIAS()
         DBUSEAREA(.T.,'TOPCONN',TCGENQRY(,,cQuery2),cAlias2,.F.,.T.)
 
             WHILE (cAlias2)->(!Eof())
-                IF (cAlias)->ZZY_NF == (cAlias2)->ZZY_NF
+                IF (cAlias)->ZA4_DOCESP == (cAlias2)->ZA4_DOCESP
                     oPrinter:BOX(nVert13,5,nHori3,590,"-5")
                     oPrinter:SAY(nVert14,10,(cAlias2)->F2_SERIE)
                     oPrinter:SAY(nVert14,50,(cAlias2)->F2_DOC)
