@@ -18,7 +18,7 @@ USER FUNCTION xTESTE1()
     LOCAL cLocal          := "\spool"
     LOCAL cQuery          := ""
     LOCAL cQuery1         := ""
-    //LOCAL cQuery2         := ""
+    LOCAL cQuery2         := ""
     LOCAL nVert           := 328
     LOCAL nVert1          := 330
     LOCAL nHori           := 320
@@ -77,6 +77,10 @@ USER FUNCTION xTESTE1()
         oPrinter:SAY(193,10,"Devolução",oFont)
         oPrinter:SAY(220,10,"3 - Destinatário",oFont)
         oPrinter:BOX(230,5,280,590,"-5")
+        oPrinter:SAY(240,10,"CNPJ/CPF: 59.114.777/0001-20 ",oFont)
+        oPrinter:SAY(250,10,"NOME/RAZÃO SOCIAL: ALUMBRA PRODUTOS ELÉTRICOS ELETRÔNICOS LTDA ",oFont)
+        oPrinter:SAY(260,10,"ENDEREÇO: RUA GUIMARÃES ROSA, 450 JD. CONTINENTAL - CEP: 09851-380 - SÃO BERNARDO DO CAMPO - SP",oFont)
+        oPrinter:SAY(270,10,"INSCRIÇÃO ESTADUAL: 635.023.191.116",oFont)
         oPrinter:SAY(300,10,"4 - Dados do Produto",oFont)
         oPrinter:BOX(310,5,320,590,"-5")
         oPrinter:SAY(318,10,"ITEM",oFont)
@@ -239,7 +243,16 @@ USER FUNCTION xTESTE1()
 
             (cAlias2)->(DBCLOSEAREA())
 
-        (cAlias1)->(DBCLOSEAREA())      
+        (cAlias1)->(DBCLOSEAREA()) 
+      
+        //TESTE PULANDO PAGINA....
+        nTESTE := 800
+        oPrinter:SAY(nTESTE,210,"TESTE") 
+        IF nTESTE >= 800
+           oPrinter:STARTPAGE()
+           nTESTE := 100
+           oPrinter:SAY(nTESTE,210,"TESTE")
+        ENDIF       
 
         oPrinter:ENDPAGE()
         nVert   := 328
