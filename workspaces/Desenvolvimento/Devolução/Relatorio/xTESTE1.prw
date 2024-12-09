@@ -36,7 +36,7 @@ USER FUNCTION xTESTE1()
 	cQuery += " A.[ZA3_ESTESP], " + CRLF
 	cQuery += " A.[ZA3_INSCES], " + CRLF
     cQuery += " B.[ZA4_DOCESP], " + CRLF
-    cQuery += " A.[ZA3_DTEMIS], " + CRLF
+    cQuery += " FORMAT(CONVERT(DATE, A.[ZA3_DTEMIS]), 'dd/MM/yyyy') AS [EMISSAO], " + CRLF
 	cQuery += " SUM(B.[ZA4_PRCESP] * B.[ZA4_QTDESP] + B.[ZA4_VIPIES]) AS TOTAL " + CRLF
     cQuery += " FROM " + RETSQLNAME("ZA3") + " A " + CRLF
     cQuery += " LEFT JOIN " + RETSQLNAME("ZA4") + " B " + CRLF
@@ -65,7 +65,7 @@ USER FUNCTION xTESTE1()
         oPrinter:BOX(20,500,70,590,"-5")
         oPrinter:SAY(35,505,"PROTOCOLO",oFont)
         oPrinter:SAY(50,505,(cAlias)->ZA3_NUM,oFont)
-        oPrinter:SAY(65,505,(cAlias)->ZA3_DTEMIS,oFont)
+        oPrinter:SAY(65,505,(cAlias)->EMISSAO,oFont)
         oPrinter:SAY(90,10,"1 - Remetente",oFont)
         oPrinter:BOX(150,5,100,590,"-5")
         oPrinter:SAY(110,10,"CNPJ/CPF: "+(cAlias)->ZA3_CGCESP+"",oFont)
@@ -228,14 +228,18 @@ USER FUNCTION xTESTE1()
 
             WHILE (cAlias2)->(!Eof())
                 IF (cAlias)->ZA4_DOCESP == (cAlias2)->ZA4_DOCESP
-                    oPrinter:BOX(nVert13,5,nHori3,590,"-5")
-                    oPrinter:SAY(nVert14,10,(cAlias2)->F2_SERIE)
-                    oPrinter:SAY(nVert14,50,(cAlias2)->F2_DOC)
-                    oPrinter:SAY(nVert14,100,(cAlias2)->EMISSAO)
-                    oPrinter:SAY(nVert14,210,(cAlias2)->F2_CHVNFE)
-                    nVert13 += 7
-                    nVert14 += 7
-                    nHori3  += 7
+                    IF nVert14 >= 800
+                        nVert13 := 20
+                        nVert14 := 40
+                        oPrinter:BOX(nVert13,5,nHori3,590,"-5")
+                        oPrinter:SAY(nVert14,10,(cAlias2)->F2_SERIE)
+                        oPrinter:SAY(nVert14,50,(cAlias2)->F2_DOC)
+                        oPrinter:SAY(nVert14,100,(cAlias2)->EMISSAO)
+                        oPrinter:SAY(nVert14,210,(cAlias2)->F2_CHVNFE)
+                        nVert13 += 7
+                        nVert14 += 7
+                        nHori3  += 7
+                    ENDIF
                 ENDIF
 
                 (cAlias2)->(DBSKIP()) 
@@ -243,16 +247,7 @@ USER FUNCTION xTESTE1()
 
             (cAlias2)->(DBCLOSEAREA())
 
-        (cAlias1)->(DBCLOSEAREA()) 
-      
-        //TESTE PULANDO PAGINA....
-        nTESTE := 800
-        oPrinter:SAY(nTESTE,210,"TESTE") 
-        IF nTESTE >= 800
-           oPrinter:STARTPAGE()
-           nTESTE := 100
-           oPrinter:SAY(nTESTE,210,"TESTE")
-        ENDIF       
+        (cAlias1)->(DBCLOSEAREA())  
 
         oPrinter:ENDPAGE()
         nVert   := 328
