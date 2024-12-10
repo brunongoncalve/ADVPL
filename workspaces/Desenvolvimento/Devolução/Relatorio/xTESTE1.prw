@@ -11,7 +11,7 @@ PDF ESPELHO
 */
 //----------------------------------------------------------------------------------------------------------------------
  
-USER FUNCTION xTESTE1()
+USER FUNCTION xESPELHO()
 
     LOCAL lAdjustToLegacy := .F.
     LOCAL lDisableSetup   := .T.
@@ -22,10 +22,12 @@ USER FUNCTION xTESTE1()
     LOCAL nVert           := 328
     LOCAL nVert1          := 330
     LOCAL nHori           := 320
+    LOCAL nProtoc         := ZZW->ZZW_NUM
+    LOCAL nST             := ZZW_ST
     LOCAL oPrinter
 
-    oPrinter := FWMSPRINTER():NEW("exemplo.rel",IMP_PDF,lAdjustToLegacy,cLocal,lDisableSetup,,,,,,.F.,)
-    oFont    := TFont():New("Arial",,9,.T.)
+    oPrinter := FWMSPRINTER():NEW("Relatorio.pdf",IMP_PDF,lAdjustToLegacy,cLocal,lDisableSetup,,,,,,.F.,)
+    oFont    := TFONT():NEW("Arial",,9,.T.)
 
     cQuery := " SELECT " + CRLF
     cQuery += " A.[ZA3_NUM], " + CRLF
@@ -37,11 +39,17 @@ USER FUNCTION xTESTE1()
 	cQuery += " A.[ZA3_INSCES], " + CRLF
     cQuery += " B.[ZA4_DOCESP], " + CRLF
     cQuery += " FORMAT(CONVERT(DATE, A.[ZA3_DTEMIS]), 'dd/MM/yyyy') AS [EMISSAO], " + CRLF
-	cQuery += " SUM(B.[ZA4_PRCESP] * B.[ZA4_QTDESP] + B.[ZA4_VIPIES]) AS TOTAL " + CRLF
+    cQuery += " SUM(B.[ZA4_BICMES]) AS [BASE_CALCULO_ICMS], " + CRLF
+    cQuery += " SUM(B.[ZA4_VICMES]) AS [TOTAL_ICMS], " + CRLF
+    cQuery += " SUM(B.[ZA4_BRICES]) AS [BASE_CALCULO_ICMS_ST], " + CRLF
+    cQuery += " SUM(B.[ZA4_ICRETE]) AS [TOTAL_ICMS_ST], " + CRLF
+    cQuery += " SUM(B.[ZA4_TLESPE]) AS [TOTAL_DOS_PRODUTOS], " + CRLF
+    cQuery += " SUM(B.[ZA4_VIPIES]) AS [TOTAL_IPI], " + CRLF
+	cQuery += " SUM(B.[ZA4_PRCESP] * B.[ZA4_QTDESP] + B.[ZA4_VIPIES]) AS [TOTAL_DA_NOTA] " + CRLF
     cQuery += " FROM " + RETSQLNAME("ZA3") + " A " + CRLF
     cQuery += " LEFT JOIN " + RETSQLNAME("ZA4") + " B " + CRLF
     cQuery += " ON A.[ZA3_NUM] = B.[ZA4_NUM] " + CRLF
-    cQuery += " WHERE A.[ZA3_NUM] = '60000000' " + CRLF
+    cQuery += " WHERE A.[ZA3_NUM] = '"+nProtoc+"' " + CRLF
     cQuery += " GROUP BY A.[ZA3_NUM], " + CRLF
     cQuery += " A.[ZA3_CGCESP], " + CRLF
 	cQuery += " A.[ZA3_NOMEES], " + CRLF
@@ -55,6 +63,14 @@ USER FUNCTION xTESTE1()
     cQuery := CHANGEQUERY(cQuery)
     cAlias := GETNEXTALIAS()
     DBUSEAREA(.T.,'TOPCONN',TCGENQRY(,,cQuery),cAlias,.F.,.T.)
+
+    IF nST == "2"
+        nBaseST := 0
+        nVlST   := 0
+    ELSE 
+       nBaseST := (cAlias)->BASE_CALCULO_ICMS_ST 
+       nVlST   := (cAlias)->TOTAL_ICMS_ST   
+    ENDIF
 
     WHILE (cAlias)->(!EOF())
         oPrinter:STARTPAGE()
@@ -114,12 +130,14 @@ USER FUNCTION xTESTE1()
         cQuery1 += " B.[ZA4_PRCESP] * B.[ZA4_IPIESP] AS [ZA4_VIPIES], " + CRLF
         cQuery1 += " B.[ZA4_PICMES], " + CRLF
 	    cQuery1 += " B.[ZA4_IPIESP], " + CRLF
-	    //cQuery1 += " CASE " + CRLF
-	    //cQuery1 += " WHEN A.[ZA3_ST] = '2' THEN '0' " + CRLF
-	    //cQuery1 += " ELSE B.[ZA4_BRICES] " + CRLF
-	    //cQuery1 += " END AS [ZA4_BRICES], " + CRLF
-        cQuery1 += " B.[ZA4_BRICES], " + CRLF
-	    cQuery1 += " B.[ZA4_ICRETE], " + CRLF
+	    cQuery1 += " CASE " + CRLF
+	    cQuery1 += " WHEN E.[ZZW_ST] = '2' THEN '0' " + CRLF
+	    cQuery1 += " ELSE B.[ZA4_BRICES] " + CRLF
+	    cQuery1 += " END AS [ZA4_BRICES], " + CRLF
+        cQuery1 += " CASE " + CRLF
+	    cQuery1 += " WHEN E.[ZZW_ST] = '2' THEN '0' " + CRLF
+	    cQuery1 += " ELSE B.[ZA4_ICRETE] " + CRLF
+	    cQuery1 += " END AS [ZA4_ICRETE], " + CRLF
 	    cQuery1 += " B.[ZA4_MARESP], " + CRLF
         cQuery1 += " B.[ZA4_DOCESP], " + CRLF
         cQuery1 += " B.[ZA4_EMIESP] " + CRLF
@@ -130,7 +148,9 @@ USER FUNCTION xTESTE1()
         cQuery1 += " ON B.[ZA4_DOCESP] = C.[D2_DOC] AND B.[ZA4_SERESP] = C.[D2_SERIE] AND B.[ZA4_PRODES] = C.[D2_COD] " + CRLF
         cQuery1 += " LEFT JOIN " + RETSQLNAME("ZA2") + " D " + CRLF
         cQuery1 += " ON C.[D2_TES] = D.[ZA2_TESSAI] " + CRLF
-        cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[ZA3_NUM] = '60000000'"
+        cQuery1 += " LEFT JOIN " + RETSQLNAME("ZZW") + " E " + CRLF
+        cQuery1 += " ON A.[ZA3_NUM] = E.[ZZW_NUM] " + CRLF
+        cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[ZA3_NUM] = '"+nProtoc+"'"
 
         cQuery1 := CHANGEQUERY(cQuery1)
         cAlias1 := GETNEXTALIAS()
@@ -167,20 +187,20 @@ USER FUNCTION xTESTE1()
         nVert4 := nVert  += 10
         nVert5 := nVert1 += 20
         oPrinter:BOX(nVert2,5,nHori,590,"-5")
-        oPrinter:SAY(nVert3,10,"BASE CALCULO ICMS")
-        oPrinter:SAY(nVert4,10,"TESTE",oFont)
+        oPrinter:SAY(nVert3,10,"BASE CÁLCULO ICMS")
+        oPrinter:SAY(nVert4,30,STR((cAlias)->BASE_CALCULO_ICMS,10,2),oFont)
         oPrinter:SAY(nVert3,110,"TOTAL ICMS")
-        oPrinter:SAY(nVert4,110,"TESTE",oFont)
+        oPrinter:SAY(nVert4,110,STR((cAlias)->TOTAL_ICMS,10,2),oFont)
         oPrinter:SAY(nVert3,180,"BASE CÁLCULO ICMS ST")
-        oPrinter:SAY(nVert4,180,"TESTE",oFont)
+        oPrinter:SAY(nVert4,200,STR(nBaseST,10,2),oFont)
         oPrinter:SAY(nVert3,290,"TOTAL ICMS ST")
-        oPrinter:SAY(nVert4,290,"TESTE",oFont)
+        oPrinter:SAY(nVert4,300,STR(nVlST,10,2),oFont)
         oPrinter:SAY(nVert3,370,"TOTAL DOS PRODUTOS")
-        oPrinter:SAY(nVert4,370,"TESTE",oFont)
+        oPrinter:SAY(nVert4,387,STR((cAlias)->TOTAL_DOS_PRODUTOS,10,2),oFont)
         oPrinter:SAY(nVert3,470,"TOTAL IPI")
-        oPrinter:SAY(nVert4,470,"TESTE",oFont)
+        oPrinter:SAY(nVert4,470,STR((cAlias)->TOTAL_IPI,10,2),oFont)
         oPrinter:SAY(nVert3,520,"TOTAL DA NOTA")
-        oPrinter:SAY(nVert4,495,STR((cAlias)->TOTAL),oFont)
+        oPrinter:SAY(nVert4,530,STR((cAlias)->TOTAL_DA_NOTA,10,2),oFont)
         oPrinter:SAY(nVert5,10,"5 - Informações Adicionais",oFont)
         nVert6  := nVert5 + 10
         nVert7  := nVert5 + 20
@@ -198,9 +218,10 @@ USER FUNCTION xTESTE1()
         nHori2  := nHori1  += 10
         oPrinter:BOX(nVert11,5,nHori2,590,"-5")
         oPrinter:SAY(nVert12,10,"SERIE")
-        oPrinter:SAY(nVert12,60,"NF-E")
-        oPrinter:SAY(nVert12,110,"DATA DE EMISSÃO")
-        oPrinter:SAY(nVert12,210,"CHAVE NF-E")
+        oPrinter:SAY(nVert12,50,"NF-E")
+        oPrinter:SAY(nVert12,100,"SEQUÊNCIA")
+        oPrinter:SAY(nVert12,160,"DATA DE EMISSÃO")
+        oPrinter:SAY(nVert12,250,"CHAVE NF-E")
         nVert13 := nVert12 += 10
         nHori3  := nHori2  += 0
         nVert14 := nVert13 += 0
@@ -220,7 +241,7 @@ USER FUNCTION xTESTE1()
         cQuery2 += " ON B.[ZA4_DOCESP] = C.[D2_DOC] AND B.[ZA4_SERESP] = C.[D2_SERIE] AND B.[ZA4_PRODES] = C.[D2_COD] " + CRLF
         cQuery2 += " LEFT JOIN " + RETSQLNAME("SF2") + " D " + CRLF 
         cQuery2 += " ON B.[ZA4_DOCESP] = D.[F2_DOC] AND B.[ZA4_SERESP] = D.[F2_SERIE] " + CRLF
-        cQuery2 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[ZA3_NUM] = '60000000'"
+        cQuery2 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[ZA3_NUM] = '"+nProtoc+"'"
 
         cQuery2 := CHANGEQUERY(cQuery2)
         cAlias2 := GETNEXTALIAS()
@@ -228,20 +249,17 @@ USER FUNCTION xTESTE1()
 
             WHILE (cAlias2)->(!Eof())
                 IF (cAlias)->ZA4_DOCESP == (cAlias2)->ZA4_DOCESP
-                    IF nVert14 >= 800
-                        nVert13 := 20
-                        nVert14 := 40
-                        oPrinter:BOX(nVert13,5,nHori3,590,"-5")
-                        oPrinter:SAY(nVert14,10,(cAlias2)->F2_SERIE)
-                        oPrinter:SAY(nVert14,50,(cAlias2)->F2_DOC)
-                        oPrinter:SAY(nVert14,100,(cAlias2)->EMISSAO)
-                        oPrinter:SAY(nVert14,210,(cAlias2)->F2_CHVNFE)
-                        nVert13 += 7
-                        nVert14 += 7
-                        nHori3  += 7
-                    ENDIF
+                    oPrinter:BOX(nVert13,5,nHori3,590,"-5")
+                    oPrinter:SAY(nVert14,10,(cAlias2)->F2_SERIE)
+                    oPrinter:SAY(nVert14,50,(cAlias2)->F2_DOC)
+                    oPrinter:SAY(nVert14,100,(cAlias2)->D2_ITEM)
+                    oPrinter:SAY(nVert14,160,(cAlias2)->EMISSAO)
+                    oPrinter:SAY(nVert14,250,(cAlias2)->F2_CHVNFE)
+                    nVert13 += 7
+                    nVert14 += 7
+                    nHori3  += 7
                 ENDIF
-
+             
                 (cAlias2)->(DBSKIP()) 
             ENDDO
 
