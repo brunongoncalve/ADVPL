@@ -35,22 +35,28 @@ USER FUNCTION xINSERI()
     cQuery := CHANGEQUERY(cQuery)
     cAlias := GETNEXTALIAS()
     DBUSEAREA(.T.,'TOPCONN',TCGENQRY(,,cQuery),cAlias,.F.,.T.)
-
-    DBSELECTAREA("ZA3")
-    DBSETORDER(1)
-    DBAPPEND() 
-        ZA3->ZA3_FILIAL := "010101"
-        ZA3->ZA3_NUM    := (cAlias)->ZZW_NUM
-        ZA3->ZA3_DTEMIS := (cAlias)->ZZW_DTINI
-        ZA3->ZA3_CGCESP := (cAlias)->A1_CGC
-        ZA3->ZA3_NOMEES := (cAlias)->A1_NOME
-        ZA3->ZA3_ENDESP := (cAlias)->A1_END
-        ZA3->ZA3_MUNESP := (cAlias)->A1_MUN
-        ZA3->ZA3_ESTESP := (cAlias)->A1_EST
-        ZA3->ZA3_INSCES := (cAlias)->A1_INSCR
-    DBCLOSEAREA()
-    DBCOMMIT()
-    RESTAREA(aArea)
+    
+    BEGIN TRANSCATION
+        DBSELECTAREA("ZA3")
+        DBSETORDER(1)
+        DBAPPEND() 
+            ZA3->ZA3_FILIAL := "010101"
+            ZA3->ZA3_NUM    := (cAlias)->ZZW_NUM
+            ZA3->ZA3_DTEMIS := (cAlias)->ZZW_DTINI
+            ZA3->ZA3_CGCESP := (cAlias)->A1_CGC
+            ZA3->ZA3_NOMEES := (cAlias)->A1_NOME
+            ZA3->ZA3_ENDESP := (cAlias)->A1_END
+            ZA3->ZA3_MUNESP := (cAlias)->A1_MUN
+            ZA3->ZA3_ESTESP := (cAlias)->A1_EST
+            ZA3->ZA3_INSCES := (cAlias)->A1_INSCR
+        DBCLOSEAREA()
+        DBCOMMIT()
+        RESTAREA(aArea)
+    IF lMsErroAuto
+        MOSTRAERRO()
+        DISARMTRANSACTION()
+    ENDIF
+    END TRANSACTION    
 
     cQuery1 := " SELECT B.[ZZY_PROD], " + CRLF
     cQuery1 += " A.[ZZW_NUM], " + CRLF
@@ -96,35 +102,41 @@ USER FUNCTION xINSERI()
     DBUSEAREA(.T.,'TOPCONN',TCGENQRY(,,cQuery1),cAlias1,.F.,.T.)
     
     WHILE (cAlias1)->(!Eof())
-        DBSELECTAREA("ZA4")
-        DBSETORDER(1)
-        DBAPPEND() 
-            ZA4->ZA4_FILIAL := "010101"
-            ZA4->ZA4_NUM    := (cAlias1)->ZZW_NUM
-            ZA4->ZA4_PRODES := (cAlias1)->ZZY_PROD
-            ZA4->ZA4_DESCES := (cAlias1)->B1_DESC
-            ZA4->ZA4_CLFIES := (cAlias1)->B1_POSIPI
-            ZA4->ZA4_CFOPES := (cAlias1)->ZA2_CFOPIM
-            ZA4->ZA4_UMESPE := (cAlias1)->D2_UM
-            ZA4->ZA4_QTDESP := (cAlias1)->ZZY_QTD
-            ZA4->ZA4_PRCESP := (cAlias1)->D2_PRCVEN
-            ZA4->ZA4_TLESPE := (cAlias1)->D2_TOTAL
-            ZA4->ZA4_BICMES := (cAlias1)->D2_BASEICM
-            ZA4->ZA4_VICMES := (cAlias1)->D2_VALICM
-            ZA4->ZA4_VIPIES := (cAlias1)->D2_VALIPI
-            ZA4->ZA4_PICMES := (cAlias1)->D2_PICM
-            ZA4->ZA4_IPIESP := (cAlias1)->D2_IPI
-            ZA4->ZA4_BRICES := (cAlias1)->D2_BRICMS
-            ZA4->ZA4_ICRETE := (cAlias1)->D2_ICMSRET
-            ZA4->ZA4_MARESP := (cAlias1)->D2_MARGEM
-            ZA4->ZA4_SERESP := (cAlias1)->F2_SERIE
-            ZA4->ZA4_DOCESP := (cAlias1)->F2_DOC
-            ZA4->ZA4_ITEESP := (cAlias1)->ZZY_SEQUEN
-            ZA4->ZA4_EMIESP := (cAlias1)->EMISSAO
-            ZA4->ZA4_CHVESP := (cAlias1)->F2_CHVNFE
-        DBCLOSEAREA()
-        DBCOMMIT()
-        RESTAREA(aArea)
+        BEGIN TRANSACTION
+            DBSELECTAREA("ZA4")
+            DBSETORDER(1)
+            DBAPPEND() 
+                ZA4->ZA4_FILIAL := "010101"
+                ZA4->ZA4_NUM    := (cAlias1)->ZZW_NUM
+                ZA4->ZA4_PRODES := (cAlias1)->ZZY_PROD
+                ZA4->ZA4_DESCES := (cAlias1)->B1_DESC
+                ZA4->ZA4_CLFIES := (cAlias1)->B1_POSIPI
+                ZA4->ZA4_CFOPES := (cAlias1)->ZA2_CFOPIM
+                ZA4->ZA4_UMESPE := (cAlias1)->D2_UM
+                ZA4->ZA4_QTDESP := (cAlias1)->ZZY_QTD
+                ZA4->ZA4_PRCESP := (cAlias1)->D2_PRCVEN
+                ZA4->ZA4_TLESPE := (cAlias1)->D2_TOTAL
+                ZA4->ZA4_BICMES := (cAlias1)->D2_BASEICM
+                ZA4->ZA4_VICMES := (cAlias1)->D2_VALICM
+                ZA4->ZA4_VIPIES := (cAlias1)->D2_VALIPI
+                ZA4->ZA4_PICMES := (cAlias1)->D2_PICM
+                ZA4->ZA4_IPIESP := (cAlias1)->D2_IPI
+                ZA4->ZA4_BRICES := (cAlias1)->D2_BRICMS
+                ZA4->ZA4_ICRETE := (cAlias1)->D2_ICMSRET
+                ZA4->ZA4_MARESP := (cAlias1)->D2_MARGEM
+                ZA4->ZA4_SERESP := (cAlias1)->F2_SERIE
+                ZA4->ZA4_DOCESP := (cAlias1)->F2_DOC
+                ZA4->ZA4_ITEESP := (cAlias1)->ZZY_SEQUEN
+                ZA4->ZA4_EMIESP := (cAlias1)->EMISSAO
+                ZA4->ZA4_CHVESP := (cAlias1)->F2_CHVNFE
+            DBCLOSEAREA()
+            DBCOMMIT()
+            RESTAREA(aArea)
+        IF lMsErroAuto
+            MOSTRAERRO()
+            DISARMTRANSACTION()
+        ENDIF
+        END TRANSACTION    
 
     (cAlias1)->(DBSKIP())
     ENDDO
