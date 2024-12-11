@@ -86,7 +86,7 @@ USER FUNCTION xINSERI()
     cQuery1 += " F.[F2_CHVNFE] " + CRLF
     cQuery1 += " FROM " + RETSQLNAME("ZZW") + " A " + CRLF  
     cQuery1 += " LEFT JOIN " + RETSQLNAME("ZZY") + " B " + CRLF 
-    cQuery1 += " ON A.[ZZW_NUM] = B.[ZZY_NUM]
+    cQuery1 += " ON A.[ZZW_NUM] = B.[ZZY_NUM] " + CRLF 
     cQuery1 += " LEFT JOIN " + RETSQLNAME("SD2") + " C " + CRLF 
     cQuery1 += " ON B.[ZZY_NF] = C.[D2_DOC] AND B.[ZZY_SERIE] = C.[D2_SERIE] AND B.[ZZY_PROD] = C.[D2_COD] " + CRLF
     cQuery1 += " LEFT JOIN " + RETSQLNAME("SB1") + " D " + CRLF 
