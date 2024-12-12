@@ -27,7 +27,7 @@ USER FUNCTION xESPELHO()
     LOCAL oPrinter
 
     oPrinter := FWMSPRINTER():NEW("Relatorio.pdf",IMP_PDF,lAdjustToLegacy,cLocal,lDisableSetup,,,,,,.F.,)
-    oFont    := TFONT():NEW("Arial",,9,.T.)
+    oFont    := TFont():New("Arial",,9,.T.)
 
     cQuery := " SELECT " + CRLF
     cQuery += " A.[ZA3_NUM], " + CRLF
@@ -39,13 +39,13 @@ USER FUNCTION xESPELHO()
 	cQuery += " A.[ZA3_INSCES], " + CRLF
     cQuery += " B.[ZA4_DOCESP], " + CRLF
     cQuery += " FORMAT(CONVERT(DATE, A.[ZA3_DTEMIS]), 'dd/MM/yyyy') AS [EMISSAO], " + CRLF
-    cQuery += " SUM(B.[ZA4_BICMES]) AS [BASE_CALCULO_ICMS], " + CRLF
-    cQuery += " SUM(B.[ZA4_VICMES]) AS [TOTAL_ICMS], " + CRLF
-    cQuery += " SUM(B.[ZA4_BRICES]) AS [BASE_CALCULO_ICMS_ST], " + CRLF
-    cQuery += " SUM(B.[ZA4_ICRETE]) AS [TOTAL_ICMS_ST], " + CRLF
-    cQuery += " SUM(B.[ZA4_TLESPE]) AS [TOTAL_DOS_PRODUTOS], " + CRLF
-    cQuery += " SUM(B.[ZA4_VIPIES]) AS [TOTAL_IPI], " + CRLF
-	cQuery += " SUM(B.[ZA4_PRCESP] * B.[ZA4_QTDESP] + B.[ZA4_VIPIES]) AS [TOTAL_DA_NOTA] " + CRLF
+    cQuery += " SUM(B.[ZA4_BICMES]) AS [A], " + CRLF
+    cQuery += " SUM(B.[ZA4_VICMES]) AS [B], " + CRLF
+    cQuery += " SUM(B.[ZA4_BRICES]) AS [C], " + CRLF
+    cQuery += " SUM(B.[ZA4_ICRETE]) AS [D], " + CRLF
+    cQuery += " SUM(B.[ZA4_TLESPE]) AS [E], " + CRLF
+    cQuery += " SUM(B.[ZA4_VIPIES]) AS [F], " + CRLF
+	cQuery += " SUM(B.[ZA4_PRCESP] * B.[ZA4_QTDESP] + B.[ZA4_VIPIES]) AS [G] " + CRLF
     cQuery += " FROM " + RETSQLNAME("ZA3") + " A " + CRLF
     cQuery += " LEFT JOIN " + RETSQLNAME("ZA4") + " B " + CRLF
     cQuery += " ON A.[ZA3_NUM] = B.[ZA4_NUM] " + CRLF
@@ -64,15 +64,14 @@ USER FUNCTION xESPELHO()
     cAlias := GETNEXTALIAS()
     DBUSEAREA(.T.,'TOPCONN',TCGENQRY(,,cQuery),cAlias,.F.,.T.)
 
-    IF nST == "2"
-        nBaseST := 0
-        nVlST   := 0
-    ELSE 
-       nBaseST := (cAlias)->BASE_CALCULO_ICMS_ST 
-       nVlST   := (cAlias)->TOTAL_ICMS_ST   
-    ENDIF
-
     WHILE (cAlias)->(!EOF())
+        IF nST == "2"
+            nBaseST := 0
+            nVlST   := 0
+        ELSE 
+            nBaseST := (cAlias)->C 
+            nVlST   := (cAlias)->D
+        ENDIF    
         oPrinter:STARTPAGE()
         oPrinter:BOX(20,5,70,100,"-5")
         oPrinter:SAYBITMAP(28,9,"tmp\logo_novo.png",90,28)
@@ -124,20 +123,20 @@ USER FUNCTION xESPELHO()
         cQuery1 += " B.[ZA4_UMESPE], " + CRLF
         cQuery1 += " B.[ZA4_QTDESP], " + CRLF
         cQuery1 += " B.[ZA4_PRCESP], " + CRLF
-        cQuery1 += " B.[ZA4_PRCESP] * B.[ZA4_QTDESP] AS [ZA4_TLESPE], " + CRLF
-        cQuery1 += " B.[ZA4_BICMES] * B.[ZA4_QTDESP] AS [ZA4_BICMES], " + CRLF
-        cQuery1 += " B.[ZA4_BICMES] * B.[ZA4_PICMES] AS [ZA4_VICMES], " + CRLF
-        cQuery1 += " B.[ZA4_PRCESP] * B.[ZA4_IPIESP] AS [ZA4_VIPIES], " + CRLF
+        cQuery1 += " B.[ZA4_TLESPE], " + CRLF
+        cQuery1 += " B.[ZA4_BICMES], " + CRLF
+        cQuery1 += " B.[ZA4_VICMES], " + CRLF
+        cQuery1 += " B.[ZA4_VIPIES], " + CRLF
         cQuery1 += " B.[ZA4_PICMES], " + CRLF
 	    cQuery1 += " B.[ZA4_IPIESP], " + CRLF
-	    cQuery1 += " CASE " + CRLF
-	    cQuery1 += " WHEN E.[ZZW_ST] = '2' THEN '0' " + CRLF
-	    cQuery1 += " ELSE B.[ZA4_BRICES] " + CRLF
-	    cQuery1 += " END AS [ZA4_BRICES], " + CRLF
         cQuery1 += " CASE " + CRLF
-	    cQuery1 += " WHEN E.[ZZW_ST] = '2' THEN '0' " + CRLF
-	    cQuery1 += " ELSE B.[ZA4_ICRETE] " + CRLF
-	    cQuery1 += " END AS [ZA4_ICRETE], " + CRLF
+        cQuery1 += " WHEN E.[ZZW_ST] = '2' THEN '0' " + CRLF
+	    cQuery1 += " ELSE B.[ZA4_BRICES] " + CRLF
+        cQuery1 += " END AS [ZA4_BRICES],  " + CRLF
+	    cQuery1 += " CASE " + CRLF
+        cQuery1 += " WHEN E.[ZZW_ST] = '2' THEN '0' " + CRLF
+        cQuery1 += " ELSE B.[ZA4_ICRETE] " + CRLF
+        cQuery1 += " END AS [ZA4_ICRETE],  " + CRLF
 	    cQuery1 += " B.[ZA4_MARESP], " + CRLF
         cQuery1 += " B.[ZA4_DOCESP], " + CRLF
         cQuery1 += " B.[ZA4_EMIESP] " + CRLF
@@ -155,9 +154,18 @@ USER FUNCTION xESPELHO()
         cQuery1 := CHANGEQUERY(cQuery1)
         cAlias1 := GETNEXTALIAS()
         DBUSEAREA(.T.,'TOPCONN',TCGENQRY(,,cQuery1),cAlias1,.F.,.T.)
-
+        
+        nPag2 := 20
+        nPag3 := 18
+        nHPag := 0
         WHILE (cAlias1)->(!Eof())
             IF (cAlias)->ZA4_DOCESP == (cAlias1)->ZA4_DOCESP
+                IF nVert1 >= 830
+                   oPrinter:STARTPAGE()
+                   nVert1 := nPag2 += 10
+                   nVert  := nPag3 += 10
+                   nHori  := nHPag += 20
+                ENDIF   
                 oPrinter:BOX(nVert1,5,nHori,590,"-5")
                 oPrinter:SAY(nVert,10,(cAlias1)->ZA4_PRODES,oFont)
                 oPrinter:SAY(nVert,40,(cAlias1)->ZA4_DESCES,oFont)
@@ -177,7 +185,7 @@ USER FUNCTION xESPELHO()
                 oPrinter:SAY(nVert,560,STR((cAlias1)->ZA4_MARESP,10,2),oFont)
                 nVert  += 10
                 nVert1 += 10
-                nHori  += 10
+                nHori  += 10 
             ENDIF
         (cAlias1)->(DBSKIP())    
         ENDDO
@@ -188,19 +196,19 @@ USER FUNCTION xESPELHO()
         nVert5 := nVert1 += 20
         oPrinter:BOX(nVert2,5,nHori,590,"-5")
         oPrinter:SAY(nVert3,10,"BASE CÁLCULO ICMS")
-        oPrinter:SAY(nVert4,30,STR((cAlias)->BASE_CALCULO_ICMS,10,2),oFont)
+        oPrinter:SAY(nVert4,30,STR((cAlias)->A,10,2),oFont)
         oPrinter:SAY(nVert3,110,"TOTAL ICMS")
-        oPrinter:SAY(nVert4,110,STR((cAlias)->TOTAL_ICMS,10,2),oFont)
+        oPrinter:SAY(nVert4,110,STR((cAlias)->B,10,2),oFont)
         oPrinter:SAY(nVert3,180,"BASE CÁLCULO ICMS ST")
         oPrinter:SAY(nVert4,200,STR(nBaseST,10,2),oFont)
         oPrinter:SAY(nVert3,290,"TOTAL ICMS ST")
         oPrinter:SAY(nVert4,300,STR(nVlST,10,2),oFont)
         oPrinter:SAY(nVert3,370,"TOTAL DOS PRODUTOS")
-        oPrinter:SAY(nVert4,387,STR((cAlias)->TOTAL_DOS_PRODUTOS,10,2),oFont)
+        oPrinter:SAY(nVert4,387,STR((cAlias)->E,10,2),oFont)
         oPrinter:SAY(nVert3,470,"TOTAL IPI")
-        oPrinter:SAY(nVert4,470,STR((cAlias)->TOTAL_IPI,10,2),oFont)
+        oPrinter:SAY(nVert4,470,STR((cAlias)->F,10,2),oFont)
         oPrinter:SAY(nVert3,520,"TOTAL DA NOTA")
-        oPrinter:SAY(nVert4,530,STR((cAlias)->TOTAL_DA_NOTA,10,2),oFont)
+        oPrinter:SAY(nVert4,530,STR((cAlias)->G,10,2),oFont)
         oPrinter:SAY(nVert5,10,"5 - Informações Adicionais",oFont)
         nVert6  := nVert5 + 10
         nVert7  := nVert5 + 20
@@ -246,9 +254,18 @@ USER FUNCTION xESPELHO()
         cQuery2 := CHANGEQUERY(cQuery2)
         cAlias2 := GETNEXTALIAS()
         DBUSEAREA(.T.,'TOPCONN',TCGENQRY(,,cQuery2),cAlias2,.F.,.T.)
-
+        
+        nPag4  := 20
+        nPag5  := 18
+        nHPag1 := 0
             WHILE (cAlias2)->(!Eof())
                 IF (cAlias)->ZA4_DOCESP == (cAlias2)->ZA4_DOCESP
+                    IF nVert13 >= 830
+                        oPrinter:STARTPAGE()
+                        nVert13 := nPag4  += 10
+                        nVert14 := nPag5  += 10
+                        nHori3  := nHPag1 += 20
+                    ENDIF
                     oPrinter:BOX(nVert13,5,nHori3,590,"-5")
                     oPrinter:SAY(nVert14,10,(cAlias2)->F2_SERIE)
                     oPrinter:SAY(nVert14,50,(cAlias2)->F2_DOC)
@@ -259,8 +276,8 @@ USER FUNCTION xESPELHO()
                     nVert14 += 7
                     nHori3  += 7
                 ENDIF
-             
-                (cAlias2)->(DBSKIP()) 
+
+                (cAlias2)->(DBSKIP())
             ENDDO
 
             (cAlias2)->(DBCLOSEAREA())
@@ -285,6 +302,12 @@ USER FUNCTION xESPELHO()
         nVert13 := NIL
         nVert14 := NIL
         nHori3  := NIL
+        nPag2   := NIL
+        nPag3   := NIL
+        nHPag   := NIL
+        nPag4   := NIL
+        nPag5   := NIL
+        nHPag1  := NIL
 
        (cAlias)->(DBSKIP()) 
     ENDDO
@@ -296,7 +319,3 @@ USER FUNCTION xESPELHO()
         oPrinter:PREVIEW()
     ENDIF 
 RETURN 
-
-    //oPrinter:SAY(319,470,"BASE ST",oFont1)
-    //oPrinter:SAY(319,490,"VL ST",oFont1)
-    //oPrinter:SAY(319,510,"MVA",oFont1)
