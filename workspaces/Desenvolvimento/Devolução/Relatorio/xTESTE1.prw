@@ -11,12 +11,12 @@ PDF ESPELHO
 @version   12/superior
 */
 //----------------------------------------------------------------------------------------------------------------------
- 
+
 USER FUNCTION xTESTE1()
 
     LOCAL lAdjustToLegacy := .F.
     LOCAL lDisableSetup   := .T.
-    LOCAL cLocal          := "\spool\"
+    LOCAL cLocal          := "C:\Protocolo"
     LOCAL cQuery          := ""
     LOCAL cQuery1         := ""
     LOCAL cQuery2         := ""
@@ -26,6 +26,9 @@ USER FUNCTION xTESTE1()
     //LOCAL nProtoc         := ZZW->ZZW_NUM
     //LOCAL nST             := ZZW_ST
     LOCAL oPrinter
+    PRIVATE cServEmail    := GETMV("AL_SERVEMA")
+    PRIVATE cLoginEmail   := GETMV("AL_LOGINEM")
+    PRIVATE cPassEmail    := GETMV("AL_PASSEMA")
 
     cQuery := " SELECT " + CRLF
     cQuery += " A.[ZA3_NUM], " + CRLF
@@ -47,7 +50,7 @@ USER FUNCTION xTESTE1()
     cQuery += " FROM " + RETSQLNAME("ZA3") + " A " + CRLF
     cQuery += " LEFT JOIN " + RETSQLNAME("ZA4") + " B " + CRLF
     cQuery += " ON A.[ZA3_NUM] = B.[ZA4_NUM] " + CRLF
-    cQuery += " WHERE A.[ZA3_NUM] = '60000057' " + CRLF
+    cQuery += " WHERE A.[ZA3_NUM] = '60000059' " + CRLF
     cQuery += " GROUP BY A.[ZA3_NUM], " + CRLF
     cQuery += " A.[ZA3_CGCESP], " + CRLF
 	cQuery += " A.[ZA3_NOMEES], " + CRLF
@@ -65,9 +68,13 @@ USER FUNCTION xTESTE1()
     oPrinter := FWMSPRINTER():NEW("protocolo_"+ALLTRIM((cAlias)->ZA3_NUM)+".pdf",IMP_PDF,lAdjustToLegacy,cLocal,lDisableSetup,,,,,,.F.,.F.)
     oFont    := TFONT():NEW("Arial",,9,.T.)
     
-    cArquivo := "C:\tmp\protocolo_"+ALLTRIM((cAlias)->ZA3_NUM)+".pdf"
-    cFileSer := "protocolo_"+ALLTRIM((cAlias)->ZA3_NUM)+".pdf"
+    cDirFile   := "C:\Protocolo\protocolo_"+ALLTRIM((cAlias)->ZA3_NUM)+".pdf"
+    cFile      := "protocolo_"+ALLTRIM((cAlias)->ZA3_NUM)+".pdf"
+    nProtocolo := ALLTRIM((cAlias)->ZA3_NUM)
 
+    FWDIRREMOVE("C:\Protocolo",.T.,.T.)
+    FWDIRREMOVE("\protocolo",.T.,.T.)
+    
     WHILE (cAlias)->(!EOF())
         //IF nST == "2"
             //nBaseST := 0
@@ -75,7 +82,8 @@ USER FUNCTION xTESTE1()
         //ELSE 
             //nBaseST := (cAlias)->C 
             //nVlST   := (cAlias)->D
-        //ENDIF    
+        //ENDIF
+        FWMAKEDIR("C:\Protocolo")    
         oPrinter:STARTPAGE()
         oPrinter:BOX(20,5,70,100,"-5")
         oPrinter:SAYBITMAP(28,9,"tmp\logo_novo.png",90,28)
@@ -153,7 +161,7 @@ USER FUNCTION xTESTE1()
         cQuery1 += " ON C.[D2_TES] = D.[ZA2_TESSAI] " + CRLF
         cQuery1 += " LEFT JOIN " + RETSQLNAME("ZZW") + " E " + CRLF
         cQuery1 += " ON A.[ZA3_NUM] = E.[ZZW_NUM] " + CRLF
-        cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[ZA3_NUM] = '60000057'"
+        cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[ZA3_NUM] = '60000059'"
 
         cQuery1 := CHANGEQUERY(cQuery1)
         cAlias1 := GETNEXTALIAS()
@@ -253,7 +261,7 @@ USER FUNCTION xTESTE1()
         cQuery2 += " ON B.[ZA4_DOCESP] = C.[D2_DOC] AND B.[ZA4_SERESP] = C.[D2_SERIE] AND B.[ZA4_PRODES] = C.[D2_COD] " + CRLF
         cQuery2 += " LEFT JOIN " + RETSQLNAME("SF2") + " D " + CRLF 
         cQuery2 += " ON B.[ZA4_DOCESP] = D.[F2_DOC] AND B.[ZA4_SERESP] = D.[F2_SERIE] " + CRLF
-        cQuery2 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[ZA3_NUM] = '60000057'"
+        cQuery2 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[ZA3_NUM] = '60000059'"
 
         cQuery2 := CHANGEQUERY(cQuery2)
         cAlias2 := GETNEXTALIAS()
@@ -317,48 +325,44 @@ USER FUNCTION xTESTE1()
     ENDDO
 
     (cAlias)->(DBCLOSEAREA()) 
-
-    oPrinter:SETUP()
-    IF oPrinter:nModalResult == PD_OK
-        oPrinter:PREVIEW()
-    ENDIF
-
-    CPYT2S(cArquivo,"\tmp\",.F.)
+    
+    FERASE(cDirFile)
+    oPrinter:cPathPDF := cDirFile
+    oPrinter:PRINT()
+    
+    FWMAKEDIR("\protocolo")
+    CPYT2S(cDirFile,"\protocolo\",.F.)
 
     oMailServ := TMAILMANAGER():NEW()
-    oMailServ:SetUseTLS(.T.)
-    oMailServ:INIT("","smtp.office365.com","noreply1@digitalumbra.com.br","gEFQSyXak@6Yd*7p*K@gAUfoMx83wI0vkQtABE9Pbm*@9$CV*1",0,587)
+    oMailServ:SETUSETLS(.T.)
+    oMailServ:INIT("",cServEmail,cLoginEmail,cPassEmail,0,587)
     oMailServ:SETSMTPTIMEOUT(60)
     
     IF oMailServ:SMTPCONNECT() != 0
-        ALERT("Erro ao conectar ao servidor SMTP")
-        RETURN .F.
-    ELSE 
-        ALERT("AUTENTICADOOOO")     
+        FWALERTERROR("Erro ao conectar ao servidor SMTP","ERRO !")
+        RETURN .F.  
     ENDIF
 
-    IF oMailServ:SMTPAUTH("noreply1@digitalumbra.com.br","gEFQSyXak@6Yd*7p*K@gAUfoMx83wI0vkQtABE9Pbm*@9$CV*1") != 0
-        ALERT("Erro na autenticação SMTP")
+    IF oMailServ:SMTPAUTH(cLoginEmail,cPassEmail) != 0
+        FWALERTERROR("Erro na autenticação SMTP","ERRO !")
         RETURN .F.
-    ELSE
-        ALERT("AUTENTICADOOOO")    
     ENDIF
      
     oMessage := TMailMessage():New() 
     oMessage:Clear()
-    oMessage:cDate    := cValToChar(Date())
-	oMessage:cFrom 	  := "noreply1@digitalumbra.com.br"
+    oMessage:cDate    := CVALTOCHAR(DATE())
+	oMessage:cFrom 	  := cLoginEmail
 	oMessage:cTo 	  := "bruno.goncalves@alumbra.com.br"
-	oMessage:cSubject := "teste"
-	oMessage:cBody 	  := "ola , receba meu teste"
+	oMessage:cSubject := "PROTOCOLO DE DEVOLUÇÃO: "+nProtocolo+""
+	oMessage:cBody 	  := "SEGUE ANEXO O ESPELHO DE DEVOLUÇÃO"
+    oMessage:AttachFile("\protocolo\"+cFile+"")
 
-    If oMessage:Send(oMailServ) != 0
-        ALERT("Erro ao enviar o e-mail")
+    IF oMessage:SEND(oMailServ) != 0
+        FWALERTERROR("Erro ao enviar o e-mail","ERRO !")
         RETURN .F.
-    ELSE
-       ALERT("ENVIADOOOO")    
-    EndIf
+    ELSE 
+        oMailServ:SMTPDISCONNECT()
+    ENDIF
 
-    oMailServ:smtpDisconnect()
-    Alert("E-mail enviado com sucesso!")
+    FWALERTSUCCESS("E-mail enviado com sucesso", "Enviado !")
 RETURN 
