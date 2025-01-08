@@ -1,7 +1,7 @@
 #INCLUDE "RPTDEF.CH"
-#INCLUDE "FWPrintSetup.ch"
-#INCLUDE "protheus.ch"
-#Include "TOTVS.ch"
+#INCLUDE "FWPRINTSETUP.ch"
+#INCLUDE "PROTHEUS.ch"
+#INCLUDE "TOTVS.ch"
 
 //----------------------------------------------------------------------------------------------------------------------
 /* {Protheus.doc} RELATORIO - PDF ESPELHO
@@ -17,18 +17,22 @@ USER FUNCTION xTESTE1()
     LOCAL lAdjustToLegacy := .F.
     LOCAL lDisableSetup   := .T.
     LOCAL cLocal          := "C:\Protocolo"
+    LOCAL aArquivos       := {}
     LOCAL cQuery          := ""
     LOCAL cQuery1         := ""
     LOCAL cQuery2         := ""
+    LOCAL cQuery3         := ""
     LOCAL nVert           := 328
     LOCAL nVert1          := 330
     LOCAL nHori           := 320
-    //LOCAL nProtoc         := ZZW->ZZW_NUM
-    //LOCAL nST             := ZZW_ST
+    LOCAL nProtoc         := ZZW->ZZW_NUM
+    LOCAL nST             := ZZW_ST
     LOCAL oPrinter
     PRIVATE cServEmail    := GETMV("AL_SERVEMA")
     PRIVATE cLoginEmail   := GETMV("AL_LOGINEM")
     PRIVATE cPassEmail    := GETMV("AL_PASSEMA")
+    PRIVATE cRespEmail    := GETMV("AL_RESEMAI")
+    PRIVATE cEmailCC      := GETMV("AL_EMAILCC")
 
     cQuery := " SELECT " + CRLF
     cQuery += " A.[ZA3_NUM], " + CRLF
@@ -39,6 +43,9 @@ USER FUNCTION xTESTE1()
 	cQuery += " A.[ZA3_ESTESP], " + CRLF
 	cQuery += " A.[ZA3_INSCES], " + CRLF
     cQuery += " B.[ZA4_DOCESP], " + CRLF
+    cQuery += " C.[ZZW_VEND], " + CRLF
+    cQuery += " D.[A3_EMAIL], " + CRLF
+    cQuery += " D.[A3_NOME], " + CRLF
     cQuery += " FORMAT(CONVERT(DATE, A.[ZA3_DTEMIS]), 'dd/MM/yyyy') AS [EMISSAO], " + CRLF
     cQuery += " SUM(B.[ZA4_BICMES]) AS [A], " + CRLF
     cQuery += " SUM(B.[ZA4_VICMES]) AS [B], " + CRLF
@@ -50,7 +57,11 @@ USER FUNCTION xTESTE1()
     cQuery += " FROM " + RETSQLNAME("ZA3") + " A " + CRLF
     cQuery += " LEFT JOIN " + RETSQLNAME("ZA4") + " B " + CRLF
     cQuery += " ON A.[ZA3_NUM] = B.[ZA4_NUM] " + CRLF
-    cQuery += " WHERE A.[ZA3_NUM] = '60000059' " + CRLF
+    cQuery += " LEFT JOIN " + RETSQLNAME("ZZW") + " C " + CRLF
+    cQuery += " ON A.[ZA3_NUM] = C.[ZZW_NUM] " + CRLF
+    cQuery += " LEFT JOIN " + RETSQLNAME("SA3") + " D " + CRLF
+    cQuery += " ON C.[ZZW_VEND] = D.[A3_COD] " + CRLF
+    cQuery += " WHERE A.[ZA3_NUM] = '"+nProtoc+"' " + CRLF
     cQuery += " GROUP BY A.[ZA3_NUM], " + CRLF
     cQuery += " A.[ZA3_CGCESP], " + CRLF
 	cQuery += " A.[ZA3_NOMEES], " + CRLF
@@ -59,7 +70,10 @@ USER FUNCTION xTESTE1()
 	cQuery += " A.[ZA3_ESTESP], " + CRLF
 	cQuery += " A.[ZA3_INSCES], " + CRLF
     cQuery += " A.[ZA3_DTEMIS], " + CRLF
-	cQuery += " B.[ZA4_DOCESP] "
+	cQuery += " B.[ZA4_DOCESP], " + CRLF
+    cQuery += " C.[ZZW_VEND], " + CRLF
+    cQuery += " D.[A3_EMAIL], " + CRLF
+    cQuery += " D.[A3_NOME] "
 
     cQuery := CHANGEQUERY(cQuery)
     cAlias := GETNEXTALIAS()
@@ -68,21 +82,23 @@ USER FUNCTION xTESTE1()
     oPrinter := FWMSPRINTER():NEW("protocolo_"+ALLTRIM((cAlias)->ZA3_NUM)+".pdf",IMP_PDF,lAdjustToLegacy,cLocal,lDisableSetup,,,,,,.F.,.F.)
     oFont    := TFONT():NEW("Arial",,9,.T.)
     
-    cDirFile   := "C:\Protocolo\protocolo_"+ALLTRIM((cAlias)->ZA3_NUM)+".pdf"
-    cFile      := "protocolo_"+ALLTRIM((cAlias)->ZA3_NUM)+".pdf"
-    nProtocolo := ALLTRIM((cAlias)->ZA3_NUM)
+    cDirFile  := "C:\Protocolo\protocolo_"+ALLTRIM((cAlias)->ZA3_NUM)+".pdf"
+    cFile     := "protocolo_"+ALLTRIM((cAlias)->ZA3_NUM)+".pdf"
+    cAssunto  := "TESTE"
+    cCorpo    := "TESTE"
+    cEmailRep := ALLTRIM((cAlias)->A3_EMAIL)
 
     FWDIRREMOVE("C:\Protocolo",.T.,.T.)
-    FWDIRREMOVE("\protocolo",.T.,.T.)
+    FWDIRREMOVE("\protocolo\",.T.,.T.)
     
     WHILE (cAlias)->(!EOF())
-        //IF nST == "2"
-            //nBaseST := 0
-            //nVlST   := 0
-        //ELSE 
-            //nBaseST := (cAlias)->C 
-            //nVlST   := (cAlias)->D
-        //ENDIF
+        IF nST == "2"
+            nBaseST := 0
+            nVlST   := 0
+        ELSE 
+            nBaseST := (cAlias)->C 
+            nVlST   := (cAlias)->D
+        ENDIF
         FWMAKEDIR("C:\Protocolo")    
         oPrinter:STARTPAGE()
         oPrinter:BOX(20,5,70,100,"-5")
@@ -106,7 +122,7 @@ USER FUNCTION xTESTE1()
         oPrinter:BOX(230,5,280,590,"-5")
         oPrinter:SAY(240,10,"CNPJ/CPF: 59.114.777/0001-20 ",oFont)
         oPrinter:SAY(250,10,"NOME/RAZÃO SOCIAL: ALUMBRA PRODUTOS ELÉTRICOS ELETRÔNICOS LTDA ",oFont)
-        oPrinter:SAY(260,10,"ENDEREÇO: RUA GUIMARÃES ROSA, 450 JD. CONTINENTAL - CEP: 09851-380 - SÃO BERNARDO DO CAMPO - SP",oFont)
+        oPrinter:SAY(260,10,"ENDEREÇO: RUA GUIMARÃES ROSA, 450 JD. CONTINENTAL - CEP: 09851-380 - SÃO BERNARDO DO CAMPO - SP TEL: (11) 4393-9300",oFont)
         oPrinter:SAY(270,10,"INSCRIÇÃO ESTADUAL: 635.023.191.116",oFont)
         oPrinter:SAY(300,10,"4 - Dados do Produto",oFont)
         oPrinter:BOX(310,5,320,590,"-5")
@@ -131,7 +147,7 @@ USER FUNCTION xTESTE1()
         cQuery1 += " B.[ZA4_PRODES], " + CRLF
         cQuery1 += " SUBSTRING(B.[ZA4_DESCES],1,31) AS [ZA4_DESCES], " + CRLF
         cQuery1 += " B.[ZA4_CLFIES], " + CRLF
-        cQuery1 += " D.[ZA2_CFOPIM], " + CRLF
+        cQuery1 += " B.[ZA4_CFOPES], " + CRLF
         cQuery1 += " B.[ZA4_UMESPE], " + CRLF
         cQuery1 += " B.[ZA4_QTDESP], " + CRLF
         cQuery1 += " B.[ZA4_PRCESP], " + CRLF
@@ -161,7 +177,7 @@ USER FUNCTION xTESTE1()
         cQuery1 += " ON C.[D2_TES] = D.[ZA2_TESSAI] " + CRLF
         cQuery1 += " LEFT JOIN " + RETSQLNAME("ZZW") + " E " + CRLF
         cQuery1 += " ON A.[ZA3_NUM] = E.[ZZW_NUM] " + CRLF
-        cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[ZA3_NUM] = '60000059'"
+        cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[ZA3_NUM] = '"+nProtoc+"' "
 
         cQuery1 := CHANGEQUERY(cQuery1)
         cAlias1 := GETNEXTALIAS()
@@ -182,19 +198,19 @@ USER FUNCTION xTESTE1()
                 oPrinter:SAY(nVert,10,(cAlias1)->ZA4_PRODES,oFont)
                 oPrinter:SAY(nVert,40,(cAlias1)->ZA4_DESCES,oFont)
                 oPrinter:SAY(nVert,175,(cAlias1)->ZA4_CLFIES,oFont)
-                oPrinter:SAY(nVert,215,"5201",oFont)
+                oPrinter:SAY(nVert,215,(cAlias1)->ZA4_CFOPES,oFont)
                 oPrinter:SAY(nVert,240,(cAlias1)->ZA4_UMESPE,oFont)
                 oPrinter:SAY(nVert,252,STR((cAlias1)->ZA4_QTDESP,6),oFont)
-                oPrinter:SAY(nVert,275,STR((cAlias1)->ZA4_PRCESP,10,2),oFont)
-                oPrinter:SAY(nVert,310,STR((cAlias1)->ZA4_TLESPE,10,2),oFont)
-                oPrinter:SAY(nVert,356,STR((cAlias1)->ZA4_BICMES,10,2),oFont)
-                oPrinter:SAY(nVert,395,STR((cAlias1)->ZA4_VICMES,10,2),oFont)
-                oPrinter:SAY(nVert,425,STR((cAlias1)->ZA4_VIPIES,10,2),oFont) 
-                oPrinter:SAY(nVert,455,STR((cAlias1)->ZA4_PICMES,10,2),oFont)
-                oPrinter:SAY(nVert,480,STR((cAlias1)->ZA4_IPIESP,10,2),oFont)
-                oPrinter:SAY(nVert,510,STR((cAlias1)->ZA4_BRICES,10,2),oFont)
-                oPrinter:SAY(nVert,537,STR((cAlias1)->ZA4_ICRETE,10,2),oFont)
-                oPrinter:SAY(nVert,560,STR((cAlias1)->ZA4_MARESP,10,2),oFont)
+                oPrinter:SAY(nVert,266,TRANSFORM((cAlias1)->ZA4_PRCESP,"@E 999,999,999.99"),oFont)
+                oPrinter:SAY(nVert,305,TRANSFORM((cAlias1)->ZA4_TLESPE,"@E 999,999,999.99"),oFont)
+                oPrinter:SAY(nVert,348,TRANSFORM((cAlias1)->ZA4_BICMES,"@E 999,999,999.99"),oFont)
+                oPrinter:SAY(nVert,389,TRANSFORM((cAlias1)->ZA4_VICMES,"@E 999,999,999.99"),oFont)
+                oPrinter:SAY(nVert,419,TRANSFORM((cAlias1)->ZA4_VIPIES,"@E 999,999,999.99"),oFont) 
+                oPrinter:SAY(nVert,447,TRANSFORM((cAlias1)->ZA4_PICMES,"@E 999,999,999.99"),oFont)
+                oPrinter:SAY(nVert,472,TRANSFORM((cAlias1)->ZA4_IPIESP,"@E 999,999,999.99"),oFont)
+                oPrinter:SAY(nVert,499,TRANSFORM((cAlias1)->ZA4_BRICES,"@E 999,999,999.99"),oFont)
+                oPrinter:SAY(nVert,529,TRANSFORM((cAlias1)->ZA4_ICRETE,"@E 999,999,999.99"),oFont)
+                oPrinter:SAY(nVert,552,TRANSFORM((cAlias1)->ZA4_MARESP,"@E 999,999,999.99"),oFont)
                 nVert  += 10
                 nVert1 += 10
                 nHori  += 10 
@@ -208,19 +224,19 @@ USER FUNCTION xTESTE1()
         nVert5 := nVert1 += 20
         oPrinter:BOX(nVert2,5,nHori,590,"-5")
         oPrinter:SAY(nVert3,10,"BASE CÁLCULO ICMS")
-        oPrinter:SAY(nVert4,30,STR((cAlias)->A,10,2),oFont)
+        oPrinter:SAY(nVert4,20,TRANSFORM((cAlias)->A,"@E 999,999,999.99"),oFont)
         oPrinter:SAY(nVert3,110,"TOTAL ICMS")
-        oPrinter:SAY(nVert4,110,STR((cAlias)->B,10,2),oFont)
+        oPrinter:SAY(nVert4,105,TRANSFORM((cAlias)->B,"@E 999,999,999.99"),oFont)
         oPrinter:SAY(nVert3,180,"BASE CÁLCULO ICMS ST")
-        //oPrinter:SAY(nVert4,200,STR(nBaseST,10,2),oFont)
+        oPrinter:SAY(nVert4,192,TRANSFORM(nBaseST,"@E 999,999,999.99"),oFont)
         oPrinter:SAY(nVert3,290,"TOTAL ICMS ST")
-        //oPrinter:SAY(nVert4,300,STR(nVlST,10,2),oFont)
+        oPrinter:SAY(nVert4,292,TRANSFORM(nVlST,"@E 999,999,999.99"),oFont)
         oPrinter:SAY(nVert3,370,"TOTAL DOS PRODUTOS")
-        oPrinter:SAY(nVert4,387,STR((cAlias)->E,10,2),oFont)
+        oPrinter:SAY(nVert4,387,TRANSFORM((cAlias)->E,"@E 999,999,999.99"),oFont)
         oPrinter:SAY(nVert3,470,"TOTAL IPI")
-        oPrinter:SAY(nVert4,470,STR((cAlias)->F,10,2),oFont)
+        oPrinter:SAY(nVert4,461,TRANSFORM((cAlias)->F,"@E 999,999,999.99"),oFont)
         oPrinter:SAY(nVert3,520,"TOTAL DA NOTA")
-        oPrinter:SAY(nVert4,530,STR((cAlias)->G,10,2),oFont)
+        oPrinter:SAY(nVert4,522,TRANSFORM((cAlias)->G,"@E 999,999,999.99"),oFont)
         oPrinter:SAY(nVert5,10,"5 - Informações Adicionais",oFont)
         nVert6  := nVert5 + 10
         nVert7  := nVert5 + 20
@@ -261,7 +277,7 @@ USER FUNCTION xTESTE1()
         cQuery2 += " ON B.[ZA4_DOCESP] = C.[D2_DOC] AND B.[ZA4_SERESP] = C.[D2_SERIE] AND B.[ZA4_PRODES] = C.[D2_COD] " + CRLF
         cQuery2 += " LEFT JOIN " + RETSQLNAME("SF2") + " D " + CRLF 
         cQuery2 += " ON B.[ZA4_DOCESP] = D.[F2_DOC] AND B.[ZA4_SERESP] = D.[F2_SERIE] " + CRLF
-        cQuery2 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[ZA3_NUM] = '60000059'"
+        cQuery2 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[ZA3_NUM] = '"+nProtoc+"' "
 
         cQuery2 := CHANGEQUERY(cQuery2)
         cAlias2 := GETNEXTALIAS()
@@ -326,43 +342,77 @@ USER FUNCTION xTESTE1()
 
     (cAlias)->(DBCLOSEAREA()) 
     
-    FERASE(cDirFile)
-    oPrinter:cPathPDF := cDirFile
-    oPrinter:PRINT()
-    
-    FWMAKEDIR("\protocolo")
-    CPYT2S(cDirFile,"\protocolo\",.F.)
+    IF ZZW_STSMER == "ESP"
+        FERASE(cDirFile)
+        oPrinter:cPathPDF := cDirFile
+        oPrinter:PRINT()
 
-    oMailServ := TMAILMANAGER():NEW()
-    oMailServ:SETUSETLS(.T.)
-    oMailServ:INIT("",cServEmail,cLoginEmail,cPassEmail,0,587)
-    oMailServ:SETSMTPTIMEOUT(60)
-    
-    IF oMailServ:SMTPCONNECT() != 0
-        FWALERTERROR("Erro ao conectar ao servidor SMTP","ERRO !")
-        RETURN .F.  
-    ENDIF
+        FWMAKEDIR("\protocolo\")
+        CPYT2S(cDirFile,"\protocolo\",.F.)
 
-    IF oMailServ:SMTPAUTH(cLoginEmail,cPassEmail) != 0
-        FWALERTERROR("Erro na autenticação SMTP","ERRO !")
-        RETURN .F.
-    ENDIF
+        oMailServ := TMAILMANAGER():NEW()
+        oMailServ:SETUSETLS(.T.)
+        oMailServ:INIT("",cServEmail,cLoginEmail,cPassEmail,0,587)
+        oMailServ:SETSMTPTIMEOUT(60)
+    
+        IF oMailServ:SMTPCONNECT() != 0
+            FWALERTERROR("Erro ao conectar ao servidor SMTP","ERRO !")
+            RETURN .F.  
+        ENDIF
+
+        IF oMailServ:SMTPAUTH(cLoginEmail,cPassEmail) != 0
+            FWALERTERROR("Erro na autenticação SMTP","ERRO !")
+            RETURN .F.
+        ENDIF
      
-    oMessage := TMailMessage():New() 
-    oMessage:Clear()
-    oMessage:cDate    := CVALTOCHAR(DATE())
-	oMessage:cFrom 	  := cLoginEmail
-	oMessage:cTo 	  := "bruno.goncalves@alumbra.com.br"
-	oMessage:cSubject := "PROTOCOLO DE DEVOLUÇÃO: "+nProtocolo+""
-	oMessage:cBody 	  := "SEGUE ANEXO O ESPELHO DE DEVOLUÇÃO"
-    oMessage:AttachFile("\protocolo\"+cFile+"")
+        oMessage := TMAILMESSAGE():NEW()
+        oMessage:CLEAR()
+        oMessage:cDate := CVALTOCHAR(DATE())
+	    oMessage:cFrom := cLoginEmail
 
-    IF oMessage:SEND(oMailServ) != 0
-        FWALERTERROR("Erro ao enviar o e-mail","ERRO !")
-        RETURN .F.
+        cQuery3 := " SELECT A.[USR_EMAIL] " + CRLF
+        cQuery3 += " FROM [SYS_USR] A" + CRLF
+        cQuery3 += " WHERE A.[USR_ID] = '"+  __CUSERID +"'"
+
+        cQuery3 := CHANGEQUERY(cQuery3)
+        cAlias3 := GETNEXTALIAS()
+        DBUSEAREA(.T.,'TOPCONN',TCGENQRY(,,cQuery3),cAlias3,.F.,.T.)
+    
+        IF ALLTRIM((cAlias3)->USR_EMAIL) $ cRespEmail
+            oMessage:cTo := ""+ALLTRIM(cRespEmail)+""  /* -- ;"+cEmailRep+""  */
+        ELSE
+            FWALERTWARNING("Arquivo salvo na pasta seleciona. Usuario sem permissão para enviar e-mail ao representante. Contate o responsavél.","ATENÇÃO !")
+            RETURN .F.  
+        ENDIF
+
+        (cAlias3)->(DBCLOSEAREA())
+
+        oMessage:cCc      := ALLTRIM(cEmailCC)
+	    oMessage:cSubject := ALLTRIM(cAssunto)
+	    oMessage:cBody 	  := ALLTRIM(cCorpo)
+
+        ADIR("\protocolo\" + "\*.*",@aArquivos)
+        nQuantidade := LEN(aArquivos)
+        IF nQuantidade == 0
+            FWALERTWARNING("Arquivo salvo na pasta selecionada. Para o envio de e-mail ao representante selecionar a pasta PROTOCOLO.","ATENÇÃO !")
+            RETURN .F.   
+        ELSE
+            oMessage:AttachFile("\protocolo\"+cFile+"")   
+        ENDIF    
+
+        IF oMessage:SEND(oMailServ) != 0
+            FWALERTERROR("Erro ao enviar o e-mail","ERRO !")
+            RETURN .F.
+        ELSE 
+            oMailServ:SMTPDISCONNECT()
+        ENDIF
+
+        FWALERTSUCCESS("E-mail enviado com sucesso", "ENVIADO !")
+    ELSEIF ZZW_STSMER == "APR"
+        FWALERTWARNING("Protocolo já aprovado para entrada da NF.","ATENÇÃO !")
+    ELSEIF ZZW_STSMER == "PRO"
+        FWALERTWARNING("Protocolo Encerrado.","ATENÇÃO !")
     ELSE 
-        oMailServ:SMTPDISCONNECT()
+        FWALERTWARNING("É necessario gerar o espelho.","ATENÇÃO !")
     ENDIF
-
-    FWALERTSUCCESS("E-mail enviado com sucesso", "Enviado !")
-RETURN 
+RETURN
