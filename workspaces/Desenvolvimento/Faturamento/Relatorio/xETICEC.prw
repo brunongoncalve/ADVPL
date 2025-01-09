@@ -1,5 +1,6 @@
 #INCLUDE 'PROTHEUS.ch'
 #INCLUDE 'TOPCONN.ch'
+#INCLUDE "FWPRINTSETUP.ch"
 
 //----------------------------------------------------------------------------------------------------------------------
 /* {Protheus.doc} ETIQUETA PEDIDOS C&C
@@ -15,11 +16,11 @@ USER FUNCTION xETICEC()
     LOCAL aPergs := {}
     LOCAL aResps := {}
 
-    AADD(aPergs, {1, "NUMERO DA NOTA FISCAL", SPACE(TAMSX3("F2_DOC")[1]),,,"SF2",,100, .F.})
+    AADD(aPergs,{1,"NUMERO DA NOTA FISCAL", SPACE(TAMSX3("F2_DOC")[1]),,,"SF2",,100,.F.})
 
-        IF PARAMBOX(aPergs, "Parametros do relatorio", @aResps,,,,,,,, .T., .T.)
-            IMPETIQ(aResps)
-        ENDIF    
+    IF PARAMBOX(aPergs,"Parametros do relatorio",@aResps,,,,,,,,.T.,.T.)
+        IMPETIQ(aResps)
+    ENDIF    
 
 RETURN
 
@@ -34,7 +35,15 @@ STATIC FUNCTION IMPETIQ(aResps)
     LOCAL nI        := ""
     LOCAL nV        := 0
 
-	cQuery := " SELECT D.[A1_NOME], B.[C9_NFISCAL], A.[DCV_CODVOL], C.[B1_DESC], C.[B1_CODBAR], A.[DCV_QUANT], A.[DCV_PEDIDO] " + CRLF
+	cQuery := " SELECT " + CRLF
+    cQuery += " D.[A1_NOME], " + CRLF
+    cQuery += " B.[C9_NFISCAL], " + CRLF
+    cQuery += " A.[DCV_CODVOL], " + CRLF
+    cQuery += " C.[B1_COD], " + CRLF
+    cQuery += " C.[B1_DESC], " + CRLF
+    cQuery += " C.[B1_CODBAR], " + CRLF
+    cQuery += " A.[DCV_QUANT], " + CRLF
+    cQuery += " F.[A4_NOME] " + CRLF
     cQuery += " FROM " + RETSQLNAME("DCV") + " A " + CRLF
     cQuery += " LEFT JOIN " + RETSQLNAME("SC9") + " B " + CRLF
     cQuery += " ON A.[DCV_FILIAL] = B.[C9_FILIAL] " + CRLF
@@ -46,6 +55,10 @@ STATIC FUNCTION IMPETIQ(aResps)
     cQuery += " ON A.[DCV_CODPRO] = C.[B1_COD] " + CRLF
     cQuery += " LEFT JOIN " + RETSQLNAME("SA1") + " D " + CRLF
     cQuery += " ON B.[C9_CLIENTE] = D.[A1_COD] " + CRLF
+    cQuery += " LEFT JOIN " + RETSQLNAME("SF2") + " E " + CRLF
+    cQuery += " ON B.[C9_NFISCAL] = E.[F2_DOC] " + CRLF
+    cQuery += " LEFT JOIN " + RETSQLNAME("SA4") + " F " + CRLF
+    cQuery += " ON E.[F2_TRANSP] = F.[A4_COD] " + CRLF
     cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND B.[C9_NFISCAL] = '"+ nNf +"'" + CRLF
     cQuery += " ORDER BY A.[DCV_CODVOL] "
 
@@ -74,11 +87,15 @@ STATIC FUNCTION IMPETIQ(aResps)
             cEtiqueta += "^FO20,40^FDNF: "+ ALLTRIM((cAlias)->C9_NFISCAL) +"^FS " + CRLF
             cEtiqueta += "^FX CLIENTE, FORNECEDOR E PRODUTO " + CRLF
             cEtiqueta += "^CFA,30 " + CRLF
-            cEtiqueta += "^FO10,220^FD CLIENTE: "+ ALLTRIM((cAlias)->A1_NOME) +"^FS " + CRLF
+            cEtiqueta += "^FO10,160^FD CLIENTE: "+ ALLTRIM((cAlias)->A1_NOME) +"^FS " + CRLF
             cEtiqueta += "^CFA,30 " + CRLF
-            cEtiqueta += "^FO10,250^FD FORNECEDOR: ALUMBRA PRODUTOS ELETRICOS^FS " + CRLF
+            cEtiqueta += "^FO10,190^FD FORNECEDOR: ALUMBRA PRODUTOS ELETRICOS^FS " + CRLF
             cEtiqueta += "^CFA,30 " + CRLF
-            cEtiqueta += "^FO10,280^FD PRODUTO: "+ ALLTRIM((cAlias)->B1_DESC) +"^FS " + CRLF
+            cEtiqueta += "^FO10,220^FD TRANSPORTADORA: "+ ALLTRIM((cAlias)->A4_NOME) +"^FS " + CRLF
+            cEtiqueta += "^CFA,30 " + CRLF
+            cEtiqueta += "^FO10,250^FD PRODUTO: "+ ALLTRIM((cAlias)->B1_DESC) +"^FS " + CRLF
+            cEtiqueta += "^CFA,30 " + CRLF
+            cEtiqueta += "^FO10,310^FD COD.PRODUTO: "+ ALLTRIM((cAlias)->B1_COD) +"^FS " + CRLF
             cEtiqueta += "^FX QUANTIDADE DE PEÇAS " + CRLF
             cEtiqueta += "^CF0,60 " + CRLF
             cEtiqueta += "^FO10,370^FD QTDE: "+ STRZERO((cAlias)->DCV_QUANT, 4) +"^FS " + CRLF
@@ -98,8 +115,9 @@ STATIC FUNCTION IMPETIQ(aResps)
         ENDDO
 
         (cAlias)->(DBCLOSEAREA())
+        FWALERTSUCCESS("Impressão realizada com sucesso", "IMPRESSÃO !")
     ELSE 
-        MSGINFO("NF Não transmitida", "AVISO !")
+        FWALERTWARNING("NF Não transmitida", "AVISO !")
     ENDIF    
 
 RETURN
