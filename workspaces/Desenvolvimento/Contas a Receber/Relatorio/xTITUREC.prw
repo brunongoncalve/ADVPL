@@ -3,14 +3,14 @@
 #INCLUDE "FWPRINTSETUP.ch"
 
 //----------------------------------------------------------------------------------------------------------------------
-/* {Protheus.doc} RELATORIO - TITULOS CLIENTES
+/* {Protheus.doc} RELATORIO - POSIÇÃO DOS TITULOS DO CLIENTE
 @author    BRUNO NASCIMENTO GONÇALVES
 @since     25/09/2023
 @version   12/superior
 */
 //----------------------------------------------------------------------------------------------------------------------
 
-USER FUNCTION xTITUCLI()
+USER FUNCTION xTITUREC()
 
     LOCAL oReport := NIL
     LOCAL aPergs  := {}
@@ -40,10 +40,10 @@ STATIC FUNCTION REPORTDEF(aResps)
     LOCAL cHeaderAlign := "LEFT"
     LOCAL cAliasCL     := ""
     LOCAL cAliasTI     := ""
-    LOCAL cNomeArq     := "POSIÇÃO DOS TITULOS DO CLIENTE"
-    LOCAL cTitulo      := "POSIÇÃO DOS TITULOS DO CLIENTE"
+    LOCAL cNomeArq     := "POSIÇÃO DOS TITULOS A RECEBER DO CLIENTE"
+    LOCAL cTitulo      := "POSIÇÃO DOS TITULOS A RECEBER DO CLIENTE"
 
-    oReport := TREPORT():NEW(cNomeArq,cTitulo,"",{|oReport| REPORTPRINT(oReport,@cAliasCL,@cAliasTI,aResps)}, "IMPRESSÃO DE RELATORIO")
+    oReport := TREPORT():NEW(cNomeArq,cTitulo,"",{|oReport| REPORTPRINT(oReport,@cAliasCL,@cAliasTI,aResps)},"IMPRESSÃO DE RELATORIO")
 
     oSection1 := TRSECTION():NEW(oReport)
     TRCELL():NEW(oSection1,"CODIGO_CLIENTE",cAliasCL,"COD.CLI",,nSize,,{|| (cAliasCL)->A1_COD},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
@@ -57,7 +57,7 @@ STATIC FUNCTION REPORTDEF(aResps)
     TRCELL():NEW(oSection2,"E1_VENCTO",cAliasTI,"VENCIMENTO",,nSize,,{|| (cAliasTI)->E1_VENCTO},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection2,"E1_VENCREA",cAliasTI,"VENCIMENTO REAL",,nSize,,{|| (cAliasTI)->E1_VENCREA},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection2,"E1_BAIXA",cAliasTI,"BAIXA",,nSize,,{|| (cAliasTI)->E1_BAIXA},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection2,"E1_VALOR",cAliasTI,"TOTAAL DO CLIENTE",,nSize,,{|| (cAliasTI)->E1_VALOR},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection2,"E1_VALOR",cAliasTI,"TOTAL DO CLIENTE",,nSize,,{|| (cAliasTI)->E1_VALOR},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection2,"E1_SALDO",cAliasTI,"SALDO EM ABERTO",,nSize,,{|| (cAliasTI)->E1_SALDO},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection2,"SITUACAO",cAliasTI,"SITUAÇÃO",,nSize,,{|| (cAliasTI)->SITUACAO},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
 
@@ -132,7 +132,7 @@ STATIC FUNCTION REPORTPRINT(oReport,cAliasCL,cAliasTI,aResps)
                 oSection2:INIT()
                 oSection2:PRINTLINE()
                 
-                oReport:SKIPLINE(1)
+                oReport:SKIPLINE(2)
                 (cAliasTI)->(DBSKIP())
             ENDDO
             
