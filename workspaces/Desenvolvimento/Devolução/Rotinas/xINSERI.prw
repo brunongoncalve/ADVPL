@@ -14,10 +14,11 @@ INSER DO PROTOCOLO NA TABELA ZA3 E ZA4
 
 USER FUNCTION xINSERI()
     
-    LOCAL aArea    := GETAREA()
-    LOCAL cQuery   := ""
-    LOCAL cQuery1  := ""
-    LOCAL aProtoc  := ZZW->ZZW_NUM
+    LOCAL aArea         := GETAREA()
+    LOCAL cQuery        := ""
+    LOCAL cQuery1       := ""
+    LOCAL aProtoc       := ZZW->ZZW_NUM
+    PRIVATE lMsErroAuto := .F.
 
     cQuery := " SELECT A.[ZZW_NUM]," + CRLF
     cQuery += " A.[ZZW_DTINI], " + CRLF
@@ -30,13 +31,13 @@ USER FUNCTION xINSERI()
     cQuery += " FROM " + RETSQLNAME("ZZW") + " A " + CRLF 
     cQuery += " LEFT JOIN " + RETSQLNAME("SA1") + " B " + CRLF 
     cQuery += " ON A.[ZZW_CLI] = B.[A1_COD] " + CRLF
-    cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[ZZW_NUM] = '"+ aProtoc +"'" + CRLF
+    cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[ZZW_NUM] = '"+aProtoc+"'" + CRLF
 
     cQuery := CHANGEQUERY(cQuery)
     cAlias := GETNEXTALIAS()
     DBUSEAREA(.T.,'TOPCONN',TCGENQRY(,,cQuery),cAlias,.F.,.T.)
     
-    BEGIN TRANSCATION
+    BEGIN TRANSACTION
         DBSELECTAREA("ZA3")
         DBSETORDER(1)
         DBAPPEND() 
@@ -52,57 +53,48 @@ USER FUNCTION xINSERI()
         DBCLOSEAREA()
         DBCOMMIT()
         RESTAREA(aArea)
-    IF lMsErroAuto
-        MOSTRAERRO()
-        DISARMTRANSACTION()
-    ENDIF
-    END TRANSACTION    
+        
+        cQuery1 := " SELECT B.[ZZY_PROD], " + CRLF
+        cQuery1 += " A.[ZZW_NUM], " + CRLF
+        cQuery1 += " B.[ZZY_NF], " + CRLF
+        cQuery1 += " SUBSTRING(D.[B1_DESC],1,31) AS [B1_DESC], " + CRLF
+        cQuery1 += " D.[B1_POSIPI], " + CRLF
+        cQuery1 += " E.[ZA2_CFOPIM], " + CRLF
+        cQuery1 += " C.[D2_UM], " + CRLF
+        cQuery1 += " B.[ZZY_QTD], " + CRLF
+        cQuery1 += " C.[D2_PRCVEN], " + CRLF
+        cQuery1 += " C.[D2_PRCVEN] * B.[ZZY_QTD] AS [D2_TOTAL], " + CRLF
+        cQuery1 += " C.[D2_BASEICM] * B.[ZZY_QTD] AS [D2_BASEICM], " + CRLF
+        cQuery1 += " C.[D2_BASEICM] * C.[D2_PICM] AS [D2_VALICM], " + CRLF
+        cQuery1 += " C.[D2_PRCVEN] * C.[D2_IPI] AS [D2_VALIPI] , " + CRLF
+        cQuery1 += " C.[D2_PICM], " + CRLF
+	    cQuery1 += " C.[D2_IPI], " + CRLF
+	    cQuery1 += " C.[D2_BRICMS], " + CRLF
+	    cQuery1 += " C.[D2_ICMSRET], " + CRLF
+	    cQuery1 += " C.[D2_MARGEM], " + CRLF
+        cQuery1 += " F.[F2_SERIE], " + CRLF
+        cQuery1 += " F.[F2_DOC], " + CRLF
+        cQuery1 += " B.[ZZY_SEQUEN], " + CRLF
+        cQuery1 += " FORMAT(CONVERT(DATE, F.[F2_EMISSAO]), 'dd/MM/yyyy') AS [EMISSAO], " + CRLF
+        cQuery1 += " F.[F2_CHVNFE] " + CRLF
+        cQuery1 += " FROM " + RETSQLNAME("ZZW") + " A " + CRLF  
+        cQuery1 += " LEFT JOIN " + RETSQLNAME("ZZY") + " B " + CRLF 
+        cQuery1 += " ON A.[ZZW_NUM] = B.[ZZY_NUM] " + CRLF 
+        cQuery1 += " LEFT JOIN " + RETSQLNAME("SD2") + " C " + CRLF 
+        cQuery1 += " ON CONVERT(VARCHAR, CONVERT(INT, [ZZY_NF])) = CONVERT(VARCHAR, CONVERT(INT, [D2_DOC])) AND B.[ZZY_SERIE] = C.[D2_SERIE] AND B.[ZZY_PROD] = C.[D2_COD] " + CRLF
+        cQuery1 += " LEFT JOIN " + RETSQLNAME("SB1") + " D " + CRLF 
+        cQuery1 += " ON B.[ZZY_PROD] = D.[B1_COD] " + CRLF
+        cQuery1 += " LEFT JOIN " + RETSQLNAME("ZA2") + " E " + CRLF
+        cQuery1 += " ON C.[D2_TES] = E.[ZA2_TESSAI] " + CRLF
+        cQuery1 += " LEFT JOIN " + RETSQLNAME("SF2") + " F " + CRLF 
+        cQuery1 += " ON C.[D2_DOC] = F.[F2_DOC] " + CRLF
+        cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[ZZW_NUM] = '"+ aProtoc +"'"
 
-    cQuery1 := " SELECT B.[ZZY_PROD], " + CRLF
-    cQuery1 += " A.[ZZW_NUM], " + CRLF
-    cQuery1 += " B.[ZZY_NF], " + CRLF
-    cQuery1 += " SUBSTRING(D.[B1_DESC],1,31) AS [B1_DESC], " + CRLF
-    cQuery1 += " D.[B1_POSIPI], " + CRLF
-    cQuery1 += " E.[ZA2_CFOPIM], " + CRLF
-    cQuery1 += " C.[D2_UM], " + CRLF
-    cQuery1 += " B.[ZZY_QTD], " + CRLF
-    cQuery1 += " C.[D2_PRCVEN], " + CRLF
-    cQuery1 += " C.[D2_PRCVEN] * B.[ZZY_QTD] AS [D2_TOTAL], " + CRLF
-    cQuery1 += " C.[D2_BASEICM] * B.[ZZY_QTD] AS [D2_BASEICM], " + CRLF
-    cQuery1 += " C.[D2_BASEICM] * C.[D2_PICM] AS [D2_VALICM], " + CRLF
-    cQuery1 += " C.[D2_PRCVEN] * C.[D2_IPI] AS [D2_VALIPI] , " + CRLF
-    cQuery1 += " C.[D2_PICM], " + CRLF
-	cQuery1 += " C.[D2_IPI], " + CRLF
-	cQuery1 += " CASE " + CRLF
-	cQuery1 += " WHEN A.[ZZW_ST] = '2' THEN '0' " + CRLF
-	cQuery1 += " ELSE C.[D2_BRICMS] " + CRLF
-	cQuery1 += " END AS [D2_BRICMS], " + CRLF
-	cQuery1 += " C.[D2_ICMSRET], " + CRLF
-	cQuery1 += " C.[D2_MARGEM], " + CRLF
-    cQuery1 += " F.[F2_SERIE], " + CRLF
-    cQuery1 += " F.[F2_DOC], " + CRLF
-    cQuery1 += " B.[ZZY_SEQUEN], " + CRLF
-    cQuery1 += " FORMAT(CONVERT(DATE, F.[F2_EMISSAO]), 'dd/MM/yyyy') AS [EMISSAO], " + CRLF
-    cQuery1 += " F.[F2_CHVNFE] " + CRLF
-    cQuery1 += " FROM " + RETSQLNAME("ZZW") + " A " + CRLF  
-    cQuery1 += " LEFT JOIN " + RETSQLNAME("ZZY") + " B " + CRLF 
-    cQuery1 += " ON A.[ZZW_NUM] = B.[ZZY_NUM] " + CRLF 
-    cQuery1 += " LEFT JOIN " + RETSQLNAME("SD2") + " C " + CRLF 
-    cQuery1 += " ON B.[ZZY_NF] = C.[D2_DOC] AND B.[ZZY_SERIE] = C.[D2_SERIE] AND B.[ZZY_PROD] = C.[D2_COD] " + CRLF
-    cQuery1 += " LEFT JOIN " + RETSQLNAME("SB1") + " D " + CRLF 
-    cQuery1 += " ON B.[ZZY_PROD] = D.[B1_COD] " + CRLF
-    cQuery1 += " LEFT JOIN " + RETSQLNAME("ZA2") + " E " + CRLF
-    cQuery1 += " ON C.[D2_TES] = E.[ZA2_TESSAI] " + CRLF
-    cQuery1 += " LEFT JOIN " + RETSQLNAME("SF2") + " F " + CRLF 
-    cQuery1 += " ON C.[D2_DOC] = F.[F2_DOC] " + CRLF
-    cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[ZZW_NUM] = '"+ aProtoc +"'"
+        cQuery1 := CHANGEQUERY(cQuery1)
+        cAlias1 := GETNEXTALIAS()
+        DBUSEAREA(.T.,'TOPCONN',TCGENQRY(,,cQuery1),cAlias1,.F.,.T.)
 
-    cQuery1 := CHANGEQUERY(cQuery1)
-    cAlias1 := GETNEXTALIAS()
-    DBUSEAREA(.T.,'TOPCONN',TCGENQRY(,,cQuery1),cAlias1,.F.,.T.)
-    
-    WHILE (cAlias1)->(!Eof())
-        BEGIN TRANSACTION
+        WHILE (cAlias1)->(!Eof())
             DBSELECTAREA("ZA4")
             DBSETORDER(1)
             DBAPPEND() 
@@ -132,18 +124,16 @@ USER FUNCTION xINSERI()
             DBCLOSEAREA()
             DBCOMMIT()
             RESTAREA(aArea)
-        IF lMsErroAuto
-            MOSTRAERRO()
-            DISARMTRANSACTION()
-        ENDIF
-        END TRANSACTION    
+      
+            (cAlias1)->(DBSKIP())
+        ENDDO
 
-    (cAlias1)->(DBSKIP())
-    ENDDO
+    IF lMsErroAuto
+        MOSTRAERRO()
+        DISARMTRANSACTION()
+    ENDIF
+    END TRANSACTION    
 
     (cAlias1)->(DBCLOSEAREA())
-
-    ALERT("INCLUIDO !!!")
-
 RETURN
 
