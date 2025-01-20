@@ -59,7 +59,7 @@ STATIC FUNCTION IMPETIQ(aResps)
     cQuery += " ON B.[C9_NFISCAL] = E.[F2_DOC] " + CRLF
     cQuery += " LEFT JOIN " + RETSQLNAME("SA4") + " F " + CRLF
     cQuery += " ON E.[F2_TRANSP] = F.[A4_COD] " + CRLF
-    cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND B.[C9_NFISCAL] = '"+ nNf +"'" + CRLF
+    cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND B.[C9_NFISCAL] = '"+ nNf +"' AND F.[D_E_L_E_T_] = ' '" + CRLF
     cQuery += " ORDER BY A.[DCV_CODVOL] "
 
     cQuery := CHANGEQUERY(cQuery)
