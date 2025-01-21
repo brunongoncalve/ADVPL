@@ -14,23 +14,18 @@ USER FUNCTION xFILTERDOC()
 
     LOCAL aPergs  := {}
     LOCAL aResps  := {}
-    LOCAL cQuery  := ""
+    //LOCAL cQuery  := ""
+    //LOCAL cFOR   := ""
 
-    AADD(aPergs,{1,"PRODUTO",SPACE(TAMSX3("B1_COD")[1]),,,"SB1",,100,.F.})
+    AADD(aPergs,{1,"PRODUTO",SPACE(TAMSX3("A2_COD")[1]),,,"SA2",,100,.F.})
 
-    cQuery := " SELECT "
-    cQuery += " A.[F1_FORNECE] "
-    cQuery += " FROM " + RETSQLNAME("SF1") + " A " + CRLF
-    cQuery += " LEFT JOIN " + RETSQLNAME("SD1") + " B " + CRLF
-    cQuery += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[D1_COD] = '"+ aResps[1] +"'"
-
-    cQuery    := CHANGEQUERY(cQuery)
-    cAliasFOR := GETNEXTALIAS()
-    DBUSEAREA(.T.,'TOPCONN',TCGENQRY(,,cQuery),cAliasFOR,.F.,.T.)
-    
-    IF PARAMBOX(aPergs,"Parametros do relatorio",@aResps,,,,,,,,.T.,.T.) 
-        ALERT((cAliasFOR)->F1_FORNECE)
+    IF PARAMBOX(aPergs,"Parametros do relatorio",@aResps,,,,,,,,.T.,.T.)
+        
+        cFil := "SF1->F1_FORNECE == '"+aResps[1]+"'"
     ENDIF
+
+    //cFil := "SF1->F1_FORNECE == '"+(cAlias)->F1_FORNECE+"'"
     
-RETURN (cAliasFOR)->F1_FORNECE
+RETURN cFil
+
 
