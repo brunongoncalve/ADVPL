@@ -12,8 +12,6 @@
 
 USER FUNCTION MT100TOK()
 
-    LOCAL lRet := .T. // Variável de retorno, .T. para executar a inclusão, .F. para não executar
-
-    ALERT(M->(SF1->F1_FORNECE))
+    ALERT("01111")
 
 RETURN lRet
