@@ -47,11 +47,11 @@ USER FUNCTION xESPELHO()
     cQuery += " D.[A3_EMAIL], " + CRLF
     cQuery += " D.[A3_NOME], " + CRLF
     cQuery += " FORMAT(CONVERT(DATE, A.[ZA3_DTEMIS]), 'dd/MM/yyyy') AS [EMISSAO], " + CRLF
-    cQuery += " SUM(B.[ZA4_BICMES]) AS [A], " + CRLF
+    cQuery += " ROUND(SUM(CAST(B.[ZA4_BICMES] * (B.[ZA4_PICMES] / 100) AS DECIMAL(10, 2))),2) AS [A], " + CRLF
     cQuery += " SUM(B.[ZA4_VICMES]) AS [B], " + CRLF
     cQuery += " SUM(B.[ZA4_BRICES]) AS [C], " + CRLF
     cQuery += " SUM(B.[ZA4_ICRETE]) AS [D], " + CRLF
-    cQuery += " SUM(B.[ZA4_TLESPE]) AS [E], " + CRLF
+    cQuery += " ROUND(SUM(CAST(B.[ZA4_TLESPE] * (B.[ZA4_IPIESP] / 100) AS DECIMAL(10, 2))),2) AS [E], " + CRLF
     cQuery += " SUM(B.[ZA4_VIPIES]) AS [F], " + CRLF
 	cQuery += " SUM(B.[ZA4_PRCESP] * B.[ZA4_QTDESP] + B.[ZA4_VIPIES]) AS [G] " + CRLF
     cQuery += " FROM " + RETSQLNAME("ZA3") + " A " + CRLF

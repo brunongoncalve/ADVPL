@@ -53,7 +53,7 @@ USER FUNCTION xINSERI()
         DBCLOSEAREA()
         DBCOMMIT()
         RESTAREA(aArea)
-        
+
         cQuery1 := " SELECT B.[ZZY_PROD], " + CRLF
         cQuery1 += " A.[ZZW_NUM], " + CRLF
         cQuery1 += " B.[ZZY_NF], " + CRLF
@@ -64,8 +64,8 @@ USER FUNCTION xINSERI()
         cQuery1 += " B.[ZZY_QTD], " + CRLF
         cQuery1 += " C.[D2_PRCVEN], " + CRLF
         cQuery1 += " C.[D2_PRCVEN] * B.[ZZY_QTD] AS [D2_TOTAL], " + CRLF
-        cQuery1 += " C.[D2_BASEICM] * B.[ZZY_QTD] AS [D2_BASEICM], " + CRLF
-        cQuery1 += " C.[D2_BASEICM] * C.[D2_PICM] AS [D2_VALICM], " + CRLF
+        cQuery1 += " ROUND(ROUND((C.[D2_BASEICM] / C.[D2_QUANT]),2) * B.[ZZY_QTD], 2) AS [D2_BASEICM], " + CRLF
+        cQuery1 += " ROUND(ROUND((C.[D2_BASEICM] / C.[D2_QUANT]),2) * B.[ZZY_QTD], 2) * C.[D2_PICM] AS [D2_VALICM], " + CRLF
         cQuery1 += " C.[D2_PRCVEN] * C.[D2_IPI] AS [D2_VALIPI] , " + CRLF
         cQuery1 += " C.[D2_PICM], " + CRLF
 	    cQuery1 += " C.[D2_IPI], " + CRLF
@@ -81,7 +81,7 @@ USER FUNCTION xINSERI()
         cQuery1 += " LEFT JOIN " + RETSQLNAME("ZZY") + " B " + CRLF 
         cQuery1 += " ON A.[ZZW_NUM] = B.[ZZY_NUM] " + CRLF 
         cQuery1 += " LEFT JOIN " + RETSQLNAME("SD2") + " C " + CRLF 
-        cQuery1 += " ON CONVERT(VARCHAR, CONVERT(INT, [ZZY_NF])) = CONVERT(VARCHAR, CONVERT(INT, [D2_DOC])) AND B.[ZZY_SERIE] = C.[D2_SERIE] AND B.[ZZY_PROD] = C.[D2_COD] " + CRLF
+        cQuery1 += " ON CONVERT(VARCHAR, CONVERT(INT, B.[ZZY_NF])) = CONVERT(VARCHAR, CONVERT(INT, C.[D2_DOC])) AND B.[ZZY_SERIE] = C.[D2_SERIE] AND B.[ZZY_PROD] = C.[D2_COD] " + CRLF
         cQuery1 += " LEFT JOIN " + RETSQLNAME("SB1") + " D " + CRLF 
         cQuery1 += " ON B.[ZZY_PROD] = D.[B1_COD] " + CRLF
         cQuery1 += " LEFT JOIN " + RETSQLNAME("ZA2") + " E " + CRLF
@@ -136,4 +136,3 @@ USER FUNCTION xINSERI()
 
     (cAlias1)->(DBCLOSEAREA())
 RETURN
-

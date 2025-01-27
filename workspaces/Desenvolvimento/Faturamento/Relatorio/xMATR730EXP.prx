@@ -64,7 +64,6 @@ STATIC FUNCTION REPORTDEF(aResps)
     oSection1 := TRSECTION():NEW(oReport)
     TRCELL():NEW(oSection1, "CODIGO_CLIENTE", cAliasCL,  "COD.CLI"       ,,nSize,,{|| (cAliasCL)->CODIGO_CLIENTE},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection1, "NOME",           cAliasCL,  "CLIENTE"       ,,nSize,,{|| (cAliasCL)->NOME},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
-    TRCELL():NEW(oSection1, "LOJA",           cAliasCL,  "LOJA"          ,,nSize,,{|| (cAliasCL)->LOJA},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection1, "ENDERECO",       cAliasCL,  "ENDERECO"      ,,nSize,,{|| (cAliasCL)->ENDERECO},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize) 
     TRCELL():NEW(oSection1, "C5_NUM",         cAliasCL,  "N PEDIDO"      ,,nSize,,{|| (cAliasCL)->C5_NUM},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
     TRCELL():NEW(oSection1, "EMISSAO",        cAliasCL,  "EMISSAO"       ,,nSize,,{|| (cAliasCL)->EMISSAO},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
@@ -83,7 +82,7 @@ STATIC FUNCTION REPORTDEF(aResps)
     TRCELL():NEW(oSection2, "C6_ENDPAD",  cAliasPD, "DOCA"              ,,nSize,,{|| (cAliasPD)->C6_ENDPAD},cAlign,,cHeaderAlign,,nColSpace)
 
     oSection3 := TRSECTION():NEW(oReport)   
-    TRCELL():NEW(oSection3,"C5_XOBS",cAliasOB,"OBSERVAÇÃO DO PEDIDO",,nSize1,,{|| ALLTRIM((cAliasOB)->C5_XOBS)},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
+    TRCELL():NEW(oSection3,"C5_XOBS",cAliasOB,"OBSERVAÇÃO DO PEDIDO",,,,{|| ALLTRIM((cAliasOB)->C5_XOBS)},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
 
     TRFUNCTION():NEW(oSection2:CELL("C6_VALOR") ,,"SUM",,,"@E 9,999,999,999.99",,.T.,.F.,,oSection2)
     TRFUNCTION():NEW(oSection2:CELL("VALOR_EXP"),,"SUM",,,"@E 9,999,999,999.99",,.T.,.F.,,oSection2)
@@ -131,8 +130,8 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
     cQuery += " ELSE B.[A1_NREDUZ] " + CRLF
 	cQuery += "	END AS [NOME], " + CRLF
 	cQuery += " CASE " + CRLF 
-    cQuery += " WHEN A.[C5_TIPO] = 'B' THEN TRIM(G.[A2_END]) + (' ' + '-' + ' ' + G.[A2_EST]) " + CRLF
-    cQuery += " ELSE TRIM(B.[A1_END]) + (' ' + '-' + ' ' + B.[A1_EST]) " + CRLF
+    cQuery += " WHEN A.[C5_TIPO] = 'B' THEN TRIM(G.[A2_END]) + (' ' + '-' + ' ' + TRIM(G.[A2_EST])) + (' ' + '-' + ' ' + TRIM(G.[A2_MUN])) + (' ' + '-' + ' CEP:' + TRIM(G.[A2_CEP])) " + CRLF
+    cQuery += " ELSE TRIM(B.[A1_END]) + (' ' + '-' + ' ' + TRIM(B.[A1_EST])) + (' ' + '-' + ' ' + TRIM(B.[A1_MUN])) + (' ' + '-' + ' CEP:' + TRIM(B.[A1_CEP])) " + CRLF
 	cQuery += "	END AS [ENDERECO], " + CRLF
 	cQuery += "	A.[C5_NUM], " + CRLF
 	cQuery += "	FORMAT(CONVERT(DATE, A.[C5_EMISSAO]), 'dd/MM/yy') AS [EMISSAO], " + CRLF
@@ -176,6 +175,8 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
 	cQuery += "	B.[A1_NREDUZ], " + CRLF
 	cQuery += "	B.[A1_EST], " + CRLF
 	cQuery += "	B.[A1_END], " + CRLF
+    cQuery += "	B.[A1_MUN], " + CRLF
+    cQuery += "	B.[A1_CEP], " + CRLF
 	cQuery += "	A.[C5_TIPO], " + CRLF
 	cQuery += "	A.[C5_EMISSAO], " + CRLF
 	cQuery += "	C.[A4_NOME], " + CRLF
@@ -186,7 +187,9 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
 	cQuery += "	G.[A2_LOJA], " + CRLF
 	cQuery += "	G.[A2_END], " + CRLF
 	cQuery += "	G.[A2_NREDUZ], " + CRLF
-	cQuery += "	G.[A2_EST] " + CRLF
+	cQuery += "	G.[A2_EST], " + CRLF
+    cQuery += "	G.[A2_MUN], " + CRLF
+    cQuery += "	G.[A2_CEP] " + CRLF
     cQuery += " ORDER BY A.[C5_NUM] "
 
     cAliasCL := MPSYSOPENQUERY(cQuery)
@@ -196,12 +199,12 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
             oSection1:PRINTLINE()
             oSection1:SETPAGEBREAK(.T.)
 
-            FWMAKEDIR("C:\imagem do pedido")
+            FWMAKEDIR("c:\imagem do pedido")
 
-            url  := "https://barcode.tec-it.com/barcode.ashx?data=" + (cAliasCL)->C5_NUM
+            url  := "https://api.invertexto.com/v1/barcode?token=1|wJaGozQy11RhSqQhunQ13XHD2OeVgsH8&text="+(cAliasCL)->C5_NUM+"&type=code128&font=arial&font_size=11&thickness=30&scale=2&rotation=0"
             Html := HTTPGET(url)
             MEMOWRITE(ALLTRIM("C:\imagem do pedido\"+ (cAliasCL)->C5_NUM +".jpg"),ALLTRIM(Html))
-            oReport:SAYBITMAP(50,1700,"C:\imagem do pedido\"+ (cAliasCL)->C5_NUM +".jpg",150,150)
+            oReport:SAYBITMAP(50,1700,"C:\imagem do pedido\"+ (cAliasCL)->C5_NUM +".jpg",170,170)
 
                 cQuery1 := " SELECT ROUND(COALESCE(B.[C6_QTDVEN] / NULLIF(C.[B1_CONV],0), 0), 1) AS [EMBAL], " + CRLF
                 cQuery1 += " CASE WHEN B.[C6_BLQ] = 'R' THEN CONCAT(COALESCE(B.[C6_QTDVEN] - B.[C6_QTDENT],''), ' ', COALESCE('C','')) " + CRLF
@@ -219,12 +222,10 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
                 cQuery1 += " ON A.[C5_NUM] = B.[C6_NUM] " + CRLF
                 cQuery1 += " LEFT JOIN " + RETSQLNAME("SB1") + " C " + CRLF
                 cQuery1 += " ON B.[C6_PRODUTO] = C.[B1_COD] " + CRLF
-                cQuery1 += " LEFT JOIN " + RETSQLNAME("SA1") + " D " + CRLF
-                cQuery1 += " ON B.[C6_CLI] = D.[A1_COD] " + CRLF
                 IF !EMPTY(cResult)
-                    cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_XSTEX] = '" + cResult +"'" + CRLF
+                    cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_XSTEX] = '" + cResult +"' AND B.[C6_LOCAL] = '006'" + CRLF
                 ELSE
-                    cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_NUM] BETWEEN '"+ aPedidoDE +"' AND '"+ aPedidoATE +"'" + CRLF
+                    cQuery1 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_NUM] BETWEEN '"+ aPedidoDE +"' AND '"+ aPedidoATE +"' AND B.[C6_LOCAL] = '006'" + CRLF
                 ENDIF        
                 cQuery1 += " ORDER BY A.[C5_NUM] "
                                                      
@@ -251,8 +252,6 @@ STATIC FUNCTION REPORTPRINT(oReport, cAliasCL, cAliasPD, cAliasOB, aResps)
                         cQuery2 := " SELECT ? AS C5_XOBS, " + CRLF
                         cQuery2 += " A.[C5_NUM] " + CRLF
                      	cQuery2 += " FROM " + RETSQLNAME("SC5") + " A " + CRLF
-                        cQuery2 += " LEFT JOIN " + RETSQLNAME("SA1") + " B " + CRLF 
-                        cQuery2 += " ON A.[C5_CLIENTE] = B.[A1_COD] " + CRLF
                         IF !EMPTY(cResult)
                             cQuery2 += " WHERE A.[D_E_L_E_T_] = ' ' AND A.[C5_XSTEX] = '" + cResult +"'" + CRLF
                         ELSE

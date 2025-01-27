@@ -10,8 +10,15 @@
 */
 //----------------------------------------------------------------------------------------------------------------------
 
-USER FUNCTION MT100TOK()
+User Function MT103DRF()
 
-    ALERT("01111")
+  Local aImpRet := {}
+  Local nValor  := 1
+   
+   AADD(aImpRet,{"IRR",nValor,"1708"})
+   AADD(aImpRet,{"PIS",nValor,"1708"})
+   AADD(aImpRet,{"COF",nValor,"1708"})
+   AADD(aImpRet,{"CSL",nValor,"1708"})
 
-RETURN lRet
+Return aImpRet
+
