@@ -10,7 +10,7 @@
 */
 //----------------------------------------------------------------------------------------------------------------------
 
-USER FUNCTION xFILTERDOC()
+USER FUNCTION xFILTERCNPJ()
 
     LOCAL aPergs  := {}
     LOCAL aResps  := {}
