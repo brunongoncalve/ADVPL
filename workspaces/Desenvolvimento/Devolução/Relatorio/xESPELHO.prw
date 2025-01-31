@@ -93,7 +93,7 @@ USER FUNCTION xESPELHO()
     
     cDirFile  := "C:\Protocolo\protocolo_"+ALLTRIM((cAlias)->ZA3_NUM)+".pdf"
     cFile     := "protocolo_"+ALLTRIM((cAlias)->ZA3_NUM)+".pdf"
-    cAssunto  := "TESTE"
+    cAssunto  := "Protocolo de Devolução N° "+ALLTRIM((cAlias)->ZA3_NUM)+""
     cCorpo    := ""
     cCorpo    += " <html> " + CRLF
     cCorpo    += " <head> " + CRLF
@@ -106,9 +106,9 @@ USER FUNCTION xESPELHO()
     cCorpo    += " <br><hr>"
     cCorpo    += " <left> Motivo da Devolução: " +ALLTRIM((cAlias)->ZZW_MOTIVO)+ " </left> " + CRLF
     cCorpo    += " <br><hr>"
-    cCorpo    += " <left> Observação: " +ALLTRIM((cAlias)->ZZW_OBS)+ " </left> " + CRLF
-    cCorpo    += " </body> " + CRLF
-    cCorpo    += " </html> " + CRLF
+    cCorpo    += " <left> Itens Envolvidos: </left> " + CRLF
+    cCorpo    += " <br> " + CRLF
+
     cEmailRep := ALLTRIM((cAlias)->A3_EMAIL)
 
     FWDIRREMOVE("C:\Protocolo",.T.,.T.)
@@ -215,6 +215,8 @@ USER FUNCTION xESPELHO()
         nPag3 := 18
         nHPag := 0
         WHILE (cAlias1)->(!Eof())
+            cCorpo += " <left> Item: " +ALLTRIM((cAlias1)->ZA4_PRODES)+ " - "+ALLTRIM((cAlias1)->ZA4_DESCES)+" - Quantidade: "+STR((cAlias1)->ZA4_QTDESP,6)+"</left> " + CRLF
+            cCorpo += " <br> "
             IF (cAlias)->ZA4_DOCESP == (cAlias1)->ZA4_DOCESP
                 IF nVert1 >= 830
                    oPrinter:STARTPAGE()
@@ -367,8 +369,13 @@ USER FUNCTION xESPELHO()
 
        (cAlias)->(DBSKIP()) 
     ENDDO
+    
+    cCorpo += " <br><hr>"
+    cCorpo += " <left> Observação: " +ALLTRIM((cAlias)->ZZW_OBS)+ " </left> " + CRLF
+    cCorpo += " </body> " + CRLF
+    cCorpo += " </html> " + CRLF 
 
-    (cAlias)->(DBCLOSEAREA()) 
+    (cAlias)->(DBCLOSEAREA())
     
     IF ZZW_STSMER == "ESP"
         FERASE(cDirFile)
