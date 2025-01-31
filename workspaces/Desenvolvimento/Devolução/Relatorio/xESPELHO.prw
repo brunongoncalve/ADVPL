@@ -36,6 +36,7 @@ USER FUNCTION xESPELHO()
 
     cQuery := " SELECT " + CRLF
     cQuery += " A.[ZA3_NUM], " + CRLF
+    cQuery += " C.[ZZW_MOTIVO], " + CRLF
     cQuery += " A.[ZA3_CGCESP], " + CRLF
 	cQuery += " A.[ZA3_NOMEES], " + CRLF
 	cQuery += " A.[ZA3_ENDESP], " + CRLF
@@ -57,7 +58,8 @@ USER FUNCTION xESPELHO()
     cQuery += " WHEN A.[ZA3_ESTESP] = 'SP' THEN SUM(B.[ZA4_PRCESP] * B.[ZA4_QTDESP] + B.[ZA4_VIPIES] + B.[ZA4_ICRETE]) " + CRLF
     cQuery += " WHEN C.[ZZW_ST] = '1' THEN SUM(B.[ZA4_PRCESP] * B.[ZA4_QTDESP] + B.[ZA4_VIPIES] + B.[ZA4_ICRETE]) " + CRLF
     cQuery += " ELSE SUM(B.[ZA4_PRCESP] * B.[ZA4_QTDESP] + B.[ZA4_VIPIES]) " + CRLF
-    cQuery += " END AS [G] " + CRLF
+    cQuery += " END AS [G], " + CRLF
+    cQuery += " C.[ZZW_OBS] " + CRLF
     cQuery += " FROM " + RETSQLNAME("ZA3") + " A " + CRLF
     cQuery += " LEFT JOIN " + RETSQLNAME("ZA4") + " B " + CRLF
     cQuery += " ON A.[ZA3_NUM] = B.[ZA4_NUM] " + CRLF
@@ -67,6 +69,7 @@ USER FUNCTION xESPELHO()
     cQuery += " ON C.[ZZW_VEND] = D.[A3_COD] " + CRLF
     cQuery += " WHERE A.[ZA3_NUM] = '"+nProtoc+"' " + CRLF
     cQuery += " GROUP BY A.[ZA3_NUM], " + CRLF
+    cQuery += " C.[ZZW_MOTIVO], " + CRLF
     cQuery += " A.[ZA3_CGCESP], " + CRLF
 	cQuery += " A.[ZA3_NOMEES], " + CRLF
 	cQuery += " A.[ZA3_ENDESP], " + CRLF
@@ -78,6 +81,7 @@ USER FUNCTION xESPELHO()
     cQuery += " C.[ZZW_VEND], " + CRLF
     cQuery += " D.[A3_EMAIL], " + CRLF
     cQuery += " D.[A3_NOME], " + CRLF
+    cQuery += " C.[ZZW_OBS], " + CRLF
     cQuery += " C.[ZZW_ST] "
 
     cQuery := CHANGEQUERY(cQuery)
@@ -90,7 +94,21 @@ USER FUNCTION xESPELHO()
     cDirFile  := "C:\Protocolo\protocolo_"+ALLTRIM((cAlias)->ZA3_NUM)+".pdf"
     cFile     := "protocolo_"+ALLTRIM((cAlias)->ZA3_NUM)+".pdf"
     cAssunto  := "TESTE"
-    cCorpo    := "TESTE"
+    cCorpo    := ""
+    cCorpo    += " <html> " + CRLF
+    cCorpo    += " <head> " + CRLF
+    cCorpo    += " <title> PROTOCOLO </title> " + CRLF
+    cCorpo    += " </head> " + CRLF
+    cCorpo    += " <body> " + CRLF
+    cCorpo    += " <left> Protocolo: " +ALLTRIM((cAlias)->ZA3_NUM)+ " </left> " + CRLF
+    cCorpo    += " <br><hr>"
+    cCorpo    += " <left> Cliente: " +ALLTRIM((cAlias)->ZA3_CGCESP)+ " - "+ALLTRIM((cAlias)->ZA3_NOMEES)+" </left> " + CRLF
+    cCorpo    += " <br><hr>"
+    cCorpo    += " <left> Motivo da Devolução: " +ALLTRIM((cAlias)->ZZW_MOTIVO)+ " </left> " + CRLF
+    cCorpo    += " <br><hr>"
+    cCorpo    += " <left> Observação: " +ALLTRIM((cAlias)->ZZW_OBS)+ " </left> " + CRLF
+    cCorpo    += " </body> " + CRLF
+    cCorpo    += " </html> " + CRLF
     cEmailRep := ALLTRIM((cAlias)->A3_EMAIL)
 
     FWDIRREMOVE("C:\Protocolo",.T.,.T.)
@@ -104,7 +122,9 @@ USER FUNCTION xESPELHO()
             nBaseST := (cAlias)->C 
             nVlST   := (cAlias)->D
         ENDIF
-        FWMAKEDIR("C:\Protocolo")    
+
+        FWMAKEDIR("C:\Protocolo") 
+
         oPrinter:STARTPAGE()
         oPrinter:BOX(20,5,70,100,"-5")
         oPrinter:SAYBITMAP(28,9,"tmp\logo_novo.png",90,28)
@@ -387,7 +407,7 @@ USER FUNCTION xESPELHO()
         DBUSEAREA(.T.,'TOPCONN',TCGENQRY(,,cQuery3),cAlias3,.F.,.T.)
     
         IF ALLTRIM((cAlias3)->USR_EMAIL) $ cRespEmail
-            oMessage:cTo := ""+ALLTRIM(cRespEmail)+""  /* -- ;"+cEmailRep+""  */
+            oMessage:cTo := ""+ALLTRIM(cRespEmail)+";bruno.goncalves@alumbra.com.br"  /* -- ;"+cEmailRep+""  */
         ELSE
             FWALERTWARNING("Arquivo salvo na pasta seleciona. Usuario sem permissão para enviar e-mail ao representante. Contate o responsavél.","ATENÇÃO !")
             RETURN .F.  
