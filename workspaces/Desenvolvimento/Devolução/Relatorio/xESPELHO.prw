@@ -49,7 +49,7 @@ USER FUNCTION xESPELHO()
     cQuery += " D.[A3_NOME], " + CRLF
     cQuery += " FORMAT(CONVERT(DATE, A.[ZA3_DTEMIS]), 'dd/MM/yyyy') AS [EMISSAO], " + CRLF
     cQuery += " SUM(B.[ZA4_BICMES]) AS [A], " + CRLF
-    cQuery += " ROUND(SUM(CAST(B.[ZA4_QTDESP] * B.[ZA4_PRCESP] * (B.[ZA4_PICMES] / 100) AS DECIMAL(10, 2))),2) AS [B], " + CRLF
+    cQuery += " SUM(B.[ZA4_VICMES]) AS [B], " + CRLF
     cQuery += " SUM(B.[ZA4_BRICES]) AS [C], " + CRLF
     cQuery += " SUM(B.[ZA4_ICRETE]) AS [D], " + CRLF
     cQuery += " SUM(B.[ZA4_QTDESP] * B.[ZA4_PRCESP]) AS [E], " + CRLF
@@ -93,7 +93,7 @@ USER FUNCTION xESPELHO()
     
     cDirFile  := "C:\Protocolo\protocolo_"+ALLTRIM((cAlias)->ZA3_NUM)+".pdf"
     cFile     := "protocolo_"+ALLTRIM((cAlias)->ZA3_NUM)+".pdf"
-    cAssunto  := "Protocolo de Devolução N° "+ALLTRIM((cAlias)->ZA3_NUM)+""
+    cAssunto  := "SAC ALUMBRA - DEVOLUÇÃO / PROTOCOLO N° "+ALLTRIM((cAlias)->ZA3_NUM)+""
     cCorpo    := ""
     cCorpo    += " <html> " + CRLF
     cCorpo    += " <head> " + CRLF
@@ -103,8 +103,6 @@ USER FUNCTION xESPELHO()
     cCorpo    += " <left> Protocolo: " +ALLTRIM((cAlias)->ZA3_NUM)+ " </left> " + CRLF
     cCorpo    += " <br><hr>"
     cCorpo    += " <left> Cliente: " +ALLTRIM((cAlias)->ZA3_CGCESP)+ " - "+ALLTRIM((cAlias)->ZA3_NOMEES)+" </left> " + CRLF
-    cCorpo    += " <br><hr>"
-    cCorpo    += " <left> Motivo da Devolução: " +ALLTRIM((cAlias)->ZZW_MOTIVO)+ " </left> " + CRLF
     cCorpo    += " <br><hr>"
     cCorpo    += " <left> Itens Envolvidos: </left> " + CRLF
     cCorpo    += " <br> " + CRLF
@@ -450,4 +448,5 @@ USER FUNCTION xESPELHO()
     ELSE 
         FWALERTWARNING("É necessario gerar o espelho.","ATENÇÃO !")
     ENDIF
+    
 RETURN

@@ -64,13 +64,13 @@ USER FUNCTION xINSERI()
         cQuery1 += " B.[ZZY_QTD], " + CRLF
         cQuery1 += " C.[D2_PRCVEN], " + CRLF
         cQuery1 += " C.[D2_PRCVEN] * B.[ZZY_QTD] AS [D2_TOTAL], " + CRLF
-        cQuery1 += " ROUND(ROUND((C.[D2_BASEICM] / C.[D2_QUANT]),2) * B.[ZZY_QTD], 2) AS [D2_BASEICM], " + CRLF
-        cQuery1 += " ROUND(ROUND((C.[D2_BASEICM] / C.[D2_QUANT]),2) * B.[ZZY_QTD], 2) * C.[D2_PICM] AS [D2_VALICM], " + CRLF
-        cQuery1 += " C.[D2_PRCVEN] * C.[D2_IPI] AS [D2_VALIPI] , " + CRLF
+        cQuery1 += " ROUND(CAST(C.[D2_BASEICM] / C.[D2_QUANT] * B.[ZZY_QTD] AS DECIMAL(10, 2)),2) AS [D2_BASEICM], " + CRLF
+        cQuery1 += " ROUND(CAST(C.[D2_BASEICM] / C.[D2_QUANT] * B.[ZZY_QTD] * (C.[D2_PICM] / 100) AS DECIMAL(10, 2)),2) AS [D2_VALICM], " + CRLF
+        cQuery1 += " ROUND(CAST(B.[ZZY_QTD] * C.[D2_PRCVEN] * (C.[D2_IPI] / 100) AS DECIMAL(10, 2)),2) AS [D2_VALIPI], " + CRLF
         cQuery1 += " C.[D2_PICM], " + CRLF
 	    cQuery1 += " C.[D2_IPI], " + CRLF
-	    cQuery1 += " C.[D2_BRICMS], " + CRLF
-	    cQuery1 += " C.[D2_ICMSRET], " + CRLF
+	    cQuery1 += " ROUND(ROUND((C.[D2_BRICMS] / C.[D2_QUANT]),2) * B.[ZZY_QTD],2) AS [D2_BRICMS], " + CRLF
+	    cQuery1 += " ROUND(ROUND((C.[D2_ICMSRET] - C.[D2_VFECPST]) / C.[D2_QUANT],2) * B.[ZZY_QTD], 2) AS [D2_ICMSRET], " + CRLF
 	    cQuery1 += " C.[D2_MARGEM], " + CRLF
         cQuery1 += " F.[F2_SERIE], " + CRLF
         cQuery1 += " F.[F2_DOC], " + CRLF
@@ -135,4 +135,5 @@ USER FUNCTION xINSERI()
     END TRANSACTION    
 
     (cAlias1)->(DBCLOSEAREA())
+    
 RETURN
