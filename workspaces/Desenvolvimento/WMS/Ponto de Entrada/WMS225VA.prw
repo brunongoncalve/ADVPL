@@ -40,7 +40,7 @@ USER FUNCTION WMS225VA()
                 cCorpo   += " <br> " + CRLF
                 cCorpo   += " <left> Item: "+ALLTRIM(oModelSel:GETVALUE("CODPRO",nI))+" </left> " + CRLF
                 cCorpo   += " <br>" + CRLF
-                cCorpo   += " <left> Quantidade: "+TRANSFORM(oModelSel:GETVALUE("QUANT",nI),"@E 999,999,999.99")+" </left> " + CRLF
+                cCorpo   += " <left> Quantidade: "+STR(oModelSel:GETVALUE("QUANT",nI),2)+" </left> " + CRLF
                 cCorpo   += " </body> " + CRLF
                 cCorpo   += " </html> " + CRLF
 
