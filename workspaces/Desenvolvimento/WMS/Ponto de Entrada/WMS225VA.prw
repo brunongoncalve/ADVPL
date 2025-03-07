@@ -19,11 +19,12 @@ USER FUNCTION WMS225VA()
     PRIVATE cServEmail  := GETMV("AL_SERVEMA")
     PRIVATE cLoginEmail := GETMV("AL_LOGINEM")
     PRIVATE cPassEmail  := GETMV("AL_PASSEMA")
+    PRIVATE cTo         := GETMV("AL_EMATNC")
     
     FOR nI := 1 TO oModelSel:LENGTH()
         IF !oModelSel:ISDELETED(nI)
             IF oModelSel:GETVALUE("LOCDES",nI) == "CFQ"
-                cAssunto := "TESTE | CONTROLE DE MATERIAL NC - CODIGO: "+ALLTRIM(oModelSel:GETVALUE("CODPRO",nI))+""
+                cAssunto := "ALUMBRA | CONTROLE DE MATERIAL NC - CODIGO: "+ALLTRIM(oModelSel:GETVALUE("CODPRO",nI))+""
                 cCorpo   := ""
                 cCorpo   += " <html> " + CRLF
                 cCorpo   += " <head> " + CRLF
@@ -40,7 +41,9 @@ USER FUNCTION WMS225VA()
                 cCorpo   += " <br> " + CRLF
                 cCorpo   += " <left> Item: "+ALLTRIM(oModelSel:GETVALUE("CODPRO",nI))+" </left> " + CRLF
                 cCorpo   += " <br>" + CRLF
-                cCorpo   += " <left> Quantidade: "+STR(oModelSel:GETVALUE("QUANT",nI),2)+" </left> " + CRLF
+                cCorpo   += " <left> Endereço Destino: "+ALLTRIM(oModelSel:GETVALUE("ENDDES",nI))+" </left> " + CRLF
+                cCorpo   += " <br>" + CRLF
+                cCorpo   += " <left> Quantidade: "+TRANSFORM(oModelSel:GETVALUE("QUANT",nI),"@E 999,999,999.99")+" </left> " + CRLF
                 cCorpo   += " </body> " + CRLF
                 cCorpo   += " </html> " + CRLF
 
@@ -63,8 +66,16 @@ USER FUNCTION WMS225VA()
                 oMessage:CLEAR()
                 oMessage:cDate    := CVALTOCHAR(DATE())
 	            oMessage:cFrom    := cLoginEmail
-                oMessage:cTo      := "bruno.goncalves@alumbra.com.br;joaquim@alumbra.com.br"
-	            oMessage:cSubject := ALLTRIM(cAssunto)
+                IF oModelSel:GETVALUE("ENDDES",nI) <> "CQNC"
+                    oMessage:cTo := ALLTRIM(cTo)
+                ELSE
+                    oMessage:cTo := "joaquim@alumbra.com.br"
+                ENDIF
+                IF oModelSel:GETVALUE("ENDDES",nI) <> "CQNC"
+                    oMessage:cSubject := ALLTRIM(cAssunto)
+                ELSE
+                    oMessage:cSubject := "ALUMBRA | CONTROLE DE MATERIAL NC (CQNC) - CODIGO: "+ALLTRIM(oModelSel:GETVALUE("CODPRO",nI))+""
+                ENDIF
 	            oMessage:cBody 	  := ALLTRIM(cCorpo)
 
                 IF oMessage:SEND(oMailServ) != 0
