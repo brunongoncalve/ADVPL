@@ -11,7 +11,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 
 USER FUNCTION WMS225VA()
-    // CRIAR UM PARAMETRO PARA VINCULAR TODOS OS RESPONSAVEIS PARA O ENVIO DE E-MAIL
+    
     LOCAL oModel        := ParamIxb[1]
     LOCAL oModelSel     := oModel:GETMODEL("SELECAO")
     LOCAL oModelMaster  := oModel:GETMODEL("DCFMASTER")
