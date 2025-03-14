@@ -11,7 +11,7 @@ RELATORIO - ESPELHO DE DEVOLUÇÃO
 */
 //----------------------------------------------------------------------------------------------------------------------
 
-USER FUNCTION xTESTE()
+USER FUNCTION xESPTESTE()
 
     LOCAL oReport := NIL
     LOCAL aPergs  := {}

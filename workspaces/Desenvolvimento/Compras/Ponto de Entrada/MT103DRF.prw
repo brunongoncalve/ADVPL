@@ -11,7 +11,7 @@
 USER FUNCTION MT103DRF()
 
     LOCAL aImpRet := {}
-    Local nValor  := 1
+    LOCAL nValor  := 1
 
     AADD(aImpRet,{"IRR",nValor,"1708"})
     AADD(aImpRet,{"PIS",nValor,"5952"})

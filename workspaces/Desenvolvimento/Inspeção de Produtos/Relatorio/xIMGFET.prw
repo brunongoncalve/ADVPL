@@ -10,7 +10,7 @@ RELATORIO - EFAZ SALDO A CLASSIFICAR
 */
 //----------------------------------------------------------------------------------------------------------------------
 
-USER FUNCTION IMGFET()
+USER FUNCTION xIMGFET()
 
     LOCAL aPergs := {}
     LOCAL aResps := {}
@@ -41,8 +41,7 @@ STATIC FUNCTION REPORTDEF(aResps)
 
     oReport := TREPORT():NEW(cNomeArq,cTitulo,"",{|oReport| REPORTPRINT(oReport,@cAlias,aResps)}, "IMPRESSÃO DE RELATORIO")
 
-    TRCELL():NEW(oSection1, "A1_COD",      cAlias,  "COD.CLI"       ,,nSize,,{|| (cAliasCL)->A1_COD},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
-
+    TRCELL():NEW(oSection1,"A1_COD",cAlias,"COD.CLI",,nSize,,{|| (cAliasCL)->A1_COD},cAlign,lLineBreak,cHeaderAlign,,nColSpace,lAutoSize)
 
 RETURN oReport
 
@@ -75,7 +74,6 @@ STATIC FUNCTION REPORTPRINT(oReport, cAlias, aResps)
         oSection1:PRINTLINE()
         oSection1:SETPAGEBREAK(.T.)
         
-    
         (cAlias)->(DBSKIP())
         oSection1:FINISH()
     ENDDO

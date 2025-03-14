@@ -27,10 +27,10 @@ USER FUNCTION xTCOBRAN()
         AADD(aPergs, {1, "DATA ATE",STOD(""),,,,, 100, .F.})
     ENDIF 
 
-        IF PARAMBOX(aPergs, "Parametros do relatorio", @aResps,,,,,,,, .T., .T.)
-            oReport := REPORTDEF(aResps)
-            oReport:PRINTDIALOG()
-        ENDIF
+    IF PARAMBOX(aPergs, "Parametros do relatorio", @aResps,,,,,,,, .T., .T.)
+        oReport := REPORTDEF(aResps)
+        oReport:PRINTDIALOG()
+    ENDIF
 
 RETURN 
 
