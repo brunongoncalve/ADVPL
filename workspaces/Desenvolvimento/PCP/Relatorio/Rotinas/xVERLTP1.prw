@@ -12,10 +12,10 @@ VERIFICAÇÃO DA PORTA LTP1 DA PESAGEM
 
 USER FUNCTION xVERLTP1()
 
-    LOCAL cAcao := "Open"
-    LOCAL cArquivo := "zd220.bat"
+    LOCAL cAcao        := "Open"
+    LOCAL cArquivo     := "zd220.bat"
     LOCAL cDirTrabalho := "C:\IMP_ZD220"
-    LOCAL nOpc := 0
+    LOCAL nOpc         := 0
 
     SHELLEXECUTE(cAcao,cArquivo,"",cDirTrabalho,nOpc)
 
