@@ -16,7 +16,16 @@ USER FUNCTION xVERLTP1()
     LOCAL cArquivo     := "zd220.bat"
     LOCAL cDirTrabalho := "C:\IMP_ZD220"
     LOCAL nOpc         := 0
+    LOCAL lExiste      := .F.
+    
+    lExiste := ExistDir(cDirTrabalho)
 
-    SHELLEXECUTE(cAcao,cArquivo,"",cDirTrabalho,nOpc)
-
+    IF lExiste 
+        SHELLEXECUTE(cAcao,cArquivo,"",cDirTrabalho,nOpc)
+        U_ALU10681()
+    ELSE
+        FWALERTWARNING("Impressora nao disponivél. Favor abrir uma solicitação de serviço para o departamento de T.I","ATENÇÃO !")
+        RETURN .F.    
+    ENDIF
+    
 RETURN
